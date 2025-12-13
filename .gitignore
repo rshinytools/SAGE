@@ -133,3 +133,22 @@ coverage.xml
 *.key
 credentials.json
 secrets.json
+
+# Zip files and downloaded templates
+*.zip
+tailadmin-*/
+
+# Screenshots and assets
+screenshots/
+
+# CDISC raw files (large)
+CDISC/
+
+# Trash/temp folders
+trash/
+
+# Windows artifacts
+nul
+
+# Start scripts (local config)
+start.ps1
