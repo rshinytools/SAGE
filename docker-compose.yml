@@ -1,0 +1,215 @@
+# SAGE - Study Analytics Generative Engine
+# Docker Compose Configuration
+# ================================
+# One-click deployment for all platform services
+
+services:
+  # ============================================
+  # NGINX - API Gateway
+  # ============================================
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: sage-nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    depends_on:
+      - api
+      - admin-ui-react
+      - docs
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  # ============================================
+  # LLM ENGINE - Ollama
+  # ============================================
+  # GPU Mode: Set ENABLE_GPU=true in .env for NVIDIA GPU support
+  # CPU Mode: Default for AMD/Intel (no GPU acceleration)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sage-ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-2}
+      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  # ============================================
+  # ADMIN PANEL - React (Unified UI with Chat)
+  # ============================================
+  admin-ui-react:
+    build:
+      context: ./docker/admin-ui-react
+      dockerfile: Dockerfile
+    container_name: sage-admin-react
+    ports:
+      - "${ADMIN_UI_PORT:-3001}:80"
+    environment:
+      - VITE_API_URL=/api/v1
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  # ============================================
+  # API SERVICE - FastAPI
+  # ============================================
+  api:
+    build:
+      context: ./docker/api
+      dockerfile: Dockerfile
+    container_name: sage-api
+    ports:
+      - "${API_PORT:-8002}:8000"
+    volumes:
+      - ./knowledge:/app/knowledge
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./tracker:/app/tracker
+      - ./core:/app/core:ro
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - DUCKDB_PATH=/app/data/database/clinical.duckdb
+      - DATA_DIR=/app/data
+      - KNOWLEDGE_DIR=/app/knowledge
+      - CHROMA_HOST=chromadb
+      - AUTH_PROVIDER=${AUTH_PROVIDER:-local}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-sage2024}
+      - SECRET_KEY=${SECRET_KEY:-sage-secret-key-change-in-production}
+    depends_on:
+      - ollama
+      - chromadb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  # ============================================
+  # DOCUMENTATION - MkDocs
+  # ============================================
+  docs:
+    build:
+      context: ./docker/docs
+      dockerfile: Dockerfile
+    container_name: sage-docs
+    ports:
+      - "${DOCS_PORT:-8080}:8080"
+    volumes:
+      - ./docs:/docs:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  # ============================================
+  # VECTOR DATABASE - ChromaDB
+  # ============================================
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: sage-chroma
+    ports:
+      - "${CHROMADB_PORT:-8001}:8000"
+    volumes:
+      - ./knowledge/chroma:/chroma/chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=false
+      - ALLOW_RESET=true
+      - IS_PERSISTENT=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  # ============================================
+  # MONITORING - Prometheus
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sage-prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  # ============================================
+  # MONITORING - Grafana
+  # ============================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sage-grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  sage-network:
+    driver: bridge
+    name: sage-network
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  ollama_data:
+    name: sage-ollama-data
+  prometheus_data:
+    name: sage-prometheus-data
+  grafana_data:
+    name: sage-grafana-data

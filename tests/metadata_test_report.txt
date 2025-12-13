@@ -1,0 +1,167 @@
+================================================================================
+SAGE METADATA SYSTEM - PYTEST REPORT
+================================================================================
+Generated: 2024-12-10
+Platform: Windows-11-10.0.26100-SP0
+Python: 3.13.2
+Pytest: 8.3.5
+
+================================================================================
+SUMMARY
+================================================================================
+Total Tests: 65
+Passed: 65
+Failed: 0
+Skipped: 0
+Duration: 0.81s
+
+Status: ALL TESTS PASSED
+
+================================================================================
+TEST CATEGORIES
+================================================================================
+
+1. CORE MODULE IMPORTS (8 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_import_excel_parser: PASSED
+   - test_import_codelist_merger: PASSED
+   - test_import_version_control: PASSED
+   - test_import_metadata_store: PASSED
+   - test_import_llm_drafter: PASSED
+   - test_import_cdisc_library: PASSED
+   - test_import_auto_approval: PASSED
+   - test_import_initialize_functions: PASSED
+
+2. FILE EXISTENCE (6 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_golden_metadata_exists: PASSED
+   - test_cdisc_library_exists: PASSED
+   - test_metadata_versions_exists: PASSED
+   - test_excel_parser_module_exists: PASSED
+   - test_cdisc_library_module_exists: PASSED
+   - test_auto_approval_module_exists: PASSED
+
+3. METADATA STORE (9 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_store_initialization: PASSED
+   - test_get_all_domains: PASSED (53 domains)
+   - test_get_all_variables: PASSED (3478 variables)
+   - test_get_all_codelists: PASSED (69 codelists)
+   - test_domain_has_required_fields: PASSED
+   - test_variable_has_required_fields: PASSED
+   - test_approval_status_types: PASSED
+   - test_get_statistics: PASSED
+   - test_search_functionality: PASSED
+
+4. CDISC LIBRARY (9 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_library_initialization: PASSED
+   - test_get_statistics: PASSED (66 domains, 2352 variables)
+   - test_sdtm_domains_count: PASSED (63 SDTM domains)
+   - test_adam_domains_count: PASSED (3 ADaM domains)
+   - test_sdtm_variables_count: PASSED (1917 SDTM variables)
+   - test_adam_variables_count: PASSED (435 ADaM variables)
+   - test_get_all_domains: PASSED
+   - test_get_domain_variables: PASSED
+   - test_search_variables: PASSED
+
+5. VARIABLE MATCHING (9 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_exact_domain_match_studyid: PASSED (100% confidence)
+   - test_exact_domain_match_usubjid: PASSED (100% confidence)
+   - test_exact_domain_match_aeterm: PASSED (100% confidence)
+   - test_exact_domain_match_aestdtc: PASSED (100% confidence)
+   - test_adam_variable_match: PASSED (100% confidence)
+   - test_custom_variable_no_match: PASSED (correctly rejected)
+   - test_unknown_variable_no_match: PASSED (0% confidence)
+   - test_sequence_variable_match: PASSED (75%+ confidence)
+   - test_date_variable_match: PASSED (75%+ confidence)
+
+6. AUTO-APPROVAL ENGINE (6 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_engine_initialization: PASSED
+   - test_analyze_standard_variable: PASSED (auto_approved at 100%)
+   - test_analyze_custom_variable: PASSED (manual_review at 25%)
+   - test_analyze_batch: PASSED (3+ auto-approved, 1 manual)
+   - test_batch_processing_time: PASSED (100 vars in <5s)
+   - test_approval_thresholds: PASSED
+
+7. EXCEL PARSER (6 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_parser_initialization: PASSED
+   - test_variable_column_map_exists: PASSED
+   - test_domain_sheet_patterns_exist: PASSED
+   - test_skip_sheet_patterns_exist: PASSED
+   - test_codelist_sheet_patterns_exist: PASSED
+   - test_variable_spec_dataclass: PASSED
+
+8. VERSION CONTROL (3 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_version_control_initialization: PASSED
+   - test_get_latest_version: PASSED
+   - test_get_versions: PASSED
+
+9. INTEGRATION TESTS (4 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_store_and_library_integration: PASSED
+   - test_variable_matching_with_store_data: PASSED
+   - test_auto_approval_with_store_data: PASSED
+   - test_complete_workflow: PASSED
+
+10. DATA VALIDATION (5 tests) - ALL PASSED
+--------------------------------------------------------------------------------
+   - test_no_empty_domain_names: PASSED
+   - test_no_empty_variable_names: PASSED
+   - test_variables_have_domains: PASSED
+   - test_domain_variable_counts: PASSED
+   - test_approval_status_consistency: PASSED
+
+================================================================================
+SYSTEM METRICS
+================================================================================
+
+GOLDEN METADATA STORE:
+  - Domains: 53
+  - Variables: 3478
+  - Codelists: 69
+  - Approved: 1
+  - Pending: 3476
+  - Rejected: 1
+
+CDISC LIBRARY:
+  - Total Domains: 66
+  - Total Variables: 2352
+  - SDTM IG v3.4: 63 domains, 1917 variables
+  - ADaM IG v1.3: 3 domains, 435 variables
+
+AUTO-APPROVAL RESULTS (Full Dataset):
+  - Total Pending: 3476
+  - Auto-Approved: 1908 (54.9%)
+  - Quick Review: 216
+  - Manual Review: 1352
+  - Processing Time: ~81s
+
+================================================================================
+TESTED COMPONENTS
+================================================================================
+
+Factory 2 - Metadata Refinery:
+  [x] ExcelParser - Parse Excel specifications
+  [x] CodelistMerger - Link codelists to variables
+  [x] LLMDrafter/TemplateDrafter - Generate descriptions
+  [x] MetadataStore - Store and manage golden metadata
+  [x] VersionControl - Track changes and versions
+
+Factory 2.5 - CDISC Standards Library:
+  [x] CDISCLibrary - CDISC standards database
+  [x] Variable Matching - 5-tier confidence matching
+  [x] AutoApprovalEngine - Automatic approval workflow
+
+Data Files:
+  [x] knowledge/golden_metadata.json
+  [x] knowledge/cdisc_library.db
+  [x] knowledge/metadata_versions.db
+
+================================================================================
+END OF REPORT
+================================================================================

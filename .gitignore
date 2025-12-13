@@ -1,0 +1,135 @@
+# SAGE - Git Ignore File
+# ======================
+
+# Data Files - NEVER commit clinical data
+*.sas7bdat
+*.xpt
+*.parquet
+*.csv
+data/raw/
+data/processed/
+data/uploads/
+data/database/*.duckdb
+data/database/*.db
+
+# But keep the directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/uploads/.gitkeep
+!data/database/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+venv/
+ENV/
+env/
+.env.local
+
+# Keep .env.example but ignore actual .env
+.env
+!.env.example
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node.js (Admin UI React)
+node_modules/
+docker/admin-ui-react/node_modules/
+docker/admin-ui-react/dist/
+docker/admin-ui-react/.vite/
+
+# Knowledge files that are generated (keep templates)
+knowledge/fuzzy_index.pkl
+knowledge/dictionary_status.json
+knowledge/meddra_status.json
+knowledge/chroma/
+
+# But keep important knowledge files
+!knowledge/golden_metadata.json
+!knowledge/schema_map.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+tracker/project_tracker.db
+
+# But keep MedDRA and CDISC libraries if they exist as templates
+!knowledge/meddra_library.db
+!knowledge/cdisc_library.db
+
+# Docker
+docker/ollama/models/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Test coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Secrets and credentials
+*.pem
+*.key
+credentials.json
+secrets.json

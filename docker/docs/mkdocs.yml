@@ -1,0 +1,108 @@
+# SAGE Documentation Configuration
+# MkDocs with Material Theme
+# ===========================
+
+site_name: SAGE Documentation
+site_description: Study Analytics Generative Engine - Clinical Data AI Platform
+site_author: SAGE Team
+site_url: http://localhost:8080
+
+# Theme Configuration
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - git-revision-date-localized:
+      enable_creation_date: true
+      fallback_to_build_date: true
+
+# Markdown Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+# Navigation
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Configuration: getting-started/configuration.md
+    - First Query: getting-started/first-query.md
+  - User Guide:
+    - Chat Interface: user-guide/chat-interface.md
+    - Asking Questions: user-guide/asking-questions.md
+    - Understanding Results: user-guide/understanding-results.md
+    - Confidence Scores: user-guide/confidence-scores.md
+  - Admin Guide:
+    - User Management: admin-guide/user-management.md
+    - Metadata Management: admin-guide/metadata-management.md
+    - Data Loading: admin-guide/data-loading.md
+    - System Configuration: admin-guide/system-configuration.md
+  - Technical:
+    - Architecture: technical/architecture.md
+    - Data Flow: technical/data-flow.md
+    - Four Factories: technical/four-factories.md
+    - Fuzzy Matching: technical/fuzzy-matching.md
+    - Confidence Scoring: technical/confidence-scoring.md
+  - Compliance:
+    - Validation Summary: compliance/validation-summary.md
+    - Data Integrity: compliance/data-integrity.md
+    - Audit Trail: compliance/audit-trail.md
+    - Access Controls: compliance/access-controls.md
+  - API Reference:
+    - Endpoints: api-reference/endpoints.md
+    - Data Models: api-reference/data-models.md
+
+# Extra
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/solid/book
+      link: /compliance/validation-summary/
+
+# Copyright
+copyright: Copyright &copy; 2024 SAGE Team

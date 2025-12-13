@@ -1,0 +1,4371 @@
+{
+  "columns": {
+    "STUDYID": {
+      "name": "STUDYID",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "AE",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": true,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": [
+        "DEMO101"
+      ]
+    },
+    "USUBJID": {
+      "name": "USUBJID",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "AE",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": true,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 339,
+      "sample_values": [
+        "DEMO101-10050003",
+        "DEMO101-10070009",
+        "DEMO101-10100001",
+        "DEMO101-10220009",
+        "DEMO101-10260012"
+      ]
+    },
+    "SUBJID": {
+      "name": "SUBJID",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": true,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 339,
+      "sample_values": [
+        "10010001",
+        "10010010",
+        "10010012",
+        "10010016",
+        "10010036"
+      ]
+    },
+    "SITEID": {
+      "name": "SITEID",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": true,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 92,
+      "sample_values": [
+        "1026",
+        "1036",
+        "1047",
+        "1062",
+        "5302"
+      ]
+    },
+    "RFICDT": {
+      "name": "RFICDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 222,
+      "sample_values": []
+    },
+    "BRTHDTC": {
+      "name": "BRTHDTC",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 323,
+      "sample_values": [
+        "1955-03-06",
+        "1964-07-21",
+        "1957-02-19",
+        "1967-06-25",
+        "1963-05-19"
+      ]
+    },
+    "AGE": {
+      "name": "AGE",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 45,
+      "sample_values": []
+    },
+    "AGEU": {
+      "name": "AGEU",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": [
+        "YEARS"
+      ]
+    },
+    "AGEGR1": {
+      "name": "AGEGR1",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "<65",
+        ">=65"
+      ]
+    },
+    "AGEGR1N": {
+      "name": "AGEGR1N",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": []
+    },
+    "AGEGR2": {
+      "name": "AGEGR2",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "<75",
+        ">=75"
+      ]
+    },
+    "AGEGR2N": {
+      "name": "AGEGR2N",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": []
+    },
+    "SEX": {
+      "name": "SEX",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "F",
+        "M"
+      ]
+    },
+    "RACE": {
+      "name": "RACE",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "WHITE",
+        "NOT REPORTED",
+        "BLACK OR AFRICAN AMERICAN",
+        "UNKNOWN",
+        "OTHER"
+      ]
+    },
+    "ETHNIC": {
+      "name": "ETHNIC",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "HISPANIC OR LATINO",
+        "UNKNOWN",
+        "NOT HISPANIC OR LATINO",
+        "NOT REPORTED"
+      ]
+    },
+    "COUNTRY": {
+      "name": "COUNTRY",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "CAN",
+        "ESP",
+        "ITA",
+        "FRA",
+        "CHN"
+      ]
+    },
+    "REGION": {
+      "name": "REGION",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "Asia",
+        "Europe",
+        "North America"
+      ]
+    },
+    "REGIONN": {
+      "name": "REGIONN",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": []
+    },
+    "BMIWRS": {
+      "name": "BMIWRS",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "No",
+        "Yes"
+      ]
+    },
+    "WEIGHTBL": {
+      "name": "WEIGHTBL",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 127,
+      "sample_values": []
+    },
+    "HEIGHTBL": {
+      "name": "HEIGHTBL",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 66,
+      "sample_values": []
+    },
+    "BMIBL": {
+      "name": "BMIBL",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 216,
+      "sample_values": []
+    },
+    "ENRLFL": {
+      "name": "ENRLFL",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "RANDFL": {
+      "name": "RANDFL",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "RANDDT": {
+      "name": "RANDDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 167,
+      "sample_values": []
+    },
+    "SAFFL": {
+      "name": "SAFFL",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "ITTFL": {
+      "name": "ITTFL",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "ARM": {
+      "name": "ARM",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Treatment B"
+      ]
+    },
+    "ACTARM": {
+      "name": "ACTARM",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Treatment B"
+      ]
+    },
+    "TRTSDT": {
+      "name": "TRTSDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 160,
+      "sample_values": []
+    },
+    "TRTSTM": {
+      "name": "TRTSTM",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "TIME",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 176,
+      "sample_values": []
+    },
+    "TRTSDTM": {
+      "name": "TRTSDTM",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "TIMESTAMP WITH TIME ZONE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 232,
+      "sample_values": []
+    },
+    "TRTEDT": {
+      "name": "TRTEDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 180,
+      "sample_values": []
+    },
+    "TRTETM": {
+      "name": "TRTETM",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "TIME",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 193,
+      "sample_values": []
+    },
+    "TRTEDTM": {
+      "name": "TRTEDTM",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "TIMESTAMP WITH TIME ZONE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 232,
+      "sample_values": []
+    },
+    "EOTDT": {
+      "name": "EOTDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 175,
+      "sample_values": []
+    },
+    "EOTSTT": {
+      "name": "EOTSTT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "DISCONTINUED",
+        "COMPLETED",
+        "ONGOING"
+      ]
+    },
+    "EOSDT": {
+      "name": "EOSDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 151,
+      "sample_values": []
+    },
+    "EOSSTT": {
+      "name": "EOSSTT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "ONGOING",
+        "DISCONTINUED"
+      ]
+    },
+    "NEWATDT": {
+      "name": "NEWATDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 121,
+      "sample_values": []
+    },
+    "LSALVDT": {
+      "name": "LSALVDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 171,
+      "sample_values": []
+    },
+    "DTHFL": {
+      "name": "DTHFL",
+      "tables": [
+        "ADAE",
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "DTHDT": {
+      "name": "DTHDT",
+      "tables": [
+        "ADAE",
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 140,
+      "sample_values": []
+    },
+    "TRTP": {
+      "name": "TRTP",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "Treatment A",
+        "Treatment B"
+      ]
+    },
+    "TRTA": {
+      "name": "TRTA",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Treatment B"
+      ]
+    },
+    "TRTPN": {
+      "name": "TRTPN",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": []
+    },
+    "TRTAN": {
+      "name": "TRTAN",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": []
+    },
+    "AESEQ": {
+      "name": "AESEQ",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": true,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 89,
+      "sample_values": []
+    },
+    "AESPID": {
+      "name": "AESPID",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 95,
+      "sample_values": [
+        "10",
+        "54",
+        "91",
+        "71",
+        "87"
+      ]
+    },
+    "AETERM": {
+      "name": "AETERM",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1124,
+      "sample_values": [
+        "LARYNX IRRITATION",
+        "NEUTROPHIL COUNTS DECREASED",
+        "LEFT AXIS DEVIATION",
+        "UPPER RESPIRATORY INFECTION",
+        "DIABETES"
+      ]
+    },
+    "AESOC": {
+      "name": "AESOC",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 24,
+      "sample_values": [
+        "Investigations",
+        "Respiratory, thoracic and mediastinal disorders",
+        "Vascular disorders",
+        "Injury, poisoning and procedural complications",
+        "Blood and lymphatic system disorders"
+      ]
+    },
+    "AESOCCD": {
+      "name": "AESOCCD",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 23,
+      "sample_values": []
+    },
+    "AEBODSYS": {
+      "name": "AEBODSYS",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 24,
+      "sample_values": [
+        "Blood and lymphatic system disorders",
+        "Investigations",
+        "Respiratory, thoracic and mediastinal disorders",
+        "Vascular disorders",
+        "Injury, poisoning and procedural complications"
+      ]
+    },
+    "AEBDSYCD": {
+      "name": "AEBDSYCD",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 23,
+      "sample_values": []
+    },
+    "AELLT": {
+      "name": "AELLT",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 746,
+      "sample_values": [
+        "ECG counterclockwise rotation",
+        "Hypothyroidism",
+        "Hypertension",
+        "Sinus tachycardia",
+        "Diarrhea"
+      ]
+    },
+    "AELLTCD": {
+      "name": "AELLTCD",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 745,
+      "sample_values": []
+    },
+    "AEHLT": {
+      "name": "AEHLT",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 251,
+      "sample_values": [
+        "Herpes viral infections",
+        "Upper respiratory tract infections",
+        "Potassium imbalance",
+        "Hepatic enzymes and function abnormalities",
+        "Heart rate and pulse investigations"
+      ]
+    },
+    "AEHLTCD": {
+      "name": "AEHLTCD",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 250,
+      "sample_values": []
+    },
+    "AEHLGT": {
+      "name": "AEHLGT",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 125,
+      "sample_values": [
+        "Injuries NEC",
+        "Procedural related injuries and complications NEC",
+        "Pleural disorders",
+        "Gastrointestinal investigations",
+        "Anaemias nonhaemolytic and marrow depression"
+      ]
+    },
+    "AEHLGTCD": {
+      "name": "AEHLGTCD",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 124,
+      "sample_values": []
+    },
+    "AEDECOD": {
+      "name": "AEDECOD",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 475,
+      "sample_values": [
+        "Dysphoria",
+        "Hypoproteinaemia",
+        "Pneumonitis",
+        "Hypokalaemia",
+        "Prostatic calcification"
+      ]
+    },
+    "AESTDTC": {
+      "name": "AESTDTC",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1214,
+      "sample_values": [
+        "2022-04-19",
+        "2022-01-14",
+        "2022-03-14",
+        "2022-05-25",
+        "2022-05-09T09:57"
+      ]
+    },
+    "AEENDTC": {
+      "name": "AEENDTC",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 996,
+      "sample_values": [
+        "2023-03",
+        "2022-07-03",
+        "2023-07-21",
+        "2022-08-22",
+        "2023-01"
+      ]
+    },
+    "ASTDT": {
+      "name": "ASTDT",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 882,
+      "sample_values": []
+    },
+    "AENDT": {
+      "name": "AENDT",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 787,
+      "sample_values": []
+    },
+    "ASTDTF": {
+      "name": "ASTDTF",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "D",
+        "M"
+      ]
+    },
+    "AENDTF": {
+      "name": "AENDTF",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "M",
+        "D"
+      ]
+    },
+    "ASTDTM": {
+      "name": "ASTDTM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "TIMESTAMP WITH TIME ZONE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 339,
+      "sample_values": []
+    },
+    "AENDTM": {
+      "name": "AENDTM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "TIMESTAMP WITH TIME ZONE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 216,
+      "sample_values": []
+    },
+    "SAEDTC": {
+      "name": "SAEDTC",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 131,
+      "sample_values": [
+        "2022-06-20",
+        "2022-06-15",
+        "2022-12-08",
+        "2024-07-17"
+      ]
+    },
+    "AESER": {
+      "name": "AESER",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "AETOXGR": {
+      "name": "AETOXGR",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ]
+    },
+    "AETOXGRN": {
+      "name": "AETOXGRN",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": []
+    },
+    "AETOXGR1": {
+      "name": "AETOXGR1",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "3",
+        "5",
+        "2",
+        "1"
+      ]
+    },
+    "AETOXGR2": {
+      "name": "AETOXGR2",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    "AETOXGR3": {
+      "name": "AETOXGR3",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "3",
+        "2",
+        "1"
+      ]
+    },
+    "AETOXGR4": {
+      "name": "AETOXGR4",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "1",
+        "2"
+      ]
+    },
+    "ATOXGR": {
+      "name": "ATOXGR",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "5",
+        "3",
+        ".",
+        "2",
+        "4"
+      ]
+    },
+    "ATOXGRN": {
+      "name": "ATOXGRN",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": []
+    },
+    "AEREL": {
+      "name": "AEREL",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "UNLIKELY RELATED",
+        "NOT RELATED",
+        "POSSIBLY RELATED",
+        "PROBABLY RELATED",
+        "DEFINITELY RELATED"
+      ]
+    },
+    "AERELP": {
+      "name": "AERELP",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "UNLIKELY RELATED",
+        "POSSIBLY RELATED",
+        "NOT RELATED",
+        "PROBABLY RELATED",
+        "DEFINITELY RELATED"
+      ]
+    },
+    "AERELC": {
+      "name": "AERELC",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "UNLIKELY RELATED",
+        "NOT RELATED",
+        "POSSIBLY RELATED",
+        "DEFINITELY RELATED",
+        "PROBABLY RELATED"
+      ]
+    },
+    "AEOUT": {
+      "name": "AEOUT",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "NOT RECOVERED/NOT RESOLVED",
+        "RECOVERED/RESOLVED WITH SEQUELAE",
+        "RECOVERING/RESOLVING",
+        "FATAL"
+      ]
+    },
+    "AEACN": {
+      "name": "AEACN",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "TREATMENT CYCLE DELAYED",
+        "DOSE NOT CHANGED",
+        "DRUG INTERRUPTED",
+        "NOT APPLICABLE"
+      ]
+    },
+    "AEACN1": {
+      "name": "AEACN1",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "TREATMENT CYCLE DELAYED",
+        "DOSE REDUCED",
+        "NOT APPLICABLE",
+        "DRUG INTERRUPTED"
+      ]
+    },
+    "AEACN2": {
+      "name": "AEACN2",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "DOSE NOT CHANGED",
+        "DOSE REDUCED",
+        "TREATMENT CYCLE DELAYED",
+        "DRUG INTERRUPTED"
+      ]
+    },
+    "AEACNOTH": {
+      "name": "AEACNOTH",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "Non-Drug Treatment",
+        "Hospitalization or Prolonged",
+        "Other",
+        "None"
+      ]
+    },
+    "AEACNO1": {
+      "name": "AEACNO1",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AEACNO2": {
+      "name": "AEACNO2",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AEACNO3": {
+      "name": "AEACNO3",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AEACNO4": {
+      "name": "AEACNO4",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AEACNOSP": {
+      "name": "AEACNOSP",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 39,
+      "sample_values": [
+        "NUTRITIONAL LIQUID, ANALGESIA, ACID INHIBITION AND STOMACH PROTECTION, PLATELET WHITENING, LEUKAEMIA AND OTHER TREATMENTS. THE SPECIFIC DRUG NAME, DOSE AND FREQUENCY ARE UNKNOWN",
+        "THE NAME AND DOSAGE OF THE DRUG WERE NOT AVAILABLE",
+        "ODONTOLOGY APPOINTMENT",
+        "PATIENTS HAVE NOT PROVIDED MEDICATION SPECIFICS",
+        "REDUCE INFUSION RATE"
+      ]
+    },
+    "AEGRACN1": {
+      "name": "AEGRACN1",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "TREATMENT CYCLE DELAYED",
+        "DOSE NOT CHANGED",
+        "NOT APPLICABLE"
+      ]
+    },
+    "AEGRACN2": {
+      "name": "AEGRACN2",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "DOSE NOT CHANGED",
+        "TREATMENT CYCLE DELAYED",
+        "DRUG WITHDRAWN",
+        "NOT APPLICABLE"
+      ]
+    },
+    "AEGRACN3": {
+      "name": "AEGRACN3",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "TREATMENT CYCLE DELAYED",
+        "DOSE NOT CHANGED"
+      ]
+    },
+    "AEGRACN4": {
+      "name": "AEGRACN4",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "TREATMENT CYCLE DELAYED",
+        "DOSE NOT CHANGED"
+      ]
+    },
+    "AEGRCCN1": {
+      "name": "AEGRCCN1",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "DOSE REDUCED",
+        "TREATMENT CYCLE DELAYED",
+        "DOSE NOT CHANGED",
+        "DRUG WITHDRAWN"
+      ]
+    },
+    "AEGRCCN2": {
+      "name": "AEGRCCN2",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "NOT APPLICABLE",
+        "DOSE REDUCED",
+        "TREATMENT CYCLE DELAYED"
+      ]
+    },
+    "AEGRCCN3": {
+      "name": "AEGRCCN3",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "DOSE REDUCED",
+        "TREATMENT CYCLE DELAYED",
+        "NOT APPLICABLE",
+        "DOSE NOT CHANGED"
+      ]
+    },
+    "AEGRCCN4": {
+      "name": "AEGRCCN4",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "DOSE NOT CHANGED",
+        "NOT APPLICABLE",
+        "TREATMENT CYCLE DELAYED"
+      ]
+    },
+    "AEGRPCN1": {
+      "name": "AEGRPCN1",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "DOSE NOT CHANGED",
+        "NOT APPLICABLE",
+        "TREATMENT CYCLE DELAYED"
+      ]
+    },
+    "AEGRPCN2": {
+      "name": "AEGRPCN2",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "TREATMENT CYCLE DELAYED",
+        "DOSE REDUCED",
+        "DOSE NOT CHANGED",
+        "DRUG WITHDRAWN"
+      ]
+    },
+    "AEGRPCN3": {
+      "name": "AEGRPCN3",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "DRUG WITHDRAWN",
+        "DOSE REDUCED",
+        "TREATMENT CYCLE DELAYED",
+        "NOT APPLICABLE"
+      ]
+    },
+    "AEGRPCN4": {
+      "name": "AEGRPCN4",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "TREATMENT CYCLE DELAYED",
+        "DOSE NOT CHANGED"
+      ]
+    },
+    "AEINFL": {
+      "name": "AEINFL",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "AEDLFL": {
+      "name": "AEDLFL",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y",
+        "N"
+      ]
+    },
+    "AEDWFL": {
+      "name": "AEDWFL",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "AEIPINFL": {
+      "name": "AEIPINFL",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "AEIPDLFL": {
+      "name": "AEIPDLFL",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y",
+        "N"
+      ]
+    },
+    "AEIPDWFL": {
+      "name": "AEIPDWFL",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "AESIYN": {
+      "name": "AESIYN",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "IRRAEYN": {
+      "name": "IRRAEYN",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "IRAEYN": {
+      "name": "IRAEYN",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "IRAECAT": {
+      "name": "IRAECAT",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 11,
+      "sample_values": [
+        "Liver Toxicity",
+        "Pancreatic toxicity",
+        "Gastrointestinal toxicity",
+        "Ocular toxicity"
+      ]
+    },
+    "IRAESCAT": {
+      "name": "IRAESCAT",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "Hyperthyroidism",
+        "Hyperglycaemia",
+        "Renal malfunction",
+        "Other Myocardial disorders"
+      ]
+    },
+    "AEGRDTC1": {
+      "name": "AEGRDTC1",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 292,
+      "sample_values": [
+        "2022-08-26",
+        "2023-09-14",
+        "2022-06-20",
+        "2022-05-28"
+      ]
+    },
+    "AEGRDTC2": {
+      "name": "AEGRDTC2",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 114,
+      "sample_values": [
+        "2022-10-05",
+        "2022-09-11",
+        "2022-11-02",
+        "2022-09-08",
+        "2022-09-02"
+      ]
+    },
+    "AEGRDTC3": {
+      "name": "AEGRDTC3",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 43,
+      "sample_values": [
+        "2022-05-20",
+        "2022-08-26",
+        "2022-06-20",
+        "2022-12-08"
+      ]
+    },
+    "AEGRDTC4": {
+      "name": "AEGRDTC4",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 14,
+      "sample_values": [
+        "2022-07-14",
+        "2022-07-11",
+        "2022-05-24",
+        "2025-01-13"
+      ]
+    },
+    "AESDTH": {
+      "name": "AESDTH",
+      "tables": [
+        "ADAE",
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "ASTDY": {
+      "name": "ASTDY",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 491,
+      "sample_values": []
+    },
+    "AENDY": {
+      "name": "AENDY",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 493,
+      "sample_values": []
+    },
+    "TRTEMFL": {
+      "name": "TRTEMFL",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "DICVER": {
+      "name": "DICVER",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "MedDRA 25.0"
+      ]
+    },
+    "CQ01NAM": {
+      "name": "CQ01NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Gastrointestinal Perforations and Fistula"
+      ]
+    },
+    "CQ02NAM": {
+      "name": "CQ02NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "CQ03NAM": {
+      "name": "CQ03NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Hemorrhage"
+      ]
+    },
+    "CQ04NAM": {
+      "name": "CQ04NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Arterial Thromboembolism Events (ATE)"
+      ]
+    },
+    "CQ05NAM": {
+      "name": "CQ05NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Venous Thromboembolic Events (VTE)"
+      ]
+    },
+    "CQ06NAM": {
+      "name": "CQ06NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Hypertension"
+      ]
+    },
+    "CQ07NAM": {
+      "name": "CQ07NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "CQ08NAM": {
+      "name": "CQ08NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Proteinuria including Nephrotic syndrome"
+      ]
+    },
+    "CQ09NAM": {
+      "name": "CQ09NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "CQ10NAM": {
+      "name": "CQ10NAM",
+      "tables": [
+        "ADAE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Congestive Heart Failure"
+      ]
+    },
+    "SITENAM": {
+      "name": "SITENAM",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 92,
+      "sample_values": [
+        "Foshan First People's Hospital",
+        "Jilin Cancer Hospital",
+        "Linyi Cancer Hospital",
+        "Mianyang Central Hospital",
+        "Campus Bio-Medico University"
+      ]
+    },
+    "CNYFUNAM": {
+      "name": "CNYFUNAM",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "Italy",
+        "Spain",
+        "United Kingdom",
+        "China",
+        "Canada"
+      ]
+    },
+    "R3GTIWRS": {
+      "name": "R3GTIWRS",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Yes"
+      ]
+    },
+    "SCRFL": {
+      "name": "SCRFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "SCRFAFL": {
+      "name": "SCRFAFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "SCRFARS": {
+      "name": "SCRFARS",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "OTHER",
+        "WITHDRAWAL BY SUBJECT",
+        "ADVERSE EVENT",
+        "ELIGIBILITY CRITERIA NOT MET"
+      ]
+    },
+    "INCLSP": {
+      "name": "INCLSP",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 19,
+      "sample_values": [
+        "IN10V2_3",
+        "IN04V1_1",
+        "IN07V2_3",
+        "IN05V2_0"
+      ]
+    },
+    "EXCLSP": {
+      "name": "EXCLSP",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 24,
+      "sample_values": [
+        "EX11V2_2",
+        "EX01V2_0",
+        "EX08V2_0",
+        "EX06V2_2",
+        "EX17V2_3"
+      ]
+    },
+    "INCLFL": {
+      "name": "INCLFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "EXCLFL": {
+      "name": "EXCLFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "RANDNUM": {
+      "name": "RANDNUM",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 234,
+      "sample_values": [
+        "1454",
+        "1333",
+        "1199",
+        "1610"
+      ]
+    },
+    "ARMCD": {
+      "name": "ARMCD",
+      "tables": [
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "1",
+        "2"
+      ]
+    },
+    "ACTARMCD": {
+      "name": "ACTARMCD",
+      "tables": [
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "1",
+        "2"
+      ]
+    },
+    "TRT01P": {
+      "name": "TRT01P",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "Treatment A",
+        "Treatment B"
+      ]
+    },
+    "TRT01PN": {
+      "name": "TRT01PN",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": []
+    },
+    "TRT01A": {
+      "name": "TRT01A",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Treatment B"
+      ]
+    },
+    "TRT01AN": {
+      "name": "TRT01AN",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": []
+    },
+    "TRTDUR": {
+      "name": "TRTDUR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 152,
+      "sample_values": []
+    },
+    "DCTREAS": {
+      "name": "DCTREAS",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 8,
+      "sample_values": [
+        "PHYSICIAN DECISION",
+        "PROGRESSIVE DISEASE",
+        "START NEW ANTICANCER THERAPY",
+        "COMPLETED"
+      ]
+    },
+    "DCTREASP": {
+      "name": "DCTREASP",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "DCSREAS": {
+      "name": "DCSREAS",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "LOST TO FOLLOW-UP",
+        "OTHER",
+        "DEATH",
+        "WITHDRAWAL BY SUBJECT"
+      ]
+    },
+    "DCSREASP": {
+      "name": "DCSREASP",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "TAKEN OFF STUDY BY PI DUE TO CRITICALLY ELEVATED ENZYMES"
+      ]
+    },
+    "NEWATDTC": {
+      "name": "NEWATDTC",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 124,
+      "sample_values": [
+        "2023-07-21",
+        "2023-05",
+        "2024-07-19",
+        "2022-12-11"
+      ]
+    },
+    "NEWATDTF": {
+      "name": "NEWATDTF",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "M",
+        "D"
+      ]
+    },
+    "LSALVDTC": {
+      "name": "LSALVDTC",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 172,
+      "sample_values": [
+        "2022-12-11",
+        "2023-10-20",
+        "2024-07-04",
+        "2022-10-31"
+      ]
+    },
+    "DTHDTC": {
+      "name": "DTHDTC",
+      "tables": [
+        "ADSL",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 141,
+      "sample_values": [
+        "2022-12-11",
+        "2023-10-20",
+        "2024-07-04",
+        "2022-10-31"
+      ]
+    },
+    "DTHDTF": {
+      "name": "DTHDTF",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "D"
+      ]
+    },
+    "LAD30FL": {
+      "name": "LAD30FL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "LAD90FL": {
+      "name": "LAD90FL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AFT90FL": {
+      "name": "AFT90FL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "DTHCAUS": {
+      "name": "DTHCAUS",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 5,
+      "sample_values": [
+        "Adverse Events",
+        "Disease Progression",
+        "Unknown",
+        "Other"
+      ]
+    },
+    "DTHCAUSP": {
+      "name": "DTHCAUSP",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 13,
+      "sample_values": [
+        "VENTRICULAR STANDSTILL",
+        "COMPLICATIONS OF HEART FAILURE",
+        "PER NOTE: PI BELIEVES THE PATIENT PASSED AWAY FROM NON SMALL CELL LUNG CANCER",
+        "SEVERE PNEUMONIA CAUSES SEPTIC SHOCK",
+        "SEPTIC SHOCK"
+      ]
+    },
+    "INIDGDTC": {
+      "name": "INIDGDTC",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 215,
+      "sample_values": [
+        "2021-11-15",
+        "2020-06-12",
+        "2021-11-26",
+        "2016-03"
+      ]
+    },
+    "INIDGDT": {
+      "name": "INIDGDT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 211,
+      "sample_values": []
+    },
+    "INIDGDTF": {
+      "name": "INIDGDTF",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "D"
+      ]
+    },
+    "INIDGDUR": {
+      "name": "INIDGDUR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 216,
+      "sample_values": []
+    },
+    "TUCATBL": {
+      "name": "TUCATBL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Adenocarcinoma"
+      ]
+    },
+    "HISGRAD": {
+      "name": "HISGRAD",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": [
+        "G2 (Moderately Differentiated)",
+        "Undifferentiated",
+        "G1 (Well Differentiated)",
+        "Unknown"
+      ]
+    },
+    "ERFSTAG": {
+      "name": "ERFSTAG",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 6,
+      "sample_values": [
+        "IVB",
+        "IIIB",
+        "IIIC",
+        "IVA"
+      ]
+    },
+    "METFL": {
+      "name": "METFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "METNUM": {
+      "name": "METNUM",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 7,
+      "sample_values": []
+    },
+    "BRAINMET": {
+      "name": "BRAINMET",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Yes"
+      ]
+    },
+    "LIVEMET": {
+      "name": "LIVEMET",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Yes"
+      ]
+    },
+    "BONMET": {
+      "name": "BONMET",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Yes"
+      ]
+    },
+    "KIDAGMET": {
+      "name": "KIDAGMET",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Yes"
+      ]
+    },
+    "METOTH": {
+      "name": "METOTH",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Yes"
+      ]
+    },
+    "SMOKSTT": {
+      "name": "SMOKSTT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "Current",
+        "Former",
+        "Never"
+      ]
+    },
+    "ECOGBL": {
+      "name": "ECOGBL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "1",
+        "0"
+      ]
+    },
+    "EGFRMTFL": {
+      "name": "EGFRMTFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "S19DEL": {
+      "name": "S19DEL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Positive"
+      ]
+    },
+    "L858R": {
+      "name": "L858R",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "Positive",
+        "Other"
+      ]
+    },
+    "G719X": {
+      "name": "G719X",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Positive"
+      ]
+    },
+    "S768I": {
+      "name": "S768I",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Positive"
+      ]
+    },
+    "T790M": {
+      "name": "T790M",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "Positive",
+        "Negative"
+      ]
+    },
+    "L861Q": {
+      "name": "L861Q",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Positive"
+      ]
+    },
+    "EGFROTH": {
+      "name": "EGFROTH",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Positive"
+      ]
+    },
+    "FIREGFR": {
+      "name": "FIREGFR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "SECEGFR": {
+      "name": "SECEGFR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "THREGFR": {
+      "name": "THREGFR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "FOURGFR": {
+      "name": "FOURGFR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "LINE": {
+      "name": "LINE",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": []
+    },
+    "PRILINE": {
+      "name": "PRILINE",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": []
+    },
+    "PDLSCORE": {
+      "name": "PDLSCORE",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 18,
+      "sample_values": []
+    },
+    "PDLSG1R": {
+      "name": "PDLSG1R",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "<1%",
+        ">=1%"
+      ]
+    },
+    "PDLSG2R": {
+      "name": "PDLSG2R",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        ">=50%",
+        "<1%",
+        "1-49%"
+      ]
+    },
+    "PRSURGFL": {
+      "name": "PRSURGFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "PRRADFL": {
+      "name": "PRRADFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "EGFR": {
+      "name": "EGFR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 286,
+      "sample_values": []
+    },
+    "HYPERBL": {
+      "name": "HYPERBL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "IAITTFL": {
+      "name": "IAITTFL",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "N",
+        "Y"
+      ]
+    },
+    "IADCODT": {
+      "name": "IADCODT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "IADTHDT": {
+      "name": "IADTHDT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 101,
+      "sample_values": []
+    },
+    "IATRTEDT": {
+      "name": "IATRTEDT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 136,
+      "sample_values": []
+    },
+    "IALALVDT": {
+      "name": "IALALVDT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 197,
+      "sample_values": []
+    },
+    "IAEOTDT": {
+      "name": "IAEOTDT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 135,
+      "sample_values": []
+    },
+    "IADCTREA": {
+      "name": "IADCTREA",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 8,
+      "sample_values": [
+        "PROGRESSIVE DISEASE",
+        "START NEW ANTICANCER THERAPY",
+        "PHYSICIAN DECISION",
+        "COMPLETED"
+      ]
+    },
+    "IAEOSDT": {
+      "name": "IAEOSDT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 103,
+      "sample_values": []
+    },
+    "IADCSREA": {
+      "name": "IADCSREA",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "DEATH",
+        "WITHDRAWAL BY SUBJECT"
+      ]
+    },
+    "IATRTDUR": {
+      "name": "IATRTDUR",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 132,
+      "sample_values": []
+    },
+    "DEXTRDT": {
+      "name": "DEXTRDT",
+      "tables": [
+        "ADSL"
+      ],
+      "type": "DATE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "DOMAIN": {
+      "name": "DOMAIN",
+      "tables": [
+        "AE",
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": true,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": [
+        "AE",
+        "DM"
+      ]
+    },
+    "AEPTCD": {
+      "name": "AEPTCD",
+      "tables": [
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 471,
+      "sample_values": []
+    },
+    "AESCONG": {
+      "name": "AESCONG",
+      "tables": [
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "AESDISAB": {
+      "name": "AESDISAB",
+      "tables": [
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AESHOSP": {
+      "name": "AESHOSP",
+      "tables": [
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AESLIFE": {
+      "name": "AESLIFE",
+      "tables": [
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AESMIE": {
+      "name": "AESMIE",
+      "tables": [
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "AECONTRT": {
+      "name": "AECONTRT",
+      "tables": [
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 2,
+      "sample_values": [
+        "Y"
+      ]
+    },
+    "EPOCH": {
+      "name": "EPOCH",
+      "tables": [
+        "AE"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "SCREENING",
+        "FOLLOW-UP",
+        "TREATMENT"
+      ]
+    },
+    "AESTDY": {
+      "name": "AESTDY",
+      "tables": [
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 482,
+      "sample_values": []
+    },
+    "AEENDY": {
+      "name": "AEENDY",
+      "tables": [
+        "AE"
+      ],
+      "type": "DOUBLE",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 483,
+      "sample_values": []
+    },
+    "RFSTDTC": {
+      "name": "RFSTDTC",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 234,
+      "sample_values": [
+        "2022-08-16T13:16",
+        "2022-08-17T08:16",
+        "2022-05-20T10:33",
+        "2022-10-01T12:10",
+        "2022-06-16T11:18"
+      ]
+    },
+    "RFENDTC": {
+      "name": "RFENDTC",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 173,
+      "sample_values": [
+        "2023-05-11",
+        "2024-07-18",
+        "2022-10-31",
+        "2023-06-05"
+      ]
+    },
+    "RFXSTDTC": {
+      "name": "RFXSTDTC",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 233,
+      "sample_values": [
+        "2022-05-11T11:00",
+        "2022-09-08T12:55",
+        "2022-06-17T11:24",
+        "2022-07-06T17:21",
+        "2022-05-25T13:47"
+      ]
+    },
+    "RFXENDTC": {
+      "name": "RFXENDTC",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 233,
+      "sample_values": [
+        "2024-12-31T13:47",
+        "2024-02-28T10:44",
+        "2023-02-07T13:00",
+        "2022-11-04T13:34",
+        "2023-03-28T10:57"
+      ]
+    },
+    "RFICDTC": {
+      "name": "RFICDTC",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 222,
+      "sample_values": [
+        "2022-06-15",
+        "2022-08-15",
+        "2022-06-28",
+        "2022-02-23",
+        "2022-07-14"
+      ]
+    },
+    "RFPENDTC": {
+      "name": "RFPENDTC",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 247,
+      "sample_values": [
+        "2024-04-15",
+        "2023-08-10",
+        "2023-01-24",
+        "2023-07-31",
+        "2024-03-05"
+      ]
+    },
+    "ARMNRS": {
+      "name": "ARMNRS",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": [
+        "SCREEN FAILURE",
+        "ASSIGNED, NOT TREATED"
+      ]
+    },
+    "ACTARMUD": {
+      "name": "ACTARMUD",
+      "tables": [
+        "DM"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1,
+      "sample_values": []
+    },
+    "TABLE_NAME": {
+      "name": "TABLE_NAME",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": [
+        "DM",
+        "ADAE",
+        "ADSL",
+        "AE"
+      ]
+    },
+    "SOURCE_FILE": {
+      "name": "SOURCE_FILE",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 0,
+      "sample_values": []
+    },
+    "ROW_COUNT": {
+      "name": "ROW_COUNT",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "BIGINT",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": []
+    },
+    "COLUMN_COUNT": {
+      "name": "COLUMN_COUNT",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "INTEGER",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": []
+    },
+    "COLUMNS": {
+      "name": "COLUMNS",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "JSON",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": []
+    },
+    "CREATED_AT": {
+      "name": "CREATED_AT",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "TIMESTAMP",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": []
+    },
+    "UPDATED_AT": {
+      "name": "UPDATED_AT",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "TIMESTAMP",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 4,
+      "sample_values": []
+    },
+    "CHECKSUM": {
+      "name": "CHECKSUM",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 0,
+      "sample_values": []
+    },
+    "VERSION": {
+      "name": "VERSION",
+      "tables": [
+        "_SAGE_METADATA"
+      ],
+      "type": "INTEGER",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 3,
+      "sample_values": []
+    },
+    "SOC_CODE": {
+      "name": "SOC_CODE",
+      "tables": [
+        "MEDDRA_HIERARCHY",
+        "MEDDRA_HLGT"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 27,
+      "sample_values": [
+        "10019805",
+        "10047065",
+        "10022891",
+        "10021881",
+        "10021428"
+      ]
+    },
+    "SOC_NAME": {
+      "name": "SOC_NAME",
+      "tables": [
+        "MEDDRA_HIERARCHY"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 27,
+      "sample_values": [
+        "Blood and lymphatic system disorders",
+        "Investigations",
+        "Injury, poisoning and procedural complications",
+        "Vascular disorders",
+        "Respiratory, thoracic and mediastinal disorders"
+      ]
+    },
+    "HLGT_CODE": {
+      "name": "HLGT_CODE",
+      "tables": [
+        "MEDDRA_HIERARCHY",
+        "MEDDRA_HLT"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 326,
+      "sample_values": [
+        "10027424",
+        "10034652",
+        "10040991",
+        "10040789",
+        "10005330"
+      ]
+    },
+    "HLGT_NAME": {
+      "name": "HLGT_NAME",
+      "tables": [
+        "MEDDRA_HIERARCHY"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 326,
+      "sample_values": [
+        "Anxiety disorders and symptoms",
+        "Family issues",
+        "Foetal and neonatal investigations",
+        "Renal and urinary tract disorders congenital",
+        "Gastrointestinal investigations"
+      ]
+    },
+    "HLT_CODE": {
+      "name": "HLT_CODE",
+      "tables": [
+        "MEDDRA_HIERARCHY",
+        "MEDDRA_PT"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1560,
+      "sample_values": [
+        "10018067",
+        "10012326",
+        "10044288",
+        "10019664",
+        "10017812"
+      ]
+    },
+    "HLT_NAME": {
+      "name": "HLT_NAME",
+      "tables": [
+        "MEDDRA_HIERARCHY"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 1560,
+      "sample_values": [
+        "Gastrointestinal and abdominal pains (excl oral and throat)",
+        "Skin and subcutaneous tissue disorders congenital NEC",
+        "External ear disorders congenital",
+        "Hepatic failure and associated disorders",
+        "Cervix neoplasms malignant"
+      ]
+    },
+    "PT_CODE": {
+      "name": "PT_CODE",
+      "tables": [
+        "MEDDRA_HIERARCHY",
+        "MEDDRA_LLT"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 25412,
+      "sample_values": [
+        "10000084",
+        "10000125",
+        "10000188",
+        "10000210",
+        "10000223"
+      ]
+    },
+    "PT_NAME": {
+      "name": "PT_NAME",
+      "tables": [
+        "MEDDRA_HIERARCHY"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 25412,
+      "sample_values": [
+        "Abortion induced complete complicated",
+        "Acid base balance",
+        "Acral lentiginous melanoma stage III",
+        "Acromegaly",
+        "Acute myelomonocytic leukaemia"
+      ]
+    },
+    "LLT_CODE": {
+      "name": "LLT_CODE",
+      "tables": [
+        "MEDDRA_HIERARCHY"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 75787,
+      "sample_values": [
+        "10000044",
+        "10042111",
+        "10013480",
+        "10042678",
+        "10017467"
+      ]
+    },
+    "LLT_NAME": {
+      "name": "LLT_NAME",
+      "tables": [
+        "MEDDRA_HIERARCHY"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 75787,
+      "sample_values": [
+        "Stomach pressure sensation of",
+        "Feeling of fullness in abdomen",
+        "Gastrointestinal fullness",
+        "Abdominal pain peptic ulcer type",
+        "Pancreatic pain"
+      ]
+    },
+    "CODE": {
+      "name": "CODE",
+      "tables": [
+        "MEDDRA_HLGT",
+        "MEDDRA_HLT",
+        "MEDDRA_LLT",
+        "MEDDRA_PT",
+        "MEDDRA_SOC"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 75787,
+      "sample_values": [
+        "10014706",
+        "10046304",
+        "10039628",
+        "10001302",
+        "10034726"
+      ]
+    },
+    "NAME": {
+      "name": "NAME",
+      "tables": [
+        "MEDDRA_HLGT",
+        "MEDDRA_HLT",
+        "MEDDRA_LLT",
+        "MEDDRA_PT",
+        "MEDDRA_SOC"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 75787,
+      "sample_values": [
+        "Injuries NEC",
+        "Peritoneal and retroperitoneal conditions",
+        "Procedural related injuries and complications NEC",
+        "Gastrointestinal neoplasms malignant and unspecified",
+        "Haematological and lymphoid tissue therapeutic procedures"
+      ]
+    },
+    "NAME_UPPER": {
+      "name": "NAME_UPPER",
+      "tables": [
+        "MEDDRA_LLT",
+        "MEDDRA_PT"
+      ],
+      "type": "VARCHAR",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 75787,
+      "sample_values": [
+        "17-ALPHA-HYDROXYLASE DEFICIENCY",
+        "5-ALPHA-REDUCTASE DEFICIENCY",
+        "CENTRAL ABDOMINAL PAIN",
+        "ABDOMINAL PAIN LOCALISED",
+        "GRIPING ABDOMEN"
+      ]
+    },
+    "PT_COUNT": {
+      "name": "PT_COUNT",
+      "tables": [
+        "MEDDRA_SOC"
+      ],
+      "type": "INTEGER",
+      "is_key": false,
+      "description": "",
+      "codelist": null,
+      "unique_values_count": 27,
+      "sample_values": []
+    }
+  },
+  "tables": {
+    "ADAE": {
+      "name": "ADAE",
+      "columns": [
+        "STUDYID",
+        "USUBJID",
+        "SUBJID",
+        "SITEID",
+        "RFICDT",
+        "BRTHDTC",
+        "AGE",
+        "AGEU",
+        "AGEGR1",
+        "AGEGR1N",
+        "AGEGR2",
+        "AGEGR2N",
+        "SEX",
+        "RACE",
+        "ETHNIC",
+        "COUNTRY",
+        "REGION",
+        "REGIONN",
+        "BMIWRS",
+        "WEIGHTBL",
+        "HEIGHTBL",
+        "BMIBL",
+        "ENRLFL",
+        "RANDFL",
+        "RANDDT",
+        "SAFFL",
+        "ITTFL",
+        "ARM",
+        "ACTARM",
+        "TRTSDT",
+        "TRTSTM",
+        "TRTSDTM",
+        "TRTEDT",
+        "TRTETM",
+        "TRTEDTM",
+        "EOTDT",
+        "EOTSTT",
+        "EOSDT",
+        "EOSSTT",
+        "NEWATDT",
+        "LSALVDT",
+        "DTHFL",
+        "DTHDT",
+        "TRTP",
+        "TRTA",
+        "TRTPN",
+        "TRTAN",
+        "AESEQ",
+        "AESPID",
+        "AETERM",
+        "AESOC",
+        "AESOCCD",
+        "AEBODSYS",
+        "AEBDSYCD",
+        "AELLT",
+        "AELLTCD",
+        "AEHLT",
+        "AEHLTCD",
+        "AEHLGT",
+        "AEHLGTCD",
+        "AEDECOD",
+        "AESTDTC",
+        "AEENDTC",
+        "ASTDT",
+        "AENDT",
+        "ASTDTF",
+        "AENDTF",
+        "ASTDTM",
+        "AENDTM",
+        "SAEDTC",
+        "AESER",
+        "AETOXGR",
+        "AETOXGRN",
+        "AETOXGR1",
+        "AETOXGR2",
+        "AETOXGR3",
+        "AETOXGR4",
+        "ATOXGR",
+        "ATOXGRN",
+        "AEREL",
+        "AERELP",
+        "AERELC",
+        "AEOUT",
+        "AEACN",
+        "AEACN1",
+        "AEACN2",
+        "AEACNOTH",
+        "AEACNO1",
+        "AEACNO2",
+        "AEACNO3",
+        "AEACNO4",
+        "AEACNOSP",
+        "AEGRACN1",
+        "AEGRACN2",
+        "AEGRACN3",
+        "AEGRACN4",
+        "AEGRCCN1",
+        "AEGRCCN2",
+        "AEGRCCN3",
+        "AEGRCCN4",
+        "AEGRPCN1",
+        "AEGRPCN2",
+        "AEGRPCN3",
+        "AEGRPCN4",
+        "AEINFL",
+        "AEDLFL",
+        "AEDWFL",
+        "AEIPINFL",
+        "AEIPDLFL",
+        "AEIPDWFL",
+        "AESIYN",
+        "IRRAEYN",
+        "IRAEYN",
+        "IRAECAT",
+        "IRAESCAT",
+        "AEGRDTC1",
+        "AEGRDTC2",
+        "AEGRDTC3",
+        "AEGRDTC4",
+        "AESDTH",
+        "ASTDY",
+        "AENDY",
+        "TRTEMFL",
+        "DICVER",
+        "CQ01NAM",
+        "CQ02NAM",
+        "CQ03NAM",
+        "CQ04NAM",
+        "CQ05NAM",
+        "CQ06NAM",
+        "CQ07NAM",
+        "CQ08NAM",
+        "CQ09NAM",
+        "CQ10NAM"
+      ],
+      "row_count": 4332,
+      "description": "Adverse Events Analysis Dataset",
+      "domain_type": "ADaM",
+      "key_columns": [
+        "STUDYID",
+        "USUBJID",
+        "SUBJID",
+        "SITEID",
+        "AESEQ"
+      ]
+    },
+    "ADSL": {
+      "name": "ADSL",
+      "columns": [
+        "STUDYID",
+        "USUBJID",
+        "SUBJID",
+        "SITEID",
+        "SITENAM",
+        "RFICDT",
+        "BRTHDTC",
+        "AGE",
+        "AGEU",
+        "AGEGR1",
+        "AGEGR1N",
+        "AGEGR2",
+        "AGEGR2N",
+        "SEX",
+        "RACE",
+        "ETHNIC",
+        "COUNTRY",
+        "CNYFUNAM",
+        "REGION",
+        "REGIONN",
+        "R3GTIWRS",
+        "BMIWRS",
+        "WEIGHTBL",
+        "HEIGHTBL",
+        "BMIBL",
+        "ENRLFL",
+        "SCRFL",
+        "SCRFAFL",
+        "SCRFARS",
+        "INCLSP",
+        "EXCLSP",
+        "INCLFL",
+        "EXCLFL",
+        "RANDNUM",
+        "RANDFL",
+        "RANDDT",
+        "SAFFL",
+        "ITTFL",
+        "ARM",
+        "ARMCD",
+        "ACTARM",
+        "ACTARMCD",
+        "TRT01P",
+        "TRT01PN",
+        "TRT01A",
+        "TRT01AN",
+        "TRTSDT",
+        "TRTSTM",
+        "TRTSDTM",
+        "TRTEDT",
+        "TRTETM",
+        "TRTEDTM",
+        "TRTDUR",
+        "EOTDT",
+        "EOTSTT",
+        "DCTREAS",
+        "DCTREASP",
+        "EOSDT",
+        "EOSSTT",
+        "DCSREAS",
+        "DCSREASP",
+        "NEWATDTC",
+        "NEWATDT",
+        "NEWATDTF",
+        "LSALVDTC",
+        "LSALVDT",
+        "DTHFL",
+        "DTHDTC",
+        "DTHDT",
+        "DTHDTF",
+        "LAD30FL",
+        "LAD90FL",
+        "AFT90FL",
+        "DTHCAUS",
+        "DTHCAUSP",
+        "INIDGDTC",
+        "INIDGDT",
+        "INIDGDTF",
+        "INIDGDUR",
+        "TUCATBL",
+        "HISGRAD",
+        "ERFSTAG",
+        "METFL",
+        "METNUM",
+        "BRAINMET",
+        "LIVEMET",
+        "BONMET",
+        "KIDAGMET",
+        "METOTH",
+        "SMOKSTT",
+        "ECOGBL",
+        "EGFRMTFL",
+        "S19DEL",
+        "L858R",
+        "G719X",
+        "S768I",
+        "T790M",
+        "L861Q",
+        "EGFROTH",
+        "FIREGFR",
+        "SECEGFR",
+        "THREGFR",
+        "FOURGFR",
+        "LINE",
+        "PRILINE",
+        "PDLSCORE",
+        "PDLSG1R",
+        "PDLSG2R",
+        "PRSURGFL",
+        "PRRADFL",
+        "EGFR",
+        "HYPERBL",
+        "IAITTFL",
+        "IADCODT",
+        "IADTHDT",
+        "IATRTEDT",
+        "IALALVDT",
+        "IAEOTDT",
+        "IADCTREA",
+        "IAEOSDT",
+        "IADCSREA",
+        "IATRTDUR",
+        "DEXTRDT"
+      ],
+      "row_count": 339,
+      "description": "Subject-Level Analysis Dataset",
+      "domain_type": "ADaM",
+      "key_columns": [
+        "STUDYID",
+        "USUBJID",
+        "SUBJID",
+        "SITEID"
+      ]
+    },
+    "AE": {
+      "name": "AE",
+      "columns": [
+        "STUDYID",
+        "DOMAIN",
+        "USUBJID",
+        "AESEQ",
+        "AESPID",
+        "AETERM",
+        "AELLT",
+        "AELLTCD",
+        "AEDECOD",
+        "AEPTCD",
+        "AEHLT",
+        "AEHLTCD",
+        "AEHLGT",
+        "AEHLGTCD",
+        "AEBODSYS",
+        "AEBDSYCD",
+        "AESOC",
+        "AESOCCD",
+        "AESER",
+        "AEACN",
+        "AEACNOTH",
+        "AEREL",
+        "AEOUT",
+        "AESCONG",
+        "AESDISAB",
+        "AESDTH",
+        "AESHOSP",
+        "AESLIFE",
+        "AESMIE",
+        "AECONTRT",
+        "AETOXGR",
+        "EPOCH",
+        "AESTDTC",
+        "AEENDTC",
+        "AESTDY",
+        "AEENDY"
+      ],
+      "row_count": 4299,
+      "description": "Adverse Events",
+      "domain_type": "SDTM",
+      "key_columns": [
+        "STUDYID",
+        "DOMAIN",
+        "USUBJID",
+        "AESEQ"
+      ]
+    },
+    "DM": {
+      "name": "DM",
+      "columns": [
+        "STUDYID",
+        "DOMAIN",
+        "USUBJID",
+        "SUBJID",
+        "RFSTDTC",
+        "RFENDTC",
+        "RFXSTDTC",
+        "RFXENDTC",
+        "RFICDTC",
+        "RFPENDTC",
+        "DTHDTC",
+        "DTHFL",
+        "SITEID",
+        "BRTHDTC",
+        "AGE",
+        "AGEU",
+        "SEX",
+        "RACE",
+        "ETHNIC",
+        "ARMCD",
+        "ARM",
+        "ACTARMCD",
+        "ACTARM",
+        "ARMNRS",
+        "ACTARMUD",
+        "COUNTRY"
+      ],
+      "row_count": 339,
+      "description": "Demographics",
+      "domain_type": "SDTM",
+      "key_columns": [
+        "STUDYID",
+        "DOMAIN",
+        "USUBJID",
+        "SUBJID",
+        "SITEID"
+      ]
+    },
+    "_SAGE_METADATA": {
+      "name": "_SAGE_METADATA",
+      "columns": [
+        "TABLE_NAME",
+        "SOURCE_FILE",
+        "ROW_COUNT",
+        "COLUMN_COUNT",
+        "COLUMNS",
+        "CREATED_AT",
+        "UPDATED_AT",
+        "CHECKSUM",
+        "VERSION"
+      ],
+      "row_count": 4,
+      "description": "",
+      "domain_type": "custom",
+      "key_columns": []
+    },
+    "MEDDRA_HIERARCHY": {
+      "name": "MEDDRA_HIERARCHY",
+      "columns": [
+        "SOC_CODE",
+        "SOC_NAME",
+        "HLGT_CODE",
+        "HLGT_NAME",
+        "HLT_CODE",
+        "HLT_NAME",
+        "PT_CODE",
+        "PT_NAME",
+        "LLT_CODE",
+        "LLT_NAME"
+      ],
+      "row_count": 75787,
+      "description": "",
+      "domain_type": "custom",
+      "key_columns": []
+    },
+    "MEDDRA_HLGT": {
+      "name": "MEDDRA_HLGT",
+      "columns": [
+        "CODE",
+        "NAME",
+        "SOC_CODE"
+      ],
+      "row_count": 326,
+      "description": "",
+      "domain_type": "custom",
+      "key_columns": []
+    },
+    "MEDDRA_HLT": {
+      "name": "MEDDRA_HLT",
+      "columns": [
+        "CODE",
+        "NAME",
+        "HLGT_CODE"
+      ],
+      "row_count": 1560,
+      "description": "",
+      "domain_type": "custom",
+      "key_columns": []
+    },
+    "MEDDRA_LLT": {
+      "name": "MEDDRA_LLT",
+      "columns": [
+        "CODE",
+        "NAME",
+        "PT_CODE",
+        "NAME_UPPER"
+      ],
+      "row_count": 75787,
+      "description": "",
+      "domain_type": "custom",
+      "key_columns": []
+    },
+    "MEDDRA_PT": {
+      "name": "MEDDRA_PT",
+      "columns": [
+        "CODE",
+        "NAME",
+        "HLT_CODE",
+        "NAME_UPPER"
+      ],
+      "row_count": 25412,
+      "description": "",
+      "domain_type": "custom",
+      "key_columns": []
+    },
+    "MEDDRA_SOC": {
+      "name": "MEDDRA_SOC",
+      "columns": [
+        "CODE",
+        "NAME",
+        "PT_COUNT"
+      ],
+      "row_count": 27,
+      "description": "",
+      "domain_type": "custom",
+      "key_columns": []
+    }
+  },
+  "generated_at": "2025-12-13T05:03:26.238976",
+  "version": "1.0"
+}

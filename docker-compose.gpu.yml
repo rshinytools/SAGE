@@ -1,0 +1,19 @@
+# SAGE - GPU Override (NVIDIA)
+# ================================
+# Use with: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+# Or run: start-gpu.bat (Windows) / start-gpu.sh (Linux)
+
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_MAX_LOADED_MODELS=2
