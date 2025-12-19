@@ -93,56 +93,50 @@ class ChatMessage(BaseModel):
 # Helper Functions
 # ============================================
 
-def get_ollama_host() -> str:
-    """Get Ollama host URL."""
-    return os.getenv("OLLAMA_HOST", "http://ollama:11434")
+async def stream_claude_response(prompt: str):
+    """
+    Stream response from Claude API as fallback when pipeline not available.
 
+    This is only used when the inference pipeline fails to initialize.
+    In normal operation, all queries go through the pipeline.
+    """
+    import anthropic
 
-async def stream_ollama_response(prompt: str, model: str = None):
-    """Stream response from Ollama."""
-    import httpx
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    model = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514")
 
-    ollama_host = get_ollama_host()
-    model = model or os.getenv("PRIMARY_MODEL", "deepseek-r1:8b")
+    if not api_key:
+        yield "Error: Claude API key not configured. Please set ANTHROPIC_API_KEY."
+        return
 
     # System prompt for SAGE
     system_prompt = """You are SAGE (Study Analytics Generative Engine), an AI assistant
 specialized in clinical trial data analysis. You help users query clinical data using
 natural language and provide clear, accurate responses.
 
-When generating SQL queries, use DuckDB syntax. Always explain your methodology
-and provide confidence scores when applicable.
+Note: The full inference pipeline is currently unavailable, so I cannot execute actual
+data queries. I can still help with general questions about clinical data analysis.
 
 Be concise, professional, and helpful. If you're unsure about something, say so."""
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        try:
-            async with client.stream(
-                "POST",
-                f"{ollama_host}/api/chat",
-                json={
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "stream": True
-                }
-            ) as response:
-                async for line in response.aiter_lines():
-                    if line:
-                        try:
-                            data = json.loads(line)
-                            if "message" in data and "content" in data["message"]:
-                                yield data["message"]["content"]
-                            if data.get("done", False):
-                                break
-                        except json.JSONDecodeError:
-                            continue
-        except httpx.ConnectError:
-            yield "Error: Unable to connect to LLM service. Please ensure Ollama is running."
-        except Exception as e:
-            yield f"Error: {str(e)}"
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+
+        with client.messages.stream(
+            model=model,
+            max_tokens=2048,
+            system=system_prompt,
+            messages=[{"role": "user", "content": prompt}]
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
+    except anthropic.APIConnectionError:
+        yield "Error: Unable to connect to Claude API. Please check your network connection."
+    except anthropic.AuthenticationError:
+        yield "Error: Invalid Claude API key. Please check your ANTHROPIC_API_KEY."
+    except Exception as e:
+        yield f"Error: {str(e)}"
 
 
 def generate_title_from_message(message: str) -> str:
@@ -152,6 +146,44 @@ def generate_title_from_message(message: str) -> str:
     if len(message) > 50:
         title += "..."
     return title
+
+
+def get_available_tables_from_connection() -> dict:
+    """Get available tables and columns from the shared DuckDB connection."""
+    try:
+        # Import here to avoid circular dependency
+        from routers.data import get_duckdb_connection
+        conn = get_duckdb_connection()
+        if conn is None:
+            logger.warning("DuckDB connection not available")
+            return {}
+
+        tables = {}
+        # Get all tables
+        result = conn.execute("""
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = 'main'
+        """)
+        for row in result.fetchall():
+            table_name = row[0]
+            # Skip system/internal tables
+            if table_name.startswith('_') or table_name.startswith('meddra'):
+                continue
+            # Get columns for each table
+            cols = conn.execute(f"""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = '{table_name}'
+                ORDER BY ordinal_position
+            """)
+            tables[table_name] = [c[0] for c in cols.fetchall()]
+
+        logger.info(f"Loaded {len(tables)} tables from DuckDB: {list(tables.keys())}")
+        return tables
+    except Exception as e:
+        logger.error(f"Error getting tables from DuckDB: {e}")
+        return {}
 
 
 def get_pipeline() -> Optional[InferencePipeline]:
@@ -165,24 +197,31 @@ def get_pipeline() -> Optional[InferencePipeline]:
         try:
             db_path = os.getenv("DUCKDB_PATH", "/app/data/clinical.duckdb")
             metadata_path = os.getenv("METADATA_PATH", "/app/knowledge/golden_metadata.json")
-            ollama_host = os.getenv("OLLAMA_HOST", "http://ollama:11434")
             use_mock = os.getenv("USE_MOCK_PIPELINE", "false").lower() == "true"
 
             # Factory 3 fuzzy index path
             knowledge_dir = os.getenv("KNOWLEDGE_DIR", "/app/knowledge")
             fuzzy_index_path = os.path.join(knowledge_dir, "fuzzy_index.pkl")
 
+            # Get available tables and shared connection to avoid lock conflicts
+            from routers.data import get_duckdb_connection
+            db_conn = get_duckdb_connection()
+            available_tables = get_available_tables_from_connection()
+
             _pipeline_instance = create_pipeline(
                 db_path=db_path,
                 metadata_path=metadata_path,
-                ollama_host=ollama_host,
                 use_mock=use_mock,
                 fuzzy_index_path=fuzzy_index_path,
-                auto_load_factory3=True  # Enable Factory 3/3.5 integration
+                auto_load_factory3=True,  # Enable Factory 3/3.5 integration
+                available_tables=available_tables,
+                db_connection=db_conn
             )
-            logger.info("Inference pipeline initialized successfully with Factory 3/3.5 integration")
+            logger.info("Inference pipeline initialized successfully with Claude + Factory 3/3.5")
         except Exception as e:
             logger.error(f"Failed to initialize pipeline: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     return _pipeline_instance
@@ -407,7 +446,16 @@ async def send_message(
     data: SendMessageRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    """Send a message and get a non-streaming response."""
+    """
+    Send a message and get a response using the Inference Pipeline.
+
+    This routes ALL queries through the InferencePipeline which:
+    - Understands your clinical data schema
+    - Applies clinical rules (ADaM > SDTM, population defaults)
+    - Generates valid SQL against your actual tables
+    - Formats responses in clinical-friendly language
+    - Provides confidence scores and methodology
+    """
     user_id = current_user.get("username", "anonymous")
 
     # Create or get conversation
@@ -435,10 +483,56 @@ async def send_message(
     }
     messages_db[conv_id].append(user_msg)
 
-    # Get AI response (non-streaming)
-    response_content = ""
-    async for chunk in stream_ollama_response(data.message):
-        response_content += chunk
+    # Process through InferencePipeline
+    pipeline = get_pipeline()
+    metadata = {}
+
+    if pipeline:
+        # Use the inference pipeline for clinical data queries
+        try:
+            # Pass conversation ID for session context (enables follow-up questions)
+            result = pipeline.process_with_session(data.message, session_id=conv_id)
+
+            # Log audit event
+            log_audit_event(
+                event_type="query",
+                query=data.message,
+                user_id=user_id,
+                result=result.to_dict() if result.success else None,
+                error=result.error if not result.success else None
+            )
+
+            # Format response
+            response_content = result.answer
+
+            # Build metadata for UI (confidence, methodology, SQL, etc.)
+            metadata = {
+                "success": result.success,
+                "confidence": result.confidence,
+                "methodology": result.methodology,
+                "sql": result.sql,  # Available in Details for technical users
+                "data": result.data,
+                "row_count": result.row_count,
+                "warnings": result.warnings,
+                "execution_time_ms": result.total_time_ms,
+                "pipeline_used": True
+            }
+
+        except Exception as e:
+            logger.error(f"Pipeline error: {e}")
+            response_content = f"I encountered an error processing your query: {str(e)}"
+            metadata = {"error": str(e), "pipeline_used": True}
+    else:
+        # Fallback to direct Claude (not recommended - no clinical context)
+        logger.warning("Pipeline not available, falling back to direct Claude")
+        response_content = ""
+        async for chunk in stream_claude_response(data.message):
+            response_content += chunk
+        metadata = {
+            "model": os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514"),
+            "pipeline_used": False,
+            "warning": "Pipeline not available - response may lack clinical context"
+        }
 
     # Add assistant message
     assistant_msg = {
@@ -446,9 +540,8 @@ async def send_message(
         "role": "assistant",
         "content": response_content,
         "timestamp": datetime.now().isoformat(),
-        "metadata": {
-            "model": os.getenv("PRIMARY_MODEL", "deepseek-r1:8b")
-        }
+        "metadata": metadata,
+        "conversation_id": conv_id
     }
     messages_db[conv_id].append(assistant_msg)
 
@@ -463,7 +556,12 @@ async def send_message_stream(
     data: SendMessageRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    """Send a message and get a streaming response using SSE."""
+    """
+    Send a message and get a streaming response using SSE.
+
+    Uses InferencePipeline for clinical data queries, then streams
+    the formatted response back to the client.
+    """
     user_id = current_user.get("username", "anonymous")
 
     # Create or get conversation
@@ -492,25 +590,73 @@ async def send_message_stream(
     messages_db[conv_id].append(user_msg)
 
     async def event_generator():
-        """Generate SSE events."""
-        full_response = ""
+        """Generate SSE events using InferencePipeline."""
         message_id = str(uuid.uuid4())
         start_time = datetime.now()
+        full_response = ""
+        metadata = {}
 
         try:
-            async for chunk in stream_ollama_response(data.message):
-                full_response += chunk
-                yield f"data: {json.dumps({'type': 'content', 'content': chunk})}\n\n"
-                await asyncio.sleep(0)  # Allow other tasks to run
+            pipeline = get_pipeline()
 
-            # Calculate metadata
+            if pipeline:
+                # Send processing status
+                yield f"data: {json.dumps({'type': 'status', 'status': 'Processing query...'})}\n\n"
+                await asyncio.sleep(0)
+
+                # Process through pipeline (not streaming - pipeline returns complete result)
+                # Pass conversation ID for session context (enables follow-up questions)
+                result = pipeline.process_with_session(data.message, session_id=conv_id)
+
+                # Log audit event
+                log_audit_event(
+                    event_type="query",
+                    query=data.message,
+                    user_id=user_id,
+                    result=result.to_dict() if result.success else None,
+                    error=result.error if not result.success else None
+                )
+
+                full_response = result.answer
+
+                # Stream the response in chunks for better UX
+                chunk_size = 50
+                for i in range(0, len(full_response), chunk_size):
+                    chunk = full_response[i:i + chunk_size]
+                    yield f"data: {json.dumps({'type': 'content', 'content': chunk})}\n\n"
+                    await asyncio.sleep(0.01)  # Small delay for streaming effect
+
+                # Build metadata
+                metadata = {
+                    "success": result.success,
+                    "confidence": result.confidence,
+                    "methodology": result.methodology,
+                    "sql": result.sql,
+                    "data": result.data,
+                    "row_count": result.row_count,
+                    "warnings": result.warnings,
+                    "execution_time_ms": result.total_time_ms,
+                    "pipeline_used": True
+                }
+
+            else:
+                # Fallback to direct Claude streaming
+                logger.warning("Pipeline not available, falling back to direct Claude")
+                async for chunk in stream_claude_response(data.message):
+                    full_response += chunk
+                    yield f"data: {json.dumps({'type': 'content', 'content': chunk})}\n\n"
+                    await asyncio.sleep(0)
+
+                metadata = {
+                    "model": os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514"),
+                    "pipeline_used": False,
+                    "warning": "Pipeline not available - response may lack clinical context"
+                }
+
+            # Calculate total time
             end_time = datetime.now()
-            execution_time = (end_time - start_time).total_seconds() * 1000
-
-            metadata = {
-                "model": os.getenv("PRIMARY_MODEL", "deepseek-r1:8b"),
-                "execution_time_ms": int(execution_time)
-            }
+            if "execution_time_ms" not in metadata:
+                metadata["execution_time_ms"] = int((end_time - start_time).total_seconds() * 1000)
 
             # Send metadata
             yield f"data: {json.dumps({'type': 'metadata', 'metadata': metadata})}\n\n"
@@ -521,7 +667,8 @@ async def send_message_stream(
                 "role": "assistant",
                 "content": full_response,
                 "timestamp": datetime.now().isoformat(),
-                "metadata": metadata
+                "metadata": metadata,
+                "conversation_id": conv_id
             }
             messages_db[conv_id].append(assistant_msg)
 
@@ -532,6 +679,7 @@ async def send_message_stream(
             yield f"data: {json.dumps({'type': 'done', 'conversation_id': conv_id, 'message_id': message_id})}\n\n"
 
         except Exception as e:
+            logger.error(f"Stream error: {e}")
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
 
     return StreamingResponse(
@@ -674,10 +822,10 @@ async def execute_query(
     pipeline = get_pipeline()
 
     if pipeline is None or not request.use_pipeline:
-        # Fall back to direct LLM if pipeline not available
-        logger.warning("Pipeline not available, falling back to direct LLM")
+        # Fall back to direct Claude if pipeline not available
+        logger.warning("Pipeline not available, falling back to direct Claude")
         response_content = ""
-        async for chunk in stream_ollama_response(request.query):
+        async for chunk in stream_claude_response(request.query):
             response_content += chunk
 
         # Add assistant message
@@ -687,7 +835,7 @@ async def execute_query(
             "role": "assistant",
             "content": response_content,
             "timestamp": datetime.now().isoformat(),
-            "metadata": {"model": os.getenv("PRIMARY_MODEL", "deepseek-r1:8b")}
+            "metadata": {"model": os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514")}
         }
         messages_db[conv_id].append(assistant_msg)
         conversations_db[conv_id]["updated_at"] = datetime.now().isoformat()
@@ -709,7 +857,8 @@ async def execute_query(
 
     # Execute through pipeline
     try:
-        result = pipeline.process(request.query)
+        # Pass conversation ID for session context (enables follow-up questions)
+        result = pipeline.process_with_session(request.query, session_id=conv_id)
         formatted = format_pipeline_response(result)
 
         # Add assistant message with full metadata
@@ -826,11 +975,11 @@ async def execute_query_stream(
             yield f"data: {json.dumps({'type': 'start', 'query': request.query})}\n\n"
 
             if pipeline is None:
-                # Fall back to direct LLM
-                yield f"data: {json.dumps({'type': 'stage', 'stage': 'llm_fallback', 'message': 'Using direct LLM (pipeline not available)'})}\n\n"
+                # Fall back to direct Claude LLM
+                yield f"data: {json.dumps({'type': 'stage', 'stage': 'llm_fallback', 'message': 'Using direct Claude (pipeline not available)'})}\n\n"
 
                 full_response = ""
-                async for chunk in stream_ollama_response(request.query):
+                async for chunk in stream_claude_response(request.query):
                     full_response += chunk
                     yield f"data: {json.dumps({'type': 'content', 'content': chunk})}\n\n"
                     await asyncio.sleep(0)
@@ -866,7 +1015,8 @@ async def execute_query_stream(
                 await asyncio.sleep(0.05)  # Small delay for UI feedback
 
             # Execute pipeline (blocking)
-            result = pipeline.process(request.query)
+            # Pass conversation ID for session context (enables follow-up questions)
+            result = pipeline.process_with_session(request.query, session_id=conv_id)
 
             # Stream the answer
             yield f"data: {json.dumps({'type': 'content', 'content': result.answer})}\n\n"

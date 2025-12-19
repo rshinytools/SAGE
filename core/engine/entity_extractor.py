@@ -54,6 +54,30 @@ class EntityExtractor:
         'too', 'very', 'just', 'also', 'now', 'here', 'there', 'then',
         'show', 'list', 'find', 'get', 'give', 'tell', 'patients', 'subjects',
         'reported', 'experienced', 'had', 'have', 'having', 'who', 'whom',
+        # Clinical context words - NOT entity candidates (these describe analysis, not conditions)
+        'population', 'safety', 'efficacy', 'intent', 'treat', 'itt', 'per',
+        'protocol', 'analysis', 'set', 'flag', 'study', 'trial', 'arm',
+        'treatment', 'placebo', 'control', 'group', 'cohort', 'subset',
+        'adverse', 'event', 'events', 'serious', 'related', 'unrelated',
+        'count', 'total', 'number', 'percentage', 'rate', 'incidence',
+        'male', 'female', 'age', 'gender', 'sex', 'race', 'ethnicity',
+        'baseline', 'endpoint', 'primary', 'secondary', 'outcome', 'results',
+        # Grade/severity words - should NOT be matched as adverse events
+        'grade', 'grades', 'higher', 'lower', 'toxicity', 'severity', 'severe',
+        'mild', 'moderate', 'distribution', 'statistics', 'average', 'mean',
+        # Reference words for follow-up queries - NEVER match as adverse events
+        'out', 'above', 'below', 'among', 'within', 'between', 'across',
+        'over', 'under', 'around', 'about', 'regarding', 'concerning',
+    }
+
+    # Multi-word phrases to skip (reference phrases for follow-up queries)
+    # These should NEVER be matched as adverse event names
+    SKIP_PHRASES = {
+        'out of', 'out of these', 'out of those', 'out of them',
+        'of these', 'of those', 'of them', 'of this', 'of that',
+        'among them', 'among these', 'among those',
+        'within that', 'within this', 'within those',
+        'from those', 'from these', 'from them',
     }
 
     def __init__(self,
@@ -126,9 +150,14 @@ class EntityExtractor:
 
         # Also extract multi-word phrases (bigrams)
         for i in range(len(words) - 1):
-            if words[i] not in self.STOP_WORDS or words[i+1] not in self.STOP_WORDS:
-                phrase = f"{words[i]} {words[i+1]}"
-                candidates.append(phrase)
+            phrase = f"{words[i]} {words[i+1]}"
+            # Skip if phrase is a reference phrase (follow-up query context)
+            if phrase in self.SKIP_PHRASES:
+                continue
+            # Skip if both words are stop words
+            if words[i] in self.STOP_WORDS and words[i+1] in self.STOP_WORDS:
+                continue
+            candidates.append(phrase)
 
         return candidates
 
@@ -146,9 +175,46 @@ class EntityExtractor:
             ))
         return matches
 
+    # Common typo dictionary (fallback when FuzzyMatcher/MedDRA fail)
+    # Maps common typos/variations to standardized terms
+    # Note: Use proper case (e.g., "Headache" not "HEADACHE") to match typical clinical data
+    TYPO_DICTIONARY = {
+        # Adverse events - common typos (using proper case as typically found in data)
+        'headake': ('Headache', 'ADAE', 'AEDECOD'),
+        'headakes': ('Headache', 'ADAE', 'AEDECOD'),
+        'headach': ('Headache', 'ADAE', 'AEDECOD'),
+        'nauesa': ('Nausea', 'ADAE', 'AEDECOD'),
+        'nausia': ('Nausea', 'ADAE', 'AEDECOD'),
+        'vomitting': ('Vomiting', 'ADAE', 'AEDECOD'),
+        'vommiting': ('Vomiting', 'ADAE', 'AEDECOD'),
+        'diarhea': ('Diarrhoea', 'ADAE', 'AEDECOD'),
+        'diarrea': ('Diarrhoea', 'ADAE', 'AEDECOD'),
+        'diarrhoea': ('Diarrhoea', 'ADAE', 'AEDECOD'),
+        'diarrhea': ('Diarrhoea', 'ADAE', 'AEDECOD'),
+        'fatige': ('Fatigue', 'ADAE', 'AEDECOD'),
+        'fatigue': ('Fatigue', 'ADAE', 'AEDECOD'),
+        'hypertention': ('Hypertension', 'ADAE', 'AEDECOD'),
+        'pyrexia': ('Pyrexia', 'ADAE', 'AEDECOD'),
+        'fever': ('Pyrexia', 'ADAE', 'AEDECOD'),
+        # Medications - common typos
+        'tyleonl': ('TYLENOL', 'CM', 'CMTRT'),
+        'tylenol': ('TYLENOL', 'CM', 'CMTRT'),
+        'asprin': ('ASPIRIN', 'CM', 'CMTRT'),
+        'ibuprophen': ('IBUPROFEN', 'CM', 'CMTRT'),
+    }
+
     def _resolve_term(self, term: str) -> Optional[EntityMatch]:
         """
         Resolve a term using fuzzy matcher and MedDRA.
+
+        IMPORTANT: Data-driven approach - check actual data FIRST via FuzzyMatcher
+        before falling back to MedDRA. This prevents hallucinated entity matches
+        for non-clinical terms like "population" -> "Burkitt's leukaemia".
+
+        Resolution Order:
+        1. FuzzyMatcher (Factory 3) - checks if term exists in actual data
+        2. MedDRA (Factory 3.5) - only if not found in data, with validation
+        3. Typo Dictionary - common typos/variations as final fallback
 
         Args:
             term: Term to resolve
@@ -156,19 +222,112 @@ class EntityExtractor:
         Returns:
             EntityMatch if resolved, None otherwise
         """
-        # Try MedDRA first (for medical terms)
-        if self.meddra_lookup:
-            meddra_match = self._try_meddra(term)
-            if meddra_match:
-                return meddra_match
-
-        # Try fuzzy matcher
+        # Step 1: Try fuzzy matcher FIRST (data-driven approach)
+        # This checks if the term actually exists in the clinical data
         if self.fuzzy_matcher:
             fuzzy_match = self._try_fuzzy(term)
             if fuzzy_match:
+                logger.debug(f"Term '{term}' resolved via FuzzyMatcher (data-driven)")
                 return fuzzy_match
 
+        # Step 2: Fall back to MedDRA only if not found in data
+        # This handles typos and synonyms that might not be in the data
+        # but are valid medical terms (e.g., "headake" -> "HEADACHE")
+        if self.meddra_lookup:
+            meddra_match = self._try_meddra(term)
+            if meddra_match:
+                # Validate MedDRA match - ensure it's semantically similar
+                if self._validate_meddra_match(term, meddra_match):
+                    logger.debug(f"Term '{term}' resolved via MedDRA (validated)")
+                    return meddra_match
+                else:
+                    logger.debug(f"Term '{term}' rejected - MedDRA match not semantically similar")
+
+        # Step 3: Try typo dictionary as final fallback
+        # This catches common typos that might not be in FuzzyMatcher or MedDRA
+        typo_match = self._try_typo_dictionary(term)
+        if typo_match:
+            logger.debug(f"Term '{term}' resolved via typo dictionary")
+            return typo_match
+
         return None
+
+    def _try_typo_dictionary(self, term: str) -> Optional[EntityMatch]:
+        """Try to resolve term via built-in typo dictionary."""
+        term_lower = term.lower()
+
+        if term_lower in self.TYPO_DICTIONARY:
+            matched, table, column = self.TYPO_DICTIONARY[term_lower]
+            return EntityMatch(
+                original_term=term,
+                matched_term=matched,
+                match_type="typo_dictionary",
+                confidence=90.0,
+                table=table,
+                column=column
+            )
+
+        # Try fuzzy match against dictionary keys using difflib
+        from difflib import get_close_matches
+        matches = get_close_matches(term_lower, self.TYPO_DICTIONARY.keys(), n=1, cutoff=0.75)
+        if matches:
+            matched, table, column = self.TYPO_DICTIONARY[matches[0]]
+            return EntityMatch(
+                original_term=term,
+                matched_term=matched,
+                match_type="fuzzy_typo_dictionary",
+                confidence=85.0,
+                table=table,
+                column=column
+            )
+
+        return None
+
+    def _validate_meddra_match(self, original: str, match: EntityMatch) -> bool:
+        """
+        Validate that a MedDRA match is semantically similar to the original term.
+
+        This prevents hallucinated matches like "population" -> "Burkitt's leukaemia".
+        A valid match should have significant character overlap or be a known synonym.
+
+        Args:
+            original: Original search term
+            match: MedDRA match result
+
+        Returns:
+            True if match is valid, False if likely hallucinated
+        """
+        original_lower = original.lower()
+        matched_lower = match.matched_term.lower()
+
+        # High confidence matches are trusted
+        if match.confidence >= 95.0:
+            return True
+
+        # Check if original term is contained in matched term (or vice versa)
+        if original_lower in matched_lower or matched_lower in original_lower:
+            return True
+
+        # Check character overlap - at least 60% of characters should match
+        try:
+            from rapidfuzz import fuzz
+            char_similarity = fuzz.ratio(original_lower, matched_lower) / 100
+            if char_similarity >= 0.5:
+                return True
+
+            # Also check partial ratio for substring matches
+            partial_similarity = fuzz.partial_ratio(original_lower, matched_lower) / 100
+            if partial_similarity >= 0.7:
+                return True
+        except ImportError:
+            # Fallback: simple overlap check
+            common_chars = set(original_lower) & set(matched_lower)
+            overlap_ratio = len(common_chars) / max(len(original_lower), 1)
+            if overlap_ratio >= 0.5:
+                return True
+
+        # Reject if no significant overlap found
+        return False
 
     def _try_meddra(self, term: str) -> Optional[EntityMatch]:
         """Try to resolve term via MedDRA."""

@@ -55,17 +55,19 @@ class SQLExecutor:
 
     def __init__(self,
                  db_path: str,
-                 config: Optional[ExecutorConfig] = None):
+                 config: Optional[ExecutorConfig] = None,
+                 connection=None):
         """
         Initialize executor.
 
         Args:
             db_path: Path to DuckDB database
             config: Executor configuration
+            connection: Optional shared DuckDB connection (avoids lock conflicts)
         """
         self.db_path = db_path
         self.config = config or ExecutorConfig()
-        self._connection = None
+        self._shared_connection = connection  # Use shared connection if provided
 
     def execute(self, sql: str) -> ExecutionResult:
         """
@@ -91,16 +93,23 @@ class SQLExecutor:
         try:
             import duckdb
 
-            # Connect in read-only mode for safety
-            conn = duckdb.connect(
-                self.db_path,
-                read_only=self.config.read_only
-            )
+            # Use shared connection if provided, otherwise create new one
+            if self._shared_connection is not None:
+                conn = self._shared_connection
+                own_connection = False
+            else:
+                conn = duckdb.connect(
+                    self.db_path,
+                    read_only=self.config.read_only
+                )
+                own_connection = True
 
             try:
-                # Set memory limit if specified
+                # Set memory limit if specified (validated to be numeric)
                 if self.config.memory_limit > 0:
-                    conn.execute(f"SET memory_limit='{self.config.memory_limit}'")
+                    # Ensure memory_limit is a valid integer to prevent injection
+                    safe_limit = int(self.config.memory_limit)
+                    conn.execute(f"SET memory_limit='{safe_limit}'")
 
                 # Execute query
                 result = conn.execute(sql)
@@ -128,7 +137,9 @@ class SQLExecutor:
                 )
 
             finally:
-                conn.close()
+                # Only close connection if we created it
+                if own_connection:
+                    conn.close()
 
         except duckdb.CatalogException as e:
             # Table or column not found
@@ -274,11 +285,18 @@ class SQLExecutor:
 
     def get_columns(self, table_name: str) -> List[Dict[str, str]]:
         """Get columns for a table."""
+        # Validate table name to prevent SQL injection
+        from .sql_security import validate_table_name
+        if not validate_table_name(table_name):
+            logger.warning(f"Invalid table name rejected in get_columns: {table_name}")
+            return []
+
         try:
             import duckdb
 
             conn = duckdb.connect(self.db_path, read_only=True)
             try:
+                # Table name validated above
                 result = conn.execute(f"""
                     SELECT column_name, data_type
                     FROM information_schema.columns
@@ -297,11 +315,18 @@ class SQLExecutor:
 
     def get_row_count(self, table_name: str) -> int:
         """Get row count for a table."""
+        # Validate table name to prevent SQL injection
+        from .sql_security import validate_table_name
+        if not validate_table_name(table_name):
+            logger.warning(f"Invalid table name rejected in get_row_count: {table_name}")
+            return 0
+
         try:
             import duckdb
 
             conn = duckdb.connect(self.db_path, read_only=True)
             try:
+                # Table name validated above
                 result = conn.execute(f"SELECT COUNT(*) FROM {table_name}")
                 return result.fetchone()[0]
             finally:

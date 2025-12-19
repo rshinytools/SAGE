@@ -234,175 +234,50 @@ class ClinicalQueryConfig:
             ),
         }
 
-        # === POPULATION KEYWORDS ===
-        config.population_keywords = {
-            # Safety population
-            "safety": PopulationType.SAFETY,
-            "safety population": PopulationType.SAFETY,
-            "safe": PopulationType.SAFETY,
-            "saffl": PopulationType.SAFETY,
-
-            # ITT population
-            "itt": PopulationType.ITT,
-            "intent to treat": PopulationType.ITT,
-            "intention to treat": PopulationType.ITT,
-            "ittfl": PopulationType.ITT,
-            "randomized": PopulationType.ITT,
-
-            # Efficacy population
-            "efficacy": PopulationType.EFFICACY,
-            "efficacy population": PopulationType.EFFICACY,
-            "efffl": PopulationType.EFFICACY,
-
-            # Per-protocol
-            "per protocol": PopulationType.PER_PROTOCOL,
-            "per-protocol": PopulationType.PER_PROTOCOL,
-            "pp": PopulationType.PER_PROTOCOL,
-            "pprotfl": PopulationType.PER_PROTOCOL,
-
-            # All subjects
-            "all subjects": PopulationType.ALL_ENROLLED,
-            "all patients": PopulationType.ALL_ENROLLED,
-            "all enrolled": PopulationType.ALL_ENROLLED,
-            "everyone": PopulationType.ALL_ENROLLED,
-        }
-
-        # === SAFETY-RELATED INDICATORS ===
-        # If ANY of these appear in the query, use Safety Population by default
-        config.safety_indicators = {
-            # Adverse events
-            "adverse", "ae", "event", "events", "teae", "treatment-emergent",
-            "toxicity", "grade", "serious", "sae", "death", "fatal",
-            "hospitalization", "hospitalized", "life-threatening",
-
-            # Severity
-            "severity", "severe", "mild", "moderate",
-
-            # Causality
-            "drug-related", "related", "causality", "caused",
-
-            # Medications
-            "concomitant", "medication", "medications", "drug", "drugs",
-
-            # General safety
-            "safety", "safe", "tolerability", "tolerated",
-        }
-
-        # === DOMAIN DETECTION KEYWORDS ===
-        config.domain_keywords = {
-            # Adverse events
-            "adverse": QueryDomain.ADVERSE_EVENTS,
-            "ae": QueryDomain.ADVERSE_EVENTS,
-            "event": QueryDomain.ADVERSE_EVENTS,
-            "events": QueryDomain.ADVERSE_EVENTS,
-            "teae": QueryDomain.ADVERSE_EVENTS,
-            "sae": QueryDomain.ADVERSE_EVENTS,
-            "toxicity": QueryDomain.ADVERSE_EVENTS,
-            "headache": QueryDomain.ADVERSE_EVENTS,
-            "nausea": QueryDomain.ADVERSE_EVENTS,
-            "fever": QueryDomain.ADVERSE_EVENTS,
-            "death": QueryDomain.ADVERSE_EVENTS,
-            "hypertension": QueryDomain.ADVERSE_EVENTS,
-
-            # Demographics
-            "demographics": QueryDomain.DEMOGRAPHICS,
-            "age": QueryDomain.DEMOGRAPHICS,
-            "sex": QueryDomain.DEMOGRAPHICS,
-            "gender": QueryDomain.DEMOGRAPHICS,
-            "race": QueryDomain.DEMOGRAPHICS,
-            "weight": QueryDomain.DEMOGRAPHICS,
-            "height": QueryDomain.DEMOGRAPHICS,
-            "bmi": QueryDomain.DEMOGRAPHICS,
-            "subject": QueryDomain.DEMOGRAPHICS,
-            "patient": QueryDomain.DEMOGRAPHICS,
-            "enrolled": QueryDomain.DEMOGRAPHICS,
-
-            # Concomitant meds
-            "concomitant": QueryDomain.CONCOMITANT_MEDS,
-            "medication": QueryDomain.CONCOMITANT_MEDS,
-            "medications": QueryDomain.CONCOMITANT_MEDS,
-            "drug": QueryDomain.CONCOMITANT_MEDS,
-            "tylenol": QueryDomain.CONCOMITANT_MEDS,
-            "aspirin": QueryDomain.CONCOMITANT_MEDS,
-
-            # Labs
-            "lab": QueryDomain.LABS,
-            "labs": QueryDomain.LABS,
-            "laboratory": QueryDomain.LABS,
-            "hemoglobin": QueryDomain.LABS,
-            "hematocrit": QueryDomain.LABS,
-            "creatinine": QueryDomain.LABS,
-            "glucose": QueryDomain.LABS,
-            "alt": QueryDomain.LABS,
-            "ast": QueryDomain.LABS,
-            "bilirubin": QueryDomain.LABS,
-
-            # Vital signs
-            "vital": QueryDomain.VITAL_SIGNS,
-            "vitals": QueryDomain.VITAL_SIGNS,
-            "blood pressure": QueryDomain.VITAL_SIGNS,
-            "bp": QueryDomain.VITAL_SIGNS,
-            "heart rate": QueryDomain.VITAL_SIGNS,
-            "pulse": QueryDomain.VITAL_SIGNS,
-            "temperature": QueryDomain.VITAL_SIGNS,
-            "respiratory": QueryDomain.VITAL_SIGNS,
-        }
+        # No hard-coded keyword mappings - LLM handles query understanding naturally
+        # The LLM understands clinical terminology and will determine:
+        # - Which population to use based on query context
+        # - Which domain the query belongs to
+        # - When to apply filters and when not to
+        config.population_keywords = {}
+        config.safety_indicators = set()
+        config.domain_keywords = {}
 
         return config
 
     def detect_domain(self, query: str) -> QueryDomain:
         """
-        Detect the query domain based on keywords.
+        Domain detection is now handled by LLM.
 
-        Args:
-            query: User's natural language query
+        The LLM understands clinical terminology naturally and will
+        select the appropriate table based on query context.
 
-        Returns:
-            QueryDomain enum value
+        Returns UNKNOWN to let LLM make the decision.
         """
-        query_lower = query.lower()
-
-        # Count domain keyword matches
-        domain_scores: Dict[QueryDomain, int] = {}
-
-        for keyword, domain in self.domain_keywords.items():
-            if keyword in query_lower:
-                domain_scores[domain] = domain_scores.get(domain, 0) + 1
-
-        if domain_scores:
-            # Return domain with highest score
-            return max(domain_scores, key=domain_scores.get)
-
+        # LLM handles domain detection - no keyword matching
         return QueryDomain.UNKNOWN
 
     def detect_population(self, query: str) -> PopulationType:
         """
-        Detect which population to use based on query.
+        Population detection is now handled by LLM.
 
-        Args:
-            query: User's natural language query
+        The LLM understands when to apply population filters based on
+        query context. It will add SAFFL='Y' when clinically appropriate,
+        not based on keyword matching.
 
-        Returns:
-            PopulationType enum value
+        Returns ALL_ENROLLED to let LLM decide what filters to apply.
         """
-        query_lower = query.lower()
-
-        # Check for explicit population keywords
-        for keyword, pop_type in self.population_keywords.items():
-            if keyword in query_lower:
-                return pop_type
-
-        # Check if this is a safety-related query
-        if any(indicator in query_lower for indicator in self.safety_indicators):
-            return PopulationType.SAFETY
-
-        # Default to safety population for clinical queries
-        return PopulationType.SAFETY
+        # LLM handles population detection - no keyword matching
+        return PopulationType.ALL_ENROLLED
 
     def is_safety_query(self, query: str) -> bool:
-        """Check if query is safety-related."""
-        query_lower = query.lower()
-        return any(indicator in query_lower for indicator in self.safety_indicators)
+        """
+        Safety query detection is now handled by LLM.
+
+        The LLM understands clinical context naturally.
+        """
+        # LLM handles safety query detection
+        return False
 
 
 # Global default configuration

@@ -93,20 +93,18 @@ class AutoApprovalEngine:
     def __init__(
         self,
         cdisc_library: CDISCLibrary,
-        ollama_host: str = "http://ollama:11434",
-        llm_model: str = "deepseek-r1:8b"
+        llm_model: str = "claude-sonnet-4-20250514"
     ):
         """
         Initialize the auto-approval engine.
 
         Args:
             cdisc_library: CDISCLibrary instance for standard matching
-            ollama_host: Ollama API host URL
-            llm_model: Model to use for LLM analysis
+            llm_model: Model to use for LLM analysis (Claude model name)
         """
         self.cdisc_library = cdisc_library
-        self.ollama_host = ollama_host
         self.llm_model = llm_model
+        self._anthropic_client = None
 
     def run_audit(
         self,
@@ -298,8 +296,8 @@ class AutoApprovalEngine:
         prompt = self._build_llm_prompt(variables_info)
 
         try:
-            # Call Ollama
-            response = self._call_ollama(prompt)
+            # Call Claude
+            response = self._call_llm(prompt)
 
             # Parse LLM response
             llm_decisions = self._parse_llm_response(response, variables_info)
@@ -377,26 +375,29 @@ Example response:
 
 Respond with ONLY the JSON array, no other text."""
 
-    def _call_ollama(self, prompt: str, timeout: float = 120.0) -> str:
-        """Call Ollama API and return response text."""
+    def _get_client(self):
+        """Get or create Anthropic client."""
+        if self._anthropic_client is None:
+            import anthropic
+            import os
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+            if not api_key:
+                raise ValueError("ANTHROPIC_API_KEY not set")
+            self._anthropic_client = anthropic.Anthropic(api_key=api_key)
+        return self._anthropic_client
+
+    def _call_llm(self, prompt: str, timeout: float = 60.0) -> str:
+        """Call Claude API and return response text."""
         try:
-            with httpx.Client(timeout=timeout) as client:
-                response = client.post(
-                    f"{self.ollama_host}/api/generate",
-                    json={
-                        "model": self.llm_model,
-                        "prompt": prompt,
-                        "stream": False,
-                        "options": {
-                            "temperature": 0.1,
-                            "num_predict": 2000
-                        }
-                    }
-                )
-                response.raise_for_status()
-                return response.json().get("response", "")
+            client = self._get_client()
+            response = client.messages.create(
+                model=self.llm_model,
+                max_tokens=2000,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.content[0].text
         except Exception as e:
-            logger.error(f"Ollama API call failed: {e}")
+            logger.error(f"Claude API call failed: {e}")
             raise
 
     def _parse_llm_response(
@@ -445,8 +446,7 @@ Respond with ONLY the JSON array, no other text."""
 def run_audit(
     metadata_store,
     cdisc_library: CDISCLibrary,
-    ollama_host: str = "http://ollama:11434",
-    llm_model: str = "deepseek-r1:8b",
+    llm_model: str = "claude-sonnet-4-20250514",
     user: str = "auto_approval_engine",
     progress_callback: Optional[Callable[[AuditProgress], None]] = None,
     apply_approvals: bool = True
@@ -457,8 +457,7 @@ def run_audit(
     Args:
         metadata_store: MetadataStore instance
         cdisc_library: CDISCLibrary for standard matching
-        ollama_host: Ollama API host
-        llm_model: Model for LLM analysis
+        llm_model: Model for LLM analysis (Claude model name)
         user: Username for audit trail
         progress_callback: Optional progress callback
         apply_approvals: Whether to apply approvals to store
@@ -466,7 +465,7 @@ def run_audit(
     Returns:
         AuditResult with all decisions
     """
-    engine = AutoApprovalEngine(cdisc_library, ollama_host, llm_model)
+    engine = AutoApprovalEngine(cdisc_library, llm_model)
 
     # Get all pending variables
     pending = []

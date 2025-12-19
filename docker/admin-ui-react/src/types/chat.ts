@@ -8,13 +8,46 @@ export interface FileAttachment {
   url?: string;
 }
 
+export interface ConfidenceScore {
+  score: number;
+  level: string;
+  explanation?: string;
+  components?: Record<string, unknown>;
+}
+
+export interface Methodology {
+  query?: string;
+  table_used?: string;
+  population_used?: string;
+  population_filter?: string;
+  columns_used?: string[];
+  entities_resolved?: Array<{ original: string; resolved: string; confidence: number }>;
+  sql_executed?: string;
+  confidence_score?: number;
+  confidence_level?: string;
+  assumptions?: string[];
+  timestamp?: string;
+}
+
 export interface MessageMetadata {
   model?: string;
   tokens?: number;
   sql_query?: string;
+  sql?: string;
   table_result?: Record<string, unknown>[];
-  confidence?: number;
+  data?: Record<string, unknown>[];
+  confidence?: number | ConfidenceScore;
   execution_time_ms?: number;
+  methodology?: Methodology;
+  pipeline?: boolean;
+  pipeline_used?: boolean;
+  success?: boolean;
+  warnings?: string[];
+  row_count?: number;
+  // Clarification message properties
+  clarification_needed?: boolean;
+  response_type?: string;
+  questions_count?: number;
 }
 
 export interface ChatMessage {

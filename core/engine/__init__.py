@@ -47,7 +47,7 @@ from .input_sanitizer import InputSanitizer, SanitizerConfig
 from .entity_extractor import EntityExtractor, SimpleEntityExtractor
 from .table_resolver import TableResolver, TableResolution
 from .context_builder import ContextBuilder, SchemaInfo
-from .sql_generator import SQLGenerator, OllamaConfig, MockSQLGenerator
+from .sql_generator import MockSQLGenerator, UnifiedSQLGenerator, create_sql_generator
 from .sql_validator import SQLValidator, ValidatorConfig
 from .executor import SQLExecutor, ExecutorConfig, MockExecutor
 from .confidence_scorer import ConfidenceScorer, ScorerConfig, get_confidence_color
@@ -58,6 +58,13 @@ from .pipeline import (
     InferencePipeline,
     PipelineConfig,
     create_pipeline
+)
+
+# Clinical Naming Service (dynamic friendly names)
+from .clinical_naming import (
+    ClinicalNamingService,
+    get_naming_service,
+    get_friendly_name
 )
 
 __all__ = [
@@ -92,9 +99,9 @@ __all__ = [
     'TableResolution',
     'ContextBuilder',
     'SchemaInfo',
-    'SQLGenerator',
-    'OllamaConfig',
     'MockSQLGenerator',
+    'UnifiedSQLGenerator',
+    'create_sql_generator',
     'SQLValidator',
     'ValidatorConfig',
     'SQLExecutor',
@@ -109,5 +116,10 @@ __all__ = [
     # Pipeline
     'InferencePipeline',
     'PipelineConfig',
-    'create_pipeline'
+    'create_pipeline',
+
+    # Clinical Naming
+    'ClinicalNamingService',
+    'get_naming_service',
+    'get_friendly_name'
 ]

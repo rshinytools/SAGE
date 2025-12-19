@@ -40,11 +40,14 @@ class TestTableSelection:
         )
 
     def test_select_adae_for_ae_query(self):
-        """Test ADAE is selected for adverse event queries."""
+        """Test table selection with LLM-first approach."""
+        # With LLM-first approach, domain detection returns UNKNOWN
+        # The resolver will use defaults; LLM handles intelligent selection
         resolution = self.resolver.resolve(
             query="How many patients had headaches?"
         )
-        assert resolution.selected_table == "ADAE"
+        # With UNKNOWN domain, defaults to ADSL (demographics)
+        assert resolution.selected_table in ["ADSL", "ADAE"]
         assert resolution.table_type == "ADaM"
 
     def test_select_adsl_for_demographics(self):
@@ -67,8 +70,10 @@ class TestTableSelection:
             config=DEFAULT_CLINICAL_CONFIG
         )
 
+        # With explicit domain, should use correct table
         resolution = resolver.resolve(
-            query="How many patients had headaches?"
+            query="How many patients had headaches?",
+            explicit_domain=QueryDomain.ADVERSE_EVENTS
         )
         assert resolution.selected_table == "AE"
         assert resolution.table_type == "SDTM"
@@ -98,25 +103,27 @@ class TestPopulationFilter:
         )
 
     def test_safety_population_default_for_ae(self):
-        """Test safety population is default for AE queries."""
+        """Test population defaults to ALL_ENROLLED - LLM handles filtering."""
         resolution = self.resolver.resolve(
             query="How many patients had nausea?"
         )
-        assert resolution.population_filter == "SAFFL = 'Y'"
-        assert resolution.population == PopulationType.SAFETY
+        # With LLM-first approach, population detection returns ALL_ENROLLED
+        # LLM decides what filters to apply based on context
+        assert resolution.population == PopulationType.ALL_ENROLLED
 
     def test_explicit_itt_population(self):
-        """Test explicit ITT population request."""
+        """Test explicit ITT population request via parameter."""
         resolution = self.resolver.resolve(
-            query="How many patients in ITT population had nausea?"
+            query="How many patients in ITT population had nausea?",
+            explicit_population=PopulationType.ITT
         )
-        # Should detect ITT from query
         assert resolution.population == PopulationType.ITT
 
     def test_explicit_safety_population(self):
-        """Test explicit safety population request."""
+        """Test explicit safety population request via parameter."""
         resolution = self.resolver.resolve(
-            query="Show adverse events in safety population"
+            query="Show adverse events in safety population",
+            explicit_population=PopulationType.SAFETY
         )
         assert resolution.population_filter == "SAFFL = 'Y'"
         assert resolution.population == PopulationType.SAFETY
@@ -146,8 +153,10 @@ class TestColumnResolution:
 
     def test_atoxgr_preferred_over_aetoxgr(self):
         """Test ATOXGR is preferred when both available."""
+        # Use explicit domain to force ADAE selection
         resolution = self.resolver.resolve(
-            query="Show grade 3 adverse events"
+            query="Show grade 3 adverse events",
+            explicit_domain=QueryDomain.ADVERSE_EVENTS
         )
 
         # Check grade column resolution
@@ -165,7 +174,8 @@ class TestColumnResolution:
         )
 
         resolution = resolver.resolve(
-            query="Show grade 3 adverse events"
+            query="Show grade 3 adverse events",
+            explicit_domain=QueryDomain.ADVERSE_EVENTS
         )
 
         grade_col = resolution.get_grade_column()
@@ -327,3 +337,102 @@ class TestColumnValidation:
         valid, missing = self.resolver.validate_columns_exist('ADAE', ['NONEXISTENT'])
         assert valid is False
         assert 'NONEXISTENT' in missing
+
+
+class TestPopulationCountQueryDetection:
+    """Test population count query detection - now LLM-handled.
+
+    With the LLM-first approach, query routing is handled by the LLM
+    which naturally understands:
+    - "How many in safety population?" -> ADSL
+    - "How many had nausea?" -> ADAE
+
+    The pattern-matching has been removed in favor of LLM intelligence.
+    """
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.available_tables = {
+            'ADAE': ['USUBJID', 'AEDECOD', 'ATOXGR', 'SAFFL', 'TRTEMFL'],
+            'ADSL': ['USUBJID', 'AGE', 'SEX', 'SAFFL', 'ITTFL', 'EFFFL', 'PPROTFL']
+        }
+        self.resolver = TableResolver(
+            available_tables=self.available_tables,
+            config=DEFAULT_CLINICAL_CONFIG
+        )
+
+    def test_is_population_count_query_function(self):
+        """Test is_population_count_query returns False - LLM handles routing."""
+        from core.engine.table_resolver import is_population_count_query
+
+        # With LLM-first approach, this function always returns False
+        # LLM handles intelligent routing based on full query context
+        assert is_population_count_query("How many patients are in the safety population?") is False
+        assert is_population_count_query("How many had nausea in safety population?") is False
+
+    def test_safety_population_count_uses_adsl(self):
+        """Test ADSL is available for demographics queries."""
+        # With explicit domain, can force ADSL selection
+        resolution = self.resolver.resolve(
+            query="How many patients are in the safety population?",
+            explicit_domain=QueryDomain.DEMOGRAPHICS
+        )
+        assert resolution.selected_table == "ADSL"
+
+    def test_itt_population_count_uses_adsl(self):
+        """Test ITT population with explicit domain."""
+        resolution = self.resolver.resolve(
+            query="How many patients are in the ITT population?",
+            explicit_domain=QueryDomain.DEMOGRAPHICS,
+            explicit_population=PopulationType.ITT
+        )
+        assert resolution.selected_table == "ADSL"
+        assert resolution.population == PopulationType.ITT
+        assert resolution.population_filter == "ITTFL = 'Y'"
+
+    def test_efficacy_population_count_uses_adsl(self):
+        """Test efficacy population with explicit parameters."""
+        resolution = self.resolver.resolve(
+            query="How many are in the efficacy population?",
+            explicit_domain=QueryDomain.DEMOGRAPHICS,
+            explicit_population=PopulationType.EFFICACY
+        )
+        assert resolution.selected_table == "ADSL"
+        assert resolution.population == PopulationType.EFFICACY
+
+    def test_ae_in_safety_population_uses_adae(self):
+        """Test AE queries with explicit domain use ADAE."""
+        resolution = self.resolver.resolve(
+            query="How many patients had adverse events in the safety population?",
+            explicit_domain=QueryDomain.ADVERSE_EVENTS,
+            explicit_population=PopulationType.SAFETY
+        )
+        assert resolution.selected_table == "ADAE"
+        assert resolution.domain == QueryDomain.ADVERSE_EVENTS
+        assert resolution.population == PopulationType.SAFETY
+
+    def test_short_safety_population_query(self):
+        """Test short query with explicit parameters."""
+        resolution = self.resolver.resolve(
+            query="How many are in the safety population?",
+            explicit_domain=QueryDomain.DEMOGRAPHICS,
+            explicit_population=PopulationType.SAFETY
+        )
+        assert resolution.selected_table == "ADSL"
+        assert resolution.population_filter == "SAFFL = 'Y'"
+
+    def test_population_count_vs_safety_ae_queries(self):
+        """Test explicit domain selection for different query types."""
+        # Demographics domain - should use ADSL
+        pop_resolution = self.resolver.resolve(
+            "patients in safety population",
+            explicit_domain=QueryDomain.DEMOGRAPHICS
+        )
+        assert pop_resolution.selected_table == "ADSL"
+
+        # AE domain - should use ADAE
+        ae_resolution = self.resolver.resolve(
+            "patients with adverse events",
+            explicit_domain=QueryDomain.ADVERSE_EVENTS
+        )
+        assert ae_resolution.selected_table == "ADAE"

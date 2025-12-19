@@ -27,130 +27,73 @@ from core.engine.clinical_config import (
 
 
 class TestQueryDomainDetection:
-    """Test query domain detection."""
+    """Test query domain detection - now LLM-handled."""
 
     def setup_method(self):
         """Set up test fixtures."""
         self.config = DEFAULT_CLINICAL_CONFIG
 
     def test_detect_adverse_events_domain(self):
-        """Test adverse events domain detection."""
-        queries = [
-            "How many patients had headaches?",
-            "Show adverse events",
-            "List all AEs",
-            "Grade 3 toxicity",
-            "Treatment emergent events"
-        ]
-        for query in queries:
-            domain = self.config.detect_domain(query)
-            assert domain == QueryDomain.ADVERSE_EVENTS, f"Failed for: {query}"
+        """Test domain detection returns UNKNOWN - LLM handles this now."""
+        # With LLM-first approach, domain detection returns UNKNOWN
+        # to let the LLM make intelligent decisions based on full context
+        domain = self.config.detect_domain("How many patients had headaches?")
+        assert domain == QueryDomain.UNKNOWN
 
     def test_detect_demographics_domain(self):
-        """Test demographics domain detection."""
-        queries = [
-            "Age distribution",
-            "Patient demographics",
-            "Show race breakdown",
-            "Sex distribution"
-        ]
-        for query in queries:
-            domain = self.config.detect_domain(query)
-            assert domain == QueryDomain.DEMOGRAPHICS, f"Failed for: {query}"
+        """Test domain detection returns UNKNOWN - LLM handles this now."""
+        domain = self.config.detect_domain("Age distribution")
+        assert domain == QueryDomain.UNKNOWN
 
     def test_detect_conmed_domain(self):
-        """Test concomitant medications domain detection."""
-        queries = [
-            "Concomitant medications",
-            "What medications were used?",
-            "Drug history"
-        ]
-        for query in queries:
-            domain = self.config.detect_domain(query)
-            assert domain == QueryDomain.CONCOMITANT_MEDS, f"Failed for: {query}"
+        """Test domain detection returns UNKNOWN - LLM handles this now."""
+        domain = self.config.detect_domain("Concomitant medications")
+        assert domain == QueryDomain.UNKNOWN
 
     def test_detect_labs_domain(self):
-        """Test labs domain detection."""
-        queries = [
-            "ALT values",
-            "Laboratory results",
-            "Hemoglobin levels",
-            "Lab abnormalities"
-        ]
-        for query in queries:
-            domain = self.config.detect_domain(query)
-            assert domain == QueryDomain.LABS, f"Failed for: {query}"
+        """Test domain detection returns UNKNOWN - LLM handles this now."""
+        domain = self.config.detect_domain("ALT values")
+        assert domain == QueryDomain.UNKNOWN
 
     def test_detect_vital_signs_domain(self):
-        """Test vital signs domain detection."""
-        queries = [
-            "Blood pressure readings",
-            "Heart rate measurements",
-            "Vital signs",
-            "Temperature trends"
-        ]
-        for query in queries:
-            domain = self.config.detect_domain(query)
-            assert domain == QueryDomain.VITAL_SIGNS, f"Failed for: {query}"
+        """Test domain detection returns UNKNOWN - LLM handles this now."""
+        domain = self.config.detect_domain("Blood pressure readings")
+        assert domain == QueryDomain.UNKNOWN
 
 
 class TestPopulationDetection:
-    """Test population detection."""
+    """Test population detection - now LLM-handled."""
 
     def setup_method(self):
         """Set up test fixtures."""
         self.config = DEFAULT_CLINICAL_CONFIG
 
     def test_detect_safety_population(self):
-        """Test safety population detection."""
-        queries = [
-            "Safety population with headaches",
-            "Adverse events in safety population",
-            "How many in safety pop had nausea?"
-        ]
-        for query in queries:
-            pop = self.config.detect_population(query)
-            assert pop == PopulationType.SAFETY, f"Failed for: {query}"
+        """Test population detection returns ALL_ENROLLED - LLM handles filtering."""
+        # With LLM-first approach, population detection returns ALL_ENROLLED
+        # to let the LLM decide what filters to apply based on query context
+        pop = self.config.detect_population("Safety population with headaches")
+        assert pop == PopulationType.ALL_ENROLLED
 
     def test_detect_itt_population(self):
-        """Test ITT population detection."""
-        queries = [
-            "ITT population",
-            "Intent to treat analysis",
-            "Subjects in ITT"
-        ]
-        for query in queries:
-            pop = self.config.detect_population(query)
-            assert pop == PopulationType.ITT, f"Failed for: {query}"
+        """Test population detection returns ALL_ENROLLED - LLM handles filtering."""
+        pop = self.config.detect_population("ITT population")
+        assert pop == PopulationType.ALL_ENROLLED
 
     def test_detect_efficacy_population(self):
-        """Test efficacy population detection."""
-        queries = [
-            "Efficacy population",
-            "Efficacy analysis",
-            "Response in efficacy pop"
-        ]
-        for query in queries:
-            pop = self.config.detect_population(query)
-            assert pop == PopulationType.EFFICACY, f"Failed for: {query}"
+        """Test population detection returns ALL_ENROLLED - LLM handles filtering."""
+        pop = self.config.detect_population("Efficacy population")
+        assert pop == PopulationType.ALL_ENROLLED
 
     def test_detect_per_protocol(self):
-        """Test per-protocol population detection."""
-        queries = [
-            "Per protocol population",
-            "PP analysis",
-            "Per-protocol subjects"
-        ]
-        for query in queries:
-            pop = self.config.detect_population(query)
-            assert pop == PopulationType.PER_PROTOCOL, f"Failed for: {query}"
+        """Test population detection returns ALL_ENROLLED - LLM handles filtering."""
+        pop = self.config.detect_population("Per protocol population")
+        assert pop == PopulationType.ALL_ENROLLED
 
     def test_safety_default_for_ae_keywords(self):
-        """Test safety population is default for AE queries with safety keywords."""
-        # Queries with safety indicators should return SAFETY
-        query = "Show adverse events"  # "adverse" is a safety indicator
-        pop = self.config.detect_population(query)
-        assert pop == PopulationType.SAFETY
+        """Test population detection returns ALL_ENROLLED - LLM handles filtering."""
+        pop = self.config.detect_population("Show adverse events")
+        assert pop == PopulationType.ALL_ENROLLED
 
 
 class TestTablePriority:
@@ -263,33 +206,21 @@ class TestPopulationFilters:
 
 
 class TestSafetyQueryDetection:
-    """Test safety query detection logic."""
+    """Test safety query detection - now LLM-handled."""
 
     def setup_method(self):
         """Set up test fixtures."""
         self.config = DEFAULT_CLINICAL_CONFIG
 
     def test_ae_queries_are_safety(self):
-        """Test AE queries are considered safety queries."""
-        safety_queries = [
-            "Show adverse events",
-            "List serious adverse events",
-            "Show grade 3 toxicities",
-            "Treatment emergent AEs"
-        ]
-        for query in safety_queries:
-            assert self.config.is_safety_query(query) is True, f"Failed for: {query}"
+        """Test is_safety_query returns False - LLM handles context."""
+        # With LLM-first approach, is_safety_query always returns False
+        # to let the LLM determine query context naturally
+        assert self.config.is_safety_query("Show adverse events") is False
 
     def test_non_safety_queries(self):
-        """Test non-safety queries without safety indicators."""
-        non_safety = [
-            "Show age distribution",
-            "List all subjects"
-        ]
-        for query in non_safety:
-            result = self.config.is_safety_query(query)
-            # These might or might not be safety depending on keywords
-            assert isinstance(result, bool)
+        """Test is_safety_query returns False - LLM handles context."""
+        assert self.config.is_safety_query("Show age distribution") is False
 
 
 class TestDefaultClinicalConfig:
@@ -308,12 +239,14 @@ class TestDefaultClinicalConfig:
         assert len(DEFAULT_CLINICAL_CONFIG.column_priorities) > 0
 
     def test_default_config_has_population_keywords(self):
-        """Test default config has population keywords."""
-        assert len(DEFAULT_CLINICAL_CONFIG.population_keywords) > 0
+        """Test config has empty population keywords - LLM handles this."""
+        # With LLM-first approach, keyword dictionaries are empty
+        assert len(DEFAULT_CLINICAL_CONFIG.population_keywords) == 0
 
     def test_default_config_has_safety_indicators(self):
-        """Test default config has safety indicators."""
-        assert len(DEFAULT_CLINICAL_CONFIG.safety_indicators) > 0
+        """Test config has empty safety indicators - LLM handles this."""
+        # With LLM-first approach, safety indicators are empty
+        assert len(DEFAULT_CLINICAL_CONFIG.safety_indicators) == 0
 
 
 class TestTablePriorityClass:

@@ -171,6 +171,19 @@ export function ChatContainer() {
     setInitialMessage(suggestion);
   };
 
+  // Clear initialMessage after ChatInput has consumed it
+  const handleInitialMessageConsumed = useCallback(() => {
+    setInitialMessage("");
+  }, []);
+
+  // Handle option click from clarification messages - send directly
+  const handleOptionClick = useCallback(
+    (option: string) => {
+      handleSend(option);
+    },
+    [handleSend]
+  );
+
   return (
     <div className="flex h-full">
       {/* Sidebar */}
@@ -187,12 +200,17 @@ export function ChatContainer() {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <MessageList messages={messages} onSuggestionClick={handleSuggestionClick} />
+        <MessageList
+          messages={messages}
+          onSuggestionClick={handleSuggestionClick}
+          onOptionClick={handleOptionClick}
+        />
         <ChatInput
           onSend={handleSend}
           onCancel={cancelStreaming}
           isLoading={isStreaming}
           initialMessage={initialMessage}
+          onInitialMessageConsumed={handleInitialMessageConsumed}
         />
       </div>
     </div>

@@ -18,33 +18,11 @@ services:
       - api
       - admin-ui-react
       - docs
-    restart: unless-stopped
-    networks:
-      - sage-network
-
-  # ============================================
-  # LLM ENGINE - Ollama
-  # ============================================
-  # GPU Mode: Set ENABLE_GPU=true in .env for NVIDIA GPU support
-  # CPU Mode: Default for AMD/Intel (no GPU acceleration)
-  ollama:
-    image: ollama/ollama:latest
-    container_name: sage-ollama
-    ports:
-      - "${OLLAMA_PORT:-11434}:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_HOST=0.0.0.0
-      - OLLAMA_ORIGINS=*
-      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-2}
-      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-2}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 3
     restart: unless-stopped
     networks:
       - sage-network
@@ -64,7 +42,7 @@ services:
     depends_on:
       - api
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -88,8 +66,8 @@ services:
       - ./logs:/app/logs
       - ./tracker:/app/tracker
       - ./core:/app/core:ro
+      - ./docker/api/routers:/app/routers:ro
     environment:
-      - OLLAMA_HOST=http://ollama:11434
       - DUCKDB_PATH=/app/data/database/clinical.duckdb
       - DATA_DIR=/app/data
       - KNOWLEDGE_DIR=/app/knowledge
@@ -98,8 +76,13 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-sage2024}
       - SECRET_KEY=${SECRET_KEY:-sage-secret-key-change-in-production}
+      # Claude LLM Provider (Cloud)
+      - LLM_PROVIDER=claude
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-sonnet-4-20250514}
+      - LLM_SAFETY_AUDIT=${LLM_SAFETY_AUDIT:-true}
+      - LLM_BLOCK_PII=${LLM_BLOCK_PII:-true}
     depends_on:
-      - ollama
       - chromadb
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -145,11 +128,6 @@ services:
       - ANONYMIZED_TELEMETRY=false
       - ALLOW_RESET=true
       - IS_PERSISTENT=true
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     restart: unless-stopped
     networks:
       - sage-network
@@ -207,8 +185,6 @@ networks:
 # VOLUMES
 # ============================================
 volumes:
-  ollama_data:
-    name: sage-ollama-data
   prometheus_data:
     name: sage-prometheus-data
   grafana_data:

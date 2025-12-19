@@ -8,7 +8,7 @@ Features:
 - Generate plain-English descriptions for complex derivations
 - Explain codelist usage in context
 - Summarize variable purposes
-- Support for Ollama (local) and API-based LLMs
+- Support for Claude (Anthropic API) and Mock backends
 """
 
 import logging
@@ -68,68 +68,56 @@ class LLMBackend(ABC):
         pass
 
 
-class OllamaBackend(LLMBackend):
-    """Ollama local LLM backend."""
+class ClaudeBackend(LLMBackend):
+    """Claude (Anthropic API) LLM backend."""
 
     def __init__(
         self,
-        model: str = "deepseek-r1:14b",
-        host: str = "http://localhost:11434"
+        model: str = "claude-sonnet-4-20250514"
     ):
         self.model = model
-        self.host = host
+        self._client = None
         self._available = None
 
+    def _get_client(self):
+        """Get or create Anthropic client."""
+        if self._client is None:
+            try:
+                import anthropic
+                api_key = os.getenv("ANTHROPIC_API_KEY")
+                if api_key:
+                    self._client = anthropic.Anthropic(api_key=api_key)
+            except ImportError:
+                logger.warning("anthropic package not installed")
+        return self._client
+
     def is_available(self) -> bool:
-        """Check if Ollama is running and model is available."""
+        """Check if Claude API is available."""
         if self._available is not None:
             return self._available
 
-        try:
-            import urllib.request
-            import urllib.error
-
-            req = urllib.request.Request(f"{self.host}/api/tags")
-            with urllib.request.urlopen(req, timeout=5) as response:
-                data = json.loads(response.read().decode())
-                models = [m['name'] for m in data.get('models', [])]
-                self._available = any(self.model in m for m in models)
-                return self._available
-        except Exception as e:
-            logger.debug(f"Ollama not available: {e}")
-            self._available = False
-            return False
+        client = self._get_client()
+        self._available = client is not None
+        return self._available
 
     def generate(self, prompt: str, system_prompt: str = "") -> tuple[str, int]:
-        """Generate using Ollama API."""
-        import urllib.request
-        import urllib.error
-
-        payload = {
-            "model": self.model,
-            "prompt": prompt,
-            "system": system_prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.3,
-                "num_predict": 500
-            }
-        }
-
-        req = urllib.request.Request(
-            f"{self.host}/api/generate",
-            data=json.dumps(payload).encode(),
-            headers={"Content-Type": "application/json"}
-        )
+        """Generate using Claude API."""
+        client = self._get_client()
+        if not client:
+            raise RuntimeError("Claude API not available")
 
         try:
-            with urllib.request.urlopen(req, timeout=60) as response:
-                data = json.loads(response.read().decode())
-                text = data.get("response", "")
-                tokens = data.get("eval_count", 0) + data.get("prompt_eval_count", 0)
-                return text.strip(), tokens
-        except urllib.error.URLError as e:
-            raise RuntimeError(f"Ollama request failed: {e}")
+            response = client.messages.create(
+                model=self.model,
+                max_tokens=500,
+                system=system_prompt if system_prompt else None,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            text = response.content[0].text
+            tokens = response.usage.input_tokens + response.usage.output_tokens
+            return text.strip(), tokens
+        except Exception as e:
+            raise RuntimeError(f"Claude request failed: {e}")
 
 
 class MockBackend(LLMBackend):
@@ -183,23 +171,23 @@ Guidelines:
     def __init__(
         self,
         backend: Optional[LLMBackend] = None,
-        model: str = "deepseek-r1:14b"
+        model: str = "claude-sonnet-4-20250514"
     ):
         """
         Initialize the LLM drafter.
 
         Args:
-            backend: LLM backend to use (defaults to Ollama)
-            model: Model name for Ollama backend
+            backend: LLM backend to use (defaults to Claude)
+            model: Model name for Claude backend
         """
         if backend:
             self.backend = backend
         else:
-            # Try Ollama first, fall back to mock
-            ollama = OllamaBackend(model=model)
-            if ollama.is_available():
-                self.backend = ollama
-                logger.info(f"Using Ollama backend with model {model}")
+            # Try Claude first, fall back to mock
+            claude = ClaudeBackend(model=model)
+            if claude.is_available():
+                self.backend = claude
+                logger.info(f"Using Claude backend with model {model}")
             else:
                 self.backend = MockBackend()
                 logger.warning("LLM not available, using mock backend")

@@ -29,6 +29,26 @@ from .clinical_config import (
 logger = logging.getLogger(__name__)
 
 
+# No hard-coded patterns - LLM handles query understanding naturally
+# The LLM understands clinical terminology and can determine:
+# - "How many in safety population?" -> ADSL
+# - "How many had nausea?" -> ADAE
+# - "Patients over 65" -> ADSL
+
+
+def is_population_count_query(query: str) -> bool:
+    """
+    This function is deprecated - LLM handles query routing naturally.
+
+    The LLM understands clinical context and will select the appropriate
+    table based on the query content. No pattern matching needed.
+
+    Returns False to allow LLM to make table selection decisions.
+    """
+    # LLM handles all query understanding - no pattern matching
+    return False
+
+
 @dataclass
 class ColumnResolution:
     """Resolution of a single column concept."""
@@ -155,7 +175,16 @@ class TableResolver:
         warnings = []
 
         # Step 1: Detect domain
-        domain = explicit_domain or self.config.detect_domain(query)
+        # FIRST check if this is a population count query (should use ADSL)
+        # This MUST come before is_safety_query() because "safety population"
+        # contains "safety" which would trigger adverse events domain incorrectly
+        if not explicit_domain and is_population_count_query(query):
+            domain = QueryDomain.DEMOGRAPHICS
+            assumptions.append("Detected as population count query, using Demographics (ADSL)")
+            logger.info(f"Population count query detected: routing to DEMOGRAPHICS")
+        else:
+            domain = explicit_domain or self.config.detect_domain(query)
+
         if domain == QueryDomain.UNKNOWN:
             # Default to adverse events for safety queries
             if self.config.is_safety_query(query):
@@ -346,6 +375,7 @@ def get_table_resolver_from_duckdb(db_path: str,
         TableResolver initialized with available tables
     """
     import duckdb
+    from .sql_security import validate_table_name, add_table_to_whitelist
 
     conn = duckdb.connect(db_path, read_only=True)
     try:
@@ -356,11 +386,18 @@ def get_table_resolver_from_duckdb(db_path: str,
 
         available_tables = {}
         for (table_name,) in tables:
-            # Get columns for each table
-            columns = conn.execute(
-                f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
-            ).fetchall()
-            available_tables[table_name] = [col[0] for col, in columns]
+            # Validate table name before use (and add to whitelist if valid pattern)
+            # Table names from information_schema are trusted but we validate anyway
+            add_table_to_whitelist(table_name)  # Add discovered tables to whitelist
+
+            if validate_table_name(table_name):
+                # Get columns for each table (table_name validated)
+                columns = conn.execute(
+                    f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
+                ).fetchall()
+                available_tables[table_name] = [col[0] for col, in columns]
+            else:
+                logger.warning(f"Skipping table with invalid name pattern: {table_name}")
 
         return TableResolver(available_tables, config)
     finally:

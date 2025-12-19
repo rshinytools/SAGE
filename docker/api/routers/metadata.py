@@ -1245,11 +1245,10 @@ async def audit_variables_stream(
         try:
             from core.metadata import AutoApprovalEngine
 
-            # Get Ollama host from environment
-            ollama_host = os.getenv("OLLAMA_HOST", "http://ollama:11434")
-            llm_model = os.getenv("PRIMARY_MODEL", "deepseek-r1:8b")
+            # Get LLM model from environment
+            llm_model = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514")
 
-            engine = AutoApprovalEngine(library, ollama_host, llm_model) if not do_skip_llm else None
+            engine = AutoApprovalEngine(library, llm_model) if not do_skip_llm else None
 
             # Get all pending variables
             pending = []

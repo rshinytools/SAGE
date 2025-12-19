@@ -6,6 +6,7 @@ import type { ChatMessage } from "@/types/chat";
 interface MessageListProps {
   messages: ChatMessage[];
   onSuggestionClick?: (suggestion: string) => void;
+  onOptionClick?: (option: string) => void;
 }
 
 const suggestions = [
@@ -35,7 +36,7 @@ const suggestions = [
   },
 ];
 
-export function MessageList({ messages, onSuggestionClick }: MessageListProps) {
+export function MessageList({ messages, onSuggestionClick, onOptionClick }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,7 +103,11 @@ export function MessageList({ messages, onSuggestionClick }: MessageListProps) {
     <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
+          <MessageBubble
+            key={message.id}
+            message={message}
+            onOptionClick={onOptionClick}
+          />
         ))}
         <div ref={bottomRef} />
       </div>

@@ -180,8 +180,14 @@ class SQLValidator:
         # Add LIMIT if not present
         validated_sql = sql
         if not re.search(r'\bLIMIT\s+\d+', sql, re.IGNORECASE):
-            validated_sql = f"{sql} LIMIT {self.config.max_limit}"
+            # Strip trailing semicolons before adding LIMIT
+            sql_stripped = sql.rstrip(';').strip()
+            validated_sql = f"{sql_stripped} LIMIT {self.config.max_limit}"
             warnings.append(f"Added LIMIT {self.config.max_limit} for safety")
+
+        # Make string comparisons case-insensitive
+        # This ensures queries match data regardless of case variations
+        validated_sql = self.make_case_insensitive(validated_sql)
 
         return ValidationResult(
             is_valid=len(errors) == 0,
@@ -292,3 +298,81 @@ class SQLValidator:
         """Quick validation - just check if query is safe."""
         result = self.validate(sql)
         return result.is_valid
+
+    def make_case_insensitive(self, sql: str) -> str:
+        """
+        Transform SQL to use case-insensitive string comparisons.
+
+        Converts:
+        - column = 'value' → UPPER(column) = UPPER('value')
+        - column <> 'value' → UPPER(column) <> UPPER('value')
+        - column != 'value' → UPPER(column) != UPPER('value')
+        - column LIKE 'value%' → UPPER(column) LIKE UPPER('value%')
+        - column IN ('a', 'b') → UPPER(column) IN (UPPER('a'), UPPER('b'))
+
+        This ensures clinical data queries match regardless of case variations.
+
+        Args:
+            sql: Original SQL query
+
+        Returns:
+            SQL with case-insensitive string comparisons
+        """
+        if not sql:
+            return sql
+
+        # Pattern 1: column = 'value' or column <> 'value' or column != 'value'
+        # Match: identifier = 'string' (single quotes)
+        def replace_equality(match):
+            col = match.group(1)
+            op = match.group(2)
+            val = match.group(3)
+            # Don't transform if column is already wrapped in UPPER
+            if col.upper().startswith('UPPER('):
+                return match.group(0)
+            return f"UPPER({col}) {op} UPPER('{val}')"
+
+        # Pattern for column = 'value', column <> 'value', column != 'value'
+        sql = re.sub(
+            r"\b(\w+)\s*(=|<>|!=)\s*'([^']*)'",
+            replace_equality,
+            sql
+        )
+
+        # Pattern 2: column LIKE 'pattern'
+        def replace_like(match):
+            col = match.group(1)
+            pattern = match.group(2)
+            if col.upper().startswith('UPPER('):
+                return match.group(0)
+            return f"UPPER({col}) LIKE UPPER('{pattern}')"
+
+        sql = re.sub(
+            r"\b(\w+)\s+LIKE\s+'([^']*)'",
+            replace_like,
+            sql,
+            flags=re.IGNORECASE
+        )
+
+        # Pattern 3: column IN ('a', 'b', 'c')
+        def replace_in(match):
+            col = match.group(1)
+            values = match.group(2)
+            if col.upper().startswith('UPPER('):
+                return match.group(0)
+            # Transform each value in the IN clause
+            transformed_values = re.sub(
+                r"'([^']*)'",
+                r"UPPER('\1')",
+                values
+            )
+            return f"UPPER({col}) IN ({transformed_values})"
+
+        sql = re.sub(
+            r"\b(\w+)\s+IN\s*\(([^)]+)\)",
+            replace_in,
+            sql,
+            flags=re.IGNORECASE
+        )
+
+        return sql

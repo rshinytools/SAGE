@@ -39,6 +39,7 @@ from core.data.sas_reader import SASReader
 from core.data.date_handler import DateHandler, ImputationRule
 from core.data.duckdb_loader import DuckDBLoader
 from scripts.validators.data_validator import DataValidator, ValidationReport
+from core.engine.cache import get_query_cache, reset_query_cache
 
 # Configure logging
 logging.basicConfig(
@@ -290,6 +291,17 @@ class DataPipeline:
             report_path = self.output_db.parent / 'validation_report.json'
             report.save(str(report_path))
             logger.info(f"Saved validation report: {report_path}")
+
+        # Clear query cache after data load (cached results are now stale)
+        successful = sum(1 for r in self.results if r['status'] == 'success')
+        if successful > 0:
+            try:
+                cache = get_query_cache(db_path=str(self.output_db))
+                entries_cleared = len(cache)
+                cache.clear()
+                logger.info(f"Query cache cleared ({entries_cleared} entries) - data has changed")
+            except Exception as e:
+                logger.warning(f"Could not clear query cache: {e}")
 
         # Summary
         total_duration = (datetime.now() - start_time).total_seconds()

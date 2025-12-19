@@ -378,9 +378,9 @@ async def list_services(current_user: dict = Depends(get_current_user)):
             "port": int(os.getenv("CHAT_PORT", "8502"))
         },
         {
-            "name": "ollama",
+            "name": "chromadb",
             "status": "unknown",
-            "port": int(os.getenv("OLLAMA_PORT", "11434"))
+            "port": int(os.getenv("CHROMA_PORT", "8000"))
         }
     ]
 
@@ -423,7 +423,7 @@ async def restart_service(
             detail={"code": "FORBIDDEN", "message": "Admin role required"}
         )
 
-    valid_services = ["admin-ui", "chat-ui", "ollama", "api"]
+    valid_services = ["admin-ui", "chat-ui", "chromadb", "api"]
     if name not in valid_services:
         raise HTTPException(
             status_code=404,
@@ -599,3 +599,420 @@ async def delete_backup(
         "data": {"message": f"Backup deleted: {filename}"},
         "meta": {"timestamp": datetime.now().isoformat()}
     }
+
+
+# ============================================
+# Cache Management Endpoints
+# ============================================
+
+@router.get("/cache")
+async def get_cache_stats(current_user: dict = Depends(get_current_user)):
+    """
+    Get query cache statistics.
+
+    Returns cache size, hit rate, and data version information.
+    """
+    try:
+        from core.engine.cache import get_query_cache
+
+        # Get or create cache with DuckDB path
+        db_path = str(DATA_DIR / "database" / "clinical.duckdb")
+        cache = get_query_cache(db_path=db_path)
+        stats = cache.get_stats()
+
+        return {
+            "success": True,
+            "data": stats,
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+    except Exception as e:
+        return {
+            "success": True,
+            "data": {
+                "size": 0,
+                "max_size": 1000,
+                "hits": 0,
+                "misses": 0,
+                "error": str(e)
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+
+
+@router.post("/cache/clear")
+async def clear_cache(current_user: dict = Depends(get_current_user)):
+    """
+    Clear the query response cache.
+
+    Use this after loading new data to ensure queries return fresh results.
+    Requires admin role.
+    """
+    if "admin" not in current_user.get("roles", []):
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "FORBIDDEN", "message": "Admin role required"}
+        )
+
+    try:
+        from core.engine.cache import get_query_cache
+
+        cache = get_query_cache()
+        entries_before = len(cache)
+        cache.clear()
+
+        return {
+            "success": True,
+            "data": {
+                "message": "Cache cleared successfully",
+                "entries_cleared": entries_before
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "INTERNAL_ERROR", "message": f"Failed to clear cache: {str(e)}"}
+        )
+
+
+@router.get("/cache/entries")
+async def get_cache_entries(
+    limit: int = Query(default=50, ge=1, le=200),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get information about cached entries.
+
+    Requires admin role.
+    """
+    if "admin" not in current_user.get("roles", []):
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "FORBIDDEN", "message": "Admin role required"}
+        )
+
+    try:
+        from core.engine.cache import get_query_cache
+
+        cache = get_query_cache()
+        entries = cache.get_entries()[:limit]
+
+        return {
+            "success": True,
+            "data": entries,
+            "meta": {"timestamp": datetime.now().isoformat(), "count": len(entries)}
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "INTERNAL_ERROR", "message": f"Failed to get cache entries: {str(e)}"}
+        )
+
+
+# ============================================
+# LLM Provider Endpoints
+# ============================================
+
+@router.get("/llm")
+async def get_llm_config(current_user: dict = Depends(get_current_user)):
+    """
+    Get current LLM configuration.
+
+    Returns provider info, model, and safety settings.
+    """
+    try:
+        from core.engine.llm_providers import LLMConfig, get_available_providers
+
+        config = LLMConfig.from_env()
+        available = get_available_providers()
+
+        return {
+            "success": True,
+            "data": {
+                "provider": config.provider.value,
+                "model": config.claude_model,
+                "available_providers": available,
+                "settings": {
+                    "temperature": config.temperature,
+                    "max_tokens": config.max_tokens,
+                    "timeout": config.timeout,
+                    "safety_audit_enabled": config.enable_safety_audit,
+                    "block_pii": config.block_potential_pii
+                },
+                "claude": {
+                    "model": config.claude_model,
+                    "api_key_configured": bool(config.anthropic_api_key)
+                }
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "INTERNAL_ERROR", "message": f"Failed to get LLM config: {str(e)}"}
+        )
+
+
+@router.get("/llm/providers")
+async def list_llm_providers(current_user: dict = Depends(get_current_user)):
+    """
+    List available LLM providers and their status.
+    """
+    try:
+        from core.engine.llm_providers import get_available_providers, LLMConfig
+
+        config = LLMConfig.from_env()
+        available = get_available_providers()
+
+        providers = [
+            {
+                "id": "claude",
+                "name": "Claude (Anthropic API)",
+                "description": "Anthropic's Claude API for SQL generation. Only schema metadata is sent.",
+                "available": available.get("claude", False),
+                "is_local": False,
+                "requires_api_key": True,
+                "api_key_configured": bool(config.anthropic_api_key),
+                "models": ["claude-sonnet-4-20250514", "claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"]
+            },
+            {
+                "id": "mock",
+                "name": "Mock (Testing)",
+                "description": "Mock provider for testing. Returns pre-defined SQL patterns.",
+                "available": True,
+                "is_local": True,
+                "requires_api_key": False,
+                "models": ["mock-model"]
+            }
+        ]
+
+        return {
+            "success": True,
+            "data": {
+                "current_provider": config.provider.value,
+                "providers": providers
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "INTERNAL_ERROR", "message": f"Failed to list providers: {str(e)}"}
+        )
+
+
+@router.post("/llm/provider")
+async def set_llm_provider(
+    provider: str = Query(..., description="Provider to use: claude or mock"),
+    model: Optional[str] = Query(None, description="Optional model override"),
+    api_key: Optional[str] = Query(None, description="API key (for claude)"),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Change the LLM provider.
+
+    Requires admin role.
+
+    Note: This changes the runtime configuration. For persistent changes,
+    update environment variables.
+    """
+    if "admin" not in current_user.get("roles", []):
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "FORBIDDEN", "message": "Admin role required"}
+        )
+
+    try:
+        from core.engine.llm_providers import LLMProvider, set_provider, LLMConfig
+
+        # Validate provider
+        try:
+            provider_enum = LLMProvider(provider.lower())
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail={"code": "INVALID_PROVIDER", "message": f"Invalid provider: {provider}. Use: claude or mock"}
+            )
+
+        # Build kwargs
+        kwargs = {}
+        if model:
+            kwargs["claude_model"] = model
+
+        if api_key and provider_enum == LLMProvider.CLAUDE:
+            kwargs["anthropic_api_key"] = api_key
+
+        # Set the provider
+        new_provider = set_provider(provider_enum, **kwargs)
+
+        # Verify it's available
+        if not new_provider.is_available():
+            return {
+                "success": True,
+                "data": {
+                    "provider": provider_enum.value,
+                    "model": new_provider.get_model_name(),
+                    "available": False,
+                    "warning": "Provider set but not currently available. Check configuration."
+                },
+                "meta": {"timestamp": datetime.now().isoformat()}
+            }
+
+        return {
+            "success": True,
+            "data": {
+                "provider": provider_enum.value,
+                "model": new_provider.get_model_name(),
+                "available": True,
+                "message": f"LLM provider changed to {provider_enum.value}"
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "INTERNAL_ERROR", "message": f"Failed to set provider: {str(e)}"}
+        )
+
+
+@router.post("/llm/test")
+async def test_llm_connection(current_user: dict = Depends(get_current_user)):
+    """
+    Test the current LLM provider connection.
+
+    Sends a simple test prompt and returns the result.
+    """
+    try:
+        from core.engine.llm_providers import get_current_provider, LLMRequest
+
+        provider = get_current_provider()
+
+        if not provider.is_available():
+            return {
+                "success": False,
+                "data": {
+                    "provider": provider.get_provider_name(),
+                    "model": provider.get_model_name(),
+                    "status": "unavailable",
+                    "message": "Provider is not available. Check configuration."
+                },
+                "meta": {"timestamp": datetime.now().isoformat()}
+            }
+
+        # Send a simple test request
+        import time
+        start = time.time()
+
+        request = LLMRequest(
+            prompt="Generate a simple SQL query: SELECT 1 as test",
+            system_prompt="You are a SQL assistant. Return only SQL.",
+            max_tokens=100,
+            temperature=0.1
+        )
+
+        response = provider.generate(request)
+        elapsed_ms = (time.time() - start) * 1000
+
+        return {
+            "success": True,
+            "data": {
+                "provider": provider.get_provider_name(),
+                "model": provider.get_model_name(),
+                "status": "connected",
+                "response_time_ms": round(elapsed_ms, 2),
+                "response_preview": response.content[:200] if response.content else None,
+                "message": "LLM connection successful"
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "data": {
+                "status": "error",
+                "error": str(e),
+                "message": f"LLM connection failed: {str(e)}"
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+
+
+@router.get("/llm/audit")
+async def get_llm_audit_log(
+    limit: int = Query(default=100, ge=1, le=1000),
+    date: Optional[str] = Query(None, description="Date in YYYYMMDD format"),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get LLM audit log entries.
+
+    Requires admin role.
+
+    Shows what data was sent to external LLM APIs for compliance auditing.
+    """
+    if "admin" not in current_user.get("roles", []):
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "FORBIDDEN", "message": "Admin role required"}
+        )
+
+    try:
+        import json
+        from core.engine.llm_providers import LLMConfig
+
+        config = LLMConfig.from_env()
+        audit_dir = Path(config.audit_log_path) if config.audit_log_path else LOGS_DIR / "llm_audit"
+
+        if not audit_dir.exists():
+            return {
+                "success": True,
+                "data": {
+                    "entries": [],
+                    "message": "No audit logs found. Audit logging may not be configured."
+                },
+                "meta": {"timestamp": datetime.now().isoformat()}
+            }
+
+        # Find log files
+        if date:
+            log_files = list(audit_dir.glob(f"llm_audit_{date}.jsonl"))
+        else:
+            log_files = sorted(audit_dir.glob("llm_audit_*.jsonl"), reverse=True)
+
+        entries = []
+        for log_file in log_files[:5]:  # Check up to 5 most recent files
+            try:
+                with open(log_file, 'r') as f:
+                    for line in f:
+                        if line.strip():
+                            entries.append(json.loads(line))
+                            if len(entries) >= limit:
+                                break
+            except Exception:
+                continue
+
+            if len(entries) >= limit:
+                break
+
+        # Sort by timestamp descending
+        entries.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+
+        return {
+            "success": True,
+            "data": {
+                "entries": entries[:limit],
+                "total_found": len(entries),
+                "audit_enabled": config.enable_safety_audit
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "INTERNAL_ERROR", "message": f"Failed to read audit log: {str(e)}"}
+        )

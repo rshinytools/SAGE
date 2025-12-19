@@ -35,6 +35,13 @@ except ImportError as e:
     MODULES_AVAILABLE = False
     import_error = str(e)
 
+# Import cache module for clearing after data loads
+try:
+    from core.engine.cache import get_query_cache
+    CACHE_AVAILABLE = True
+except ImportError:
+    CACHE_AVAILABLE = False
+
 router = APIRouter()
 
 # Configuration
@@ -504,12 +511,23 @@ async def process_file_stream(filepath: Path, file_store: 'FileStore',
             # Archive previous versions
             file_store.archive_previous(table_name, record.id)
 
+        # Clear query cache after data load (cached results are now stale)
+        cache_cleared = 0
+        if CACHE_AVAILABLE:
+            try:
+                cache = get_query_cache(db_path=str(DATABASE_PATH))
+                cache_cleared = len(cache)
+                cache.clear()
+            except Exception:
+                pass  # Cache clearing is best-effort
+
         yield send_event("complete", {
             "table": table_name,
             "rows": len(df),
             "columns": len(df.columns),
             "schema_version": schema_version.version,
-            "progress": 100
+            "progress": 100,
+            "cache_cleared": cache_cleared
         })
 
     except Exception as e:
@@ -734,6 +752,16 @@ async def process_files(
     completed = len([r for r in results if r.get("status") == "completed"])
     failed = len([r for r in results if r.get("status") in ["error", "blocked"]])
 
+    # Clear query cache if any files were successfully loaded
+    cache_cleared = 0
+    if completed > 0 and CACHE_AVAILABLE:
+        try:
+            cache = get_query_cache(db_path=str(DATABASE_PATH))
+            cache_cleared = len(cache)
+            cache.clear()
+        except Exception:
+            pass  # Cache clearing is best-effort
+
     return {
         "success": True,
         "data": {
@@ -742,6 +770,7 @@ async def process_files(
             "total": len(results),
             "completed": completed,
             "failed": failed,
+            "cache_cleared": cache_cleared,
             "results": results
         },
         "meta": {"timestamp": datetime.now().isoformat()}

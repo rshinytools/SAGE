@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Send, Paperclip, X, Square, Loader2, Mic } from "lucide-react";
 
 interface ChatInputProps {
@@ -7,19 +7,24 @@ interface ChatInputProps {
   isLoading: boolean;
   disabled?: boolean;
   initialMessage?: string;
+  onInitialMessageConsumed?: () => void;  // Callback to clear initialMessage in parent
 }
 
-export function ChatInput({ onSend, onCancel, isLoading, disabled, initialMessage }: ChatInputProps) {
-  const [message, setMessage] = useState(initialMessage || "");
+export function ChatInput({ onSend, onCancel, isLoading, disabled, initialMessage, onInitialMessageConsumed }: ChatInputProps) {
+  const [message, setMessage] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Update message when initialMessage changes
-  if (initialMessage && message !== initialMessage) {
-    setMessage(initialMessage);
-  }
+  // Update message when initialMessage changes - using useEffect properly
+  useEffect(() => {
+    if (initialMessage) {
+      setMessage(initialMessage);
+      // Clear the initialMessage in parent after consuming it
+      onInitialMessageConsumed?.();
+    }
+  }, [initialMessage, onInitialMessageConsumed]);
 
   const handleSubmit = useCallback(
     (e?: React.FormEvent) => {

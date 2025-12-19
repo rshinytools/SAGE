@@ -3,7 +3,11 @@
 """
 SQL Generator
 =============
-Generates SQL queries using the LLM (DeepSeek-R1 via Ollama).
+Generates SQL queries using the LLM.
+
+Supports providers:
+- Claude (Anthropic API) - Primary
+- Mock (testing)
 
 This is STEP 5 of the 9-step pipeline.
 """
@@ -11,315 +15,99 @@ This is STEP 5 of the 9-step pipeline.
 import re
 import time
 import logging
-import requests
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
 
 from .models import GeneratedSQL, LLMContext
+from .llm_providers import (
+    LLMConfig, LLMProvider, LLMRequest, LLMResponse,
+    BaseLLMProvider, create_llm_provider, get_current_provider,
+    set_provider, get_available_providers
+)
 
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
+# ERROR CLASSES
+# =============================================================================
+
+class LLMError(Exception):
+    """Base exception for LLM-related errors."""
+    pass
+
+
+class LLMTimeoutError(LLMError):
+    """Raised when LLM request times out."""
+
+    def __init__(self, model: str, timeout: int):
+        self.model = model
+        self.timeout = timeout
+        super().__init__(
+            f"The AI model ({model}) is taking longer than expected. "
+            f"Timeout after {timeout} seconds. "
+            "Try a simpler question or try again later."
+        )
+
+
+class LLMConnectionError(LLMError):
+    """Raised when cannot connect to LLM service."""
+
+    def __init__(self, host: str, original_error: str = None):
+        self.host = host
+        self.original_error = original_error
+        super().__init__(
+            f"Cannot connect to the AI service at {host}. "
+            "The service may be starting up or unavailable. "
+            "Please try again in a moment."
+        )
+
+
+class LLMModelError(LLMError):
+    """Raised when the model returns an invalid response."""
+
+    def __init__(self, model: str, reason: str = None):
+        self.model = model
+        self.reason = reason
+        super().__init__(
+            f"The AI model ({model}) could not generate a valid SQL query. "
+            f"Reason: {reason or 'Unknown'}. "
+            "Try rephrasing your question."
+        )
+
+
+# =============================================================================
+# RESULT DATACLASS
+# =============================================================================
+
 @dataclass
-class OllamaConfig:
-    """Configuration for Ollama API."""
-    host: str = "http://localhost:11434"
-    model: str = "deepseek-r1:8b"
-    fallback_model: str = "llama3.1:8b-instruct-q8_0"
-    timeout: int = 60
-    temperature: float = 0.1
-    max_tokens: int = 2000
+class GenerationResult:
+    """Result of SQL generation from the LLM."""
+    sql: Optional[str] = None
+    raw_response: str = ""
+    model_used: str = ""
+    generation_time_ms: float = 0.0
+    success: bool = False
+    error: Optional[str] = None
+    reasoning: Optional[str] = None
 
 
-class SQLGenerator:
+# =============================================================================
+# MOCK SQL GENERATOR (FOR TESTING)
+# =============================================================================
+
+class MockSQLGenerator:
     """
-    Generates SQL using LLM.
-
-    Uses Ollama API to communicate with DeepSeek-R1 or fallback model.
-    Handles response parsing, retry logic, and error handling.
-
-    Example:
-        generator = SQLGenerator(ollama_host="http://localhost:11434")
-        result = generator.generate(context)
-        if result.sql:
-            print(result.sql)
-    """
-
-    def __init__(self, config: Optional[OllamaConfig] = None):
-        """
-        Initialize SQL generator.
-
-        Args:
-            config: Ollama configuration
-        """
-        self.config = config or OllamaConfig()
-
-    def generate(self,
-                 context: LLMContext,
-                 retry_count: int = 2
-                ) -> GeneratedSQL:
-        """
-        Generate SQL from context.
-
-        Args:
-            context: LLM context with prompts and schema
-            retry_count: Number of retries on failure
-
-        Returns:
-            GeneratedSQL with query and reasoning
-        """
-        start_time = time.time()
-
-        # Build full prompt
-        full_prompt = self._build_full_prompt(context)
-
-        # Try primary model first
-        for attempt in range(retry_count + 1):
-            model = self.config.model if attempt == 0 else self.config.fallback_model
-
-            try:
-                response = self._call_ollama(full_prompt, model)
-
-                if response:
-                    sql, reasoning = self._parse_response(response)
-
-                    if sql:
-                        generation_time = (time.time() - start_time) * 1000
-
-                        # Extract tables and columns from SQL
-                        tables = self._extract_tables(sql)
-                        columns = self._extract_columns(sql)
-                        filters = self._extract_filters(sql)
-
-                        return GeneratedSQL(
-                            sql=sql,
-                            reasoning=reasoning,
-                            tables_used=tables,
-                            columns_used=columns,
-                            filters_applied=filters,
-                            generation_time_ms=generation_time,
-                            model_used=model,
-                            raw_response=response
-                        )
-
-            except Exception as e:
-                logger.warning(f"Attempt {attempt + 1} failed with {model}: {e}")
-                if attempt == retry_count:
-                    raise
-
-        # Should not reach here
-        raise RuntimeError("SQL generation failed after all retries")
-
-    def _build_full_prompt(self, context: LLMContext) -> str:
-        """Build the complete prompt for the LLM."""
-        parts = [
-            context.system_prompt,
-            "",
-            context.schema_context,
-            "",
-            context.entity_context,
-            "",
-            context.clinical_rules,
-            "",
-            context.user_prompt
-        ]
-        return "\n".join(parts)
-
-    def _call_ollama(self, prompt: str, model: str) -> Optional[str]:
-        """
-        Call Ollama API.
-
-        Args:
-            prompt: Full prompt text
-            model: Model to use
-
-        Returns:
-            Response text or None
-        """
-        url = f"{self.config.host}/api/generate"
-
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": self.config.temperature,
-                "num_predict": self.config.max_tokens,
-            }
-        }
-
-        try:
-            response = requests.post(
-                url,
-                json=payload,
-                timeout=self.config.timeout
-            )
-            response.raise_for_status()
-
-            data = response.json()
-            return data.get("response", "")
-
-        except requests.exceptions.ConnectionError:
-            logger.error(f"Cannot connect to Ollama at {self.config.host}")
-            raise RuntimeError(f"Ollama not available at {self.config.host}")
-
-        except requests.exceptions.Timeout:
-            logger.error("Ollama request timed out")
-            raise RuntimeError("LLM request timed out")
-
-        except Exception as e:
-            logger.error(f"Ollama API error: {e}")
-            raise
-
-    def _parse_response(self, response: str) -> tuple:
-        """
-        Parse LLM response to extract SQL and reasoning.
-
-        Args:
-            response: Raw LLM response
-
-        Returns:
-            Tuple of (sql, reasoning)
-        """
-        sql = ""
-        reasoning = ""
-
-        # Extract thinking/reasoning (DeepSeek-R1 style)
-        think_match = re.search(r'<think>(.*?)</think>', response, re.DOTALL)
-        if think_match:
-            reasoning = think_match.group(1).strip()
-
-        # Extract SQL from code block
-        sql_match = re.search(r'```sql\s*(.*?)\s*```', response, re.DOTALL | re.IGNORECASE)
-        if sql_match:
-            sql = sql_match.group(1).strip()
-        else:
-            # Try without language specifier
-            sql_match = re.search(r'```\s*(SELECT.*?)\s*```', response, re.DOTALL | re.IGNORECASE)
-            if sql_match:
-                sql = sql_match.group(1).strip()
-            else:
-                # Try to find bare SELECT statement
-                sql_match = re.search(r'(SELECT\s+.*?(?:;|$))', response, re.DOTALL | re.IGNORECASE)
-                if sql_match:
-                    sql = sql_match.group(1).strip()
-
-        # Clean SQL
-        sql = self._clean_sql(sql)
-
-        return sql, reasoning
-
-    def _clean_sql(self, sql: str) -> str:
-        """Clean and normalize SQL."""
-        if not sql:
-            return ""
-
-        # Remove trailing semicolon
-        sql = sql.rstrip(';').strip()
-
-        # Normalize whitespace
-        sql = re.sub(r'\s+', ' ', sql)
-
-        # Capitalize SQL keywords
-        keywords = ['SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'JOIN', 'LEFT', 'RIGHT',
-                   'INNER', 'OUTER', 'ON', 'AS', 'COUNT', 'DISTINCT', 'GROUP', 'BY',
-                   'ORDER', 'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'ALL', 'IN', 'NOT',
-                   'NULL', 'IS', 'LIKE', 'BETWEEN', 'EXISTS', 'CASE', 'WHEN', 'THEN',
-                   'ELSE', 'END', 'ASC', 'DESC', 'SUM', 'AVG', 'MIN', 'MAX']
-
-        for kw in keywords:
-            pattern = re.compile(r'\b' + kw + r'\b', re.IGNORECASE)
-            sql = pattern.sub(kw, sql)
-
-        return sql
-
-    def _extract_tables(self, sql: str) -> List[str]:
-        """Extract table names from SQL."""
-        tables = []
-
-        # FROM clause
-        from_match = re.search(r'\bFROM\s+(\w+)', sql, re.IGNORECASE)
-        if from_match:
-            tables.append(from_match.group(1).upper())
-
-        # JOIN clauses
-        join_matches = re.findall(r'\bJOIN\s+(\w+)', sql, re.IGNORECASE)
-        tables.extend([t.upper() for t in join_matches])
-
-        return list(set(tables))
-
-    def _extract_columns(self, sql: str) -> List[str]:
-        """Extract column names from SQL."""
-        columns = []
-
-        # Simple extraction - find word patterns that look like columns
-        # This is a basic implementation
-        col_pattern = re.compile(r'\b([A-Z][A-Z0-9_]*)\b')
-        matches = col_pattern.findall(sql.upper())
-
-        # Filter out SQL keywords
-        keywords = {'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'JOIN', 'LEFT', 'RIGHT',
-                   'INNER', 'OUTER', 'ON', 'AS', 'COUNT', 'DISTINCT', 'GROUP', 'BY',
-                   'ORDER', 'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'ALL', 'IN', 'NOT',
-                   'NULL', 'IS', 'LIKE', 'BETWEEN', 'EXISTS', 'CASE', 'WHEN', 'THEN',
-                   'ELSE', 'END', 'ASC', 'DESC', 'SUM', 'AVG', 'MIN', 'MAX', 'TRUE',
-                   'FALSE', 'Y', 'N'}
-
-        columns = [c for c in matches if c not in keywords]
-
-        return list(set(columns))
-
-    def _extract_filters(self, sql: str) -> List[str]:
-        """Extract WHERE clause filters."""
-        filters = []
-
-        # Find WHERE clause
-        where_match = re.search(r'\bWHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)',
-                                sql, re.IGNORECASE | re.DOTALL)
-        if where_match:
-            where_clause = where_match.group(1).strip()
-
-            # Split by AND/OR
-            conditions = re.split(r'\s+AND\s+|\s+OR\s+', where_clause, flags=re.IGNORECASE)
-            filters = [c.strip() for c in conditions if c.strip()]
-
-        return filters
-
-    def is_available(self) -> bool:
-        """Check if Ollama is available."""
-        try:
-            response = requests.get(f"{self.config.host}/api/tags", timeout=5)
-            return response.status_code == 200
-        except:
-            return False
-
-    def list_models(self) -> List[str]:
-        """List available models."""
-        try:
-            response = requests.get(f"{self.config.host}/api/tags", timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                return [m['name'] for m in data.get('models', [])]
-        except:
-            pass
-        return []
-
-
-class MockSQLGenerator(SQLGenerator):
-    """
-    Mock SQL generator for testing without Ollama.
+    Mock SQL generator for testing without LLM.
 
     Generates basic SQL based on context patterns.
     """
 
     def __init__(self):
         """Initialize mock generator."""
-        super().__init__(OllamaConfig())
+        pass
 
-    def generate(self,
-                 context: LLMContext,
-                 retry_count: int = 2
-                ) -> GeneratedSQL:
+    def generate(self, context: LLMContext, retry_count: int = 2) -> GeneratedSQL:
         """Generate mock SQL."""
         start_time = time.time()
 
@@ -374,3 +162,277 @@ class MockSQLGenerator(SQLGenerator):
             sql += " WHERE " + " AND ".join(conditions)
 
         return sql
+
+    def _extract_tables(self, sql: str) -> List[str]:
+        """Extract table names from SQL."""
+        tables = []
+        from_match = re.search(r'\bFROM\s+(\w+)', sql, re.IGNORECASE)
+        if from_match:
+            tables.append(from_match.group(1).upper())
+        join_matches = re.findall(r'\bJOIN\s+(\w+)', sql, re.IGNORECASE)
+        tables.extend([t.upper() for t in join_matches])
+        return list(set(tables))
+
+    def _extract_columns(self, sql: str) -> List[str]:
+        """Extract column names from SQL."""
+        col_pattern = re.compile(r'\b([A-Z][A-Z0-9_]*)\b')
+        matches = col_pattern.findall(sql.upper())
+        keywords = {'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'JOIN', 'LEFT', 'RIGHT',
+                   'INNER', 'OUTER', 'ON', 'AS', 'COUNT', 'DISTINCT', 'GROUP', 'BY',
+                   'ORDER', 'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'ALL', 'IN', 'NOT',
+                   'NULL', 'IS', 'LIKE', 'BETWEEN', 'EXISTS', 'CASE', 'WHEN', 'THEN',
+                   'ELSE', 'END', 'ASC', 'DESC', 'SUM', 'AVG', 'MIN', 'MAX', 'TRUE',
+                   'FALSE', 'Y', 'N'}
+        return list(set(c for c in matches if c not in keywords))
+
+    def _extract_filters(self, sql: str) -> List[str]:
+        """Extract WHERE clause filters."""
+        where_match = re.search(r'\bWHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)',
+                                sql, re.IGNORECASE | re.DOTALL)
+        if where_match:
+            where_clause = where_match.group(1).strip()
+            conditions = re.split(r'\s+AND\s+|\s+OR\s+', where_clause, flags=re.IGNORECASE)
+            return [c.strip() for c in conditions if c.strip()]
+        return []
+
+    def is_available(self) -> bool:
+        """Mock is always available."""
+        return True
+
+
+# =============================================================================
+# UNIFIED SQL GENERATOR (Multi-Provider)
+# =============================================================================
+
+class UnifiedSQLGenerator:
+    """
+    Unified SQL generator that supports multiple LLM providers.
+
+    Uses the LLM provider abstraction to support:
+    - Claude (Anthropic API)
+    - Mock (testing)
+
+    Includes safety auditing for external API calls.
+
+    Example:
+        generator = UnifiedSQLGenerator()  # Uses env config
+        result = generator.generate(context)
+    """
+
+    def __init__(self, config: Optional[LLMConfig] = None, provider: Optional[BaseLLMProvider] = None):
+        """
+        Initialize unified generator.
+
+        Args:
+            config: LLM configuration (uses env if not provided)
+            provider: Pre-configured provider (creates from config if not provided)
+        """
+        self.config = config or LLMConfig.from_env()
+        self._provider = provider
+
+    @property
+    def provider(self) -> BaseLLMProvider:
+        """Get the LLM provider (creates if needed)."""
+        if self._provider is None:
+            self._provider = create_llm_provider(self.config)
+        return self._provider
+
+    def set_provider(self, provider_type: LLMProvider, **kwargs):
+        """
+        Change the LLM provider at runtime.
+
+        Args:
+            provider_type: New provider to use
+            **kwargs: Additional config options
+        """
+        self.config.provider = provider_type
+        for key, value in kwargs.items():
+            if hasattr(self.config, key):
+                setattr(self.config, key, value)
+        self._provider = create_llm_provider(self.config)
+        logger.info(f"SQL generator switched to provider: {provider_type.value}")
+
+    def generate(self,
+                 context: LLMContext,
+                 retry_count: int = 2
+                ) -> GeneratedSQL:
+        """
+        Generate SQL from context using configured provider.
+
+        Args:
+            context: LLM context with prompts and schema
+            retry_count: Number of retries on failure
+
+        Returns:
+            GeneratedSQL with query and reasoning
+        """
+        start_time = time.time()
+
+        # Build the prompt
+        full_prompt = self._build_full_prompt(context)
+
+        # Create LLM request
+        request = LLMRequest(
+            prompt=full_prompt,
+            system_prompt=context.system_prompt,
+            max_tokens=self.config.max_tokens,
+            temperature=self.config.temperature
+        )
+
+        # Try with retries
+        last_error = None
+        for attempt in range(retry_count + 1):
+            try:
+                response = self.provider.generate(request)
+
+                if response and response.content:
+                    sql, reasoning = self._parse_response(response.content)
+
+                    if sql:
+                        generation_time = (time.time() - start_time) * 1000
+
+                        return GeneratedSQL(
+                            sql=sql,
+                            reasoning=reasoning,
+                            tables_used=self._extract_tables(sql),
+                            columns_used=self._extract_columns(sql),
+                            filters_applied=self._extract_filters(sql),
+                            generation_time_ms=generation_time,
+                            model_used=response.model,
+                            raw_response=response.content
+                        )
+                    else:
+                        logger.warning(f"Attempt {attempt + 1}: No SQL found in response")
+
+            except ValueError as e:
+                # Safety layer blocked - don't retry
+                logger.error(f"Safety layer blocked request: {e}")
+                raise
+
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed: {e}")
+                last_error = e
+
+        # All retries failed
+        if last_error:
+            raise last_error
+        raise RuntimeError("SQL generation failed: no valid SQL in response")
+
+    def _build_full_prompt(self, context: LLMContext) -> str:
+        """Build the complete prompt for the LLM."""
+        parts = [
+            context.schema_context,
+            "",
+            context.entity_context,
+            "",
+            context.clinical_rules,
+            "",
+            context.user_prompt
+        ]
+        return "\n".join(p for p in parts if p)
+
+    def _parse_response(self, response: str) -> tuple:
+        """Parse LLM response to extract SQL and reasoning."""
+        sql = ""
+        reasoning = ""
+
+        # Extract thinking/reasoning
+        think_match = re.search(r'<think>(.*?)</think>', response, re.DOTALL)
+        if think_match:
+            reasoning = think_match.group(1).strip()
+
+        # Extract SQL from code block
+        sql_match = re.search(r'```sql\s*(.*?)\s*```', response, re.DOTALL | re.IGNORECASE)
+        if sql_match:
+            sql = sql_match.group(1).strip()
+        else:
+            # Try without language specifier
+            sql_match = re.search(r'```\s*(SELECT.*?)\s*```', response, re.DOTALL | re.IGNORECASE)
+            if sql_match:
+                sql = sql_match.group(1).strip()
+            else:
+                # Try bare SELECT
+                sql_match = re.search(r'(SELECT\s+.*?(?:;|$))', response, re.DOTALL | re.IGNORECASE)
+                if sql_match:
+                    sql = sql_match.group(1).strip()
+
+        sql = self._clean_sql(sql)
+        return sql, reasoning
+
+    def _clean_sql(self, sql: str) -> str:
+        """Clean and normalize SQL."""
+        if not sql:
+            return ""
+
+        sql = sql.rstrip(';').strip()
+        sql = re.sub(r'\s+', ' ', sql)
+
+        keywords = ['SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'JOIN', 'LEFT', 'RIGHT',
+                   'INNER', 'OUTER', 'ON', 'AS', 'COUNT', 'DISTINCT', 'GROUP', 'BY',
+                   'ORDER', 'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'ALL', 'IN', 'NOT',
+                   'NULL', 'IS', 'LIKE', 'BETWEEN', 'EXISTS', 'CASE', 'WHEN', 'THEN',
+                   'ELSE', 'END', 'ASC', 'DESC', 'SUM', 'AVG', 'MIN', 'MAX']
+
+        for kw in keywords:
+            pattern = re.compile(r'\b' + kw + r'\b', re.IGNORECASE)
+            sql = pattern.sub(kw, sql)
+
+        return sql
+
+    def _extract_tables(self, sql: str) -> List[str]:
+        """Extract table names from SQL."""
+        tables = []
+        from_match = re.search(r'\bFROM\s+(\w+)', sql, re.IGNORECASE)
+        if from_match:
+            tables.append(from_match.group(1).upper())
+        join_matches = re.findall(r'\bJOIN\s+(\w+)', sql, re.IGNORECASE)
+        tables.extend([t.upper() for t in join_matches])
+        return list(set(tables))
+
+    def _extract_columns(self, sql: str) -> List[str]:
+        """Extract column names from SQL."""
+        col_pattern = re.compile(r'\b([A-Z][A-Z0-9_]*)\b')
+        matches = col_pattern.findall(sql.upper())
+        keywords = {'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'JOIN', 'LEFT', 'RIGHT',
+                   'INNER', 'OUTER', 'ON', 'AS', 'COUNT', 'DISTINCT', 'GROUP', 'BY',
+                   'ORDER', 'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'ALL', 'IN', 'NOT',
+                   'NULL', 'IS', 'LIKE', 'BETWEEN', 'EXISTS', 'CASE', 'WHEN', 'THEN',
+                   'ELSE', 'END', 'ASC', 'DESC', 'SUM', 'AVG', 'MIN', 'MAX', 'TRUE',
+                   'FALSE', 'Y', 'N'}
+        return list(set(c for c in matches if c not in keywords))
+
+    def _extract_filters(self, sql: str) -> List[str]:
+        """Extract WHERE clause filters."""
+        where_match = re.search(r'\bWHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)',
+                                sql, re.IGNORECASE | re.DOTALL)
+        if where_match:
+            where_clause = where_match.group(1).strip()
+            conditions = re.split(r'\s+AND\s+|\s+OR\s+', where_clause, flags=re.IGNORECASE)
+            return [c.strip() for c in conditions if c.strip()]
+        return []
+
+    def is_available(self) -> bool:
+        """Check if current provider is available."""
+        return self.provider.is_available()
+
+    def get_provider_info(self) -> Dict[str, Any]:
+        """Get information about current provider."""
+        return {
+            "provider": self.provider.get_provider_name(),
+            "model": self.provider.get_model_name(),
+            "available": self.provider.is_available(),
+            "safety_audit_enabled": self.config.enable_safety_audit
+        }
+
+
+def create_sql_generator(config: Optional[LLMConfig] = None) -> UnifiedSQLGenerator:
+    """
+    Factory function to create an SQL generator.
+
+    Args:
+        config: LLM configuration (uses env if not provided)
+
+    Returns:
+        Configured UnifiedSQLGenerator
+    """
+    return UnifiedSQLGenerator(config)

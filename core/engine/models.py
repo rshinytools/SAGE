@@ -283,7 +283,10 @@ class PipelineResult:
     error: Optional[str] = None
     error_stage: Optional[str] = None
 
-    # Metadata
+    # Additional metadata (for caching, instant responses, etc.)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    # Timestamp
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
     def format_response(self, include_sql: bool = True) -> str:
@@ -337,5 +340,7 @@ class PipelineResult:
             'error': self.error,
             'error_stage': self.error_stage,
             'warnings': self.warnings,
+            'pipeline_stages': self.pipeline_stages,
+            'metadata': self.metadata,
             'timestamp': self.timestamp
         }

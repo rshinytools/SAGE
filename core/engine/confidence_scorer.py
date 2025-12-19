@@ -144,8 +144,12 @@ class ConfidenceScorer:
             entities, table_resolution, validation, execution
         )
 
+        # IMPORTANT: Score must ALWAYS be an integer 0-100, never a float
+        # This standardization prevents inconsistent output like "95%", "0.95", "5/5 stars"
+        standardized_score = int(round(overall))
+
         return ConfidenceScore(
-            overall_score=round(overall, 1),
+            overall_score=standardized_score,
             level=level,
             components=components,
             explanation=explanation
@@ -332,16 +336,17 @@ class ConfidenceScorer:
 
         return " ".join(explanations)
 
-    def quick_score(self, execution: ExecutionResult) -> float:
+    def quick_score(self, execution: ExecutionResult) -> int:
         """
         Quick scoring based only on execution result.
 
         Used when full context isn't available.
+        Returns an integer 0-100 for consistency.
         """
         if not execution.success:
-            return 0.0
+            return 0
 
-        score = 80.0  # Base score for successful execution
+        score = 80  # Base score for successful execution
 
         # Adjustments
         if execution.row_count == 0:
@@ -351,7 +356,7 @@ class ConfidenceScorer:
         if execution.execution_time_ms > 5000:
             score -= 5
 
-        return max(0, min(100, score))
+        return max(0, min(100, int(score)))
 
 
 def get_confidence_color(level: ConfidenceLevel) -> str:

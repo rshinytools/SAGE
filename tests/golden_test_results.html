@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAGE Golden Questions Test Results</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .summary-card.passed {
+            border-left: 4px solid #27ae60;
+        }
+        .summary-card.failed {
+            border-left: 4px solid #e74c3c;
+        }
+        .summary-card.total {
+            border-left: 4px solid #3498db;
+        }
+        .summary-card.time {
+            border-left: 4px solid #f39c12;
+        }
+        .summary-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .summary-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .category-section {
+            background: white;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .category-section h2 {
+            background: #34495e;
+            color: white;
+            margin: 0;
+            padding: 15px 20px;
+        }
+        .category-stats {
+            font-weight: normal;
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        th {
+            background: #ecf0f1;
+            font-weight: 600;
+        }
+        tr.success {
+            background: #f0fff0;
+        }
+        tr.failure {
+            background: #fff0f0;
+        }
+        tr.expected-row {
+            font-size: 0.85em;
+            color: #666;
+        }
+        tr.expected-row.success {
+            background: #e8f8e8;
+        }
+        tr.expected-row.failure {
+            background: #f8e8e8;
+        }
+        .status-icon {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        tr.success .status-icon {
+            color: #27ae60;
+        }
+        tr.failure .status-icon {
+            color: #e74c3c;
+        }
+        .question-cell {
+            max-width: 250px;
+        }
+        .answer-cell {
+            max-width: 300px;
+            font-size: 0.9em;
+        }
+        .sql-cell {
+            max-width: 300px;
+            font-size: 0.8em;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+        }
+        .conf-level {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* Flow sections */
+        .flows-container {
+            margin-top: 40px;
+        }
+        .flows-container h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #9b59b6;
+            padding-bottom: 10px;
+        }
+        .flow-section {
+            background: white;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .flow-section h3 {
+            background: #8e44ad;
+            color: white;
+            margin: 0;
+            padding: 15px 20px;
+        }
+        .flow-stats {
+            font-weight: normal;
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+        .flow-desc {
+            padding: 10px 20px;
+            color: #666;
+            margin: 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .flow-steps {
+            padding: 20px;
+        }
+        .flow-step {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .flow-step.success {
+            border-left: 4px solid #27ae60;
+            background: #f8fff8;
+        }
+        .flow-step.failure {
+            border-left: 4px solid #e74c3c;
+            background: #fff8f8;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .step-number {
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .step-id {
+            color: #666;
+            font-size: 0.85em;
+        }
+        .step-question {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .step-answer {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .step-sql pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85em;
+        }
+        .step-expected {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        .step-meta {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        /* Timestamp */
+        .timestamp {
+            text-align: right;
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+
+        /* Filter controls */
+        .filters {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filters label {
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .filters input {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 SAGE Golden Questions Test Results</h1>
+
+        <div class="summary">
+            <div class="summary-card total">
+                <div class="summary-value">35</div>
+                <div class="summary-label">Total Tests</div>
+            </div>
+            <div class="summary-card passed">
+                <div class="summary-value">35</div>
+                <div class="summary-label">Passed</div>
+            </div>
+            <div class="summary-card failed">
+                <div class="summary-value">0</div>
+                <div class="summary-label">Failed</div>
+            </div>
+            <div class="summary-card total">
+                <div class="summary-value">100.0%</div>
+                <div class="summary-label">Pass Rate</div>
+            </div>
+            <div class="summary-card time">
+                <div class="summary-value">9224ms</div>
+                <div class="summary-label">Avg Time</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <strong>Filter:</strong>
+            <label><input type="checkbox" id="showPassed" checked onchange="filterResults()"> Show Passed</label>
+            <label><input type="checkbox" id="showFailed" checked onchange="filterResults()"> Show Failed</label>
+        </div>
+
+        
+            <div class="category-section">
+                <h2>Adverse Events <span class="category-stats">(8/8)</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Description</th>
+                            <th>Answer</th>
+                            <th>SQL</th>
+                            <th>Confidence</th>
+                            <th>Rows</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-001</td>
+                    <td class="question-cell">How many subjects had adverse events?</td>
+                    <td>Basic AE count</td>
+                    <td class="answer-cell">There are **243 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_adverse_events
+FROM ADAE LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>7847ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should count distinct subjects with any AE</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-002</td>
+                    <td class="question-cell">How many subjects reported headache?</td>
+                    <td>Specific AE query</td>
+                    <td class="answer-cell">There are **21 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_headache
+FROM ADAE 
+WHERE UPPER(AEDECOD) = UPPER('Headache') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8328ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should match 'headache' to AEDECOD or AELLT</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-003</td>
+                    <td class="question-cell">How many patients had nausea?</td>
+                    <td>Common AE with 'patients' terminology</td>
+                    <td class="answer-cell">There are **82 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as patients_with_nausea
+FROM ADAE 
+WHERE UPPER(AEDECOD) = UPPER('Nausea') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>9289ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should match 'nausea' in AE data</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-004</td>
+                    <td class="question-cell">How many subjects had serious adverse events?</td>
+                    <td>Serious AE filter</td>
+                    <td class="answer-cell">There are **96 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_serious_aes
+FROM ADAE 
+WHERE UPPER(AESER) = UPPER('Y') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>9474ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should filter by AESER = 'Y'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-005</td>
+                    <td class="question-cell">How many subjects had Grade 3 or higher adverse events?</td>
+                    <td>Toxicity grade filter</td>
+                    <td class="answer-cell">There are **149 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_grade3_plus_ae
+FROM ADAE 
+WHERE UPPER(ATOXGR) != UPPER('.') AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>7758ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should use ATOXGR >= 3 (analysis grade, not AETOXGR)</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-006</td>
+                    <td class="question-cell">What are the most common adverse events?</td>
+                    <td>Top AE query</td>
+                    <td class="answer-cell">Found **20 records** matching your query.</td>
+                    <td><pre class="sql-cell">SELECT 
+    AEDECOD,
+    COUNT(*) as event_count,
+    COUNT(DISTINCT USUBJID) as patient_count
+FROM ADAE 
+GROUP BY AEDECOD
+ORDER BY event_count DESC
+LIMIT 20;</pre></td>
+                    <td>97 <span class="conf-level">high</span></td>
+                    <td>20</td>
+                    <td>10294ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should return AE terms with counts, ordered by frequency</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-007</td>
+                    <td class="question-cell">How many subjects had treatment-related adverse events?</td>
+                    <td>Related AE filter</td>
+                    <td class="answer-cell">There are **0 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_treatment_related_aes
+FROM ADAE 
+WHERE UPPER(AEREL) = UPPER('RELATED') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>12946ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should filter by AEREL containing 'RELATED' or similar</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> AE-008</td>
+                    <td class="question-cell">How many subjects had diarrhea?</td>
+                    <td>Specific AE - diarrhea (tests spelling variations)</td>
+                    <td class="answer-cell">There are **23 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_diarrhea
+FROM ADAE 
+WHERE UPPER(AEDECOD) LIKE '%DIARR%'
+   OR UPPER(AEDECOD) LIKE '%DIARRH%' LIMIT 10000</pre></td>
+                    <td>96 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8583ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should match diarrhea/diarrhoea in AE data</td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="category-section">
+                <h2>Complex <span class="category-stats">(3/3)</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Description</th>
+                            <th>Answer</th>
+                            <th>SQL</th>
+                            <th>Confidence</th>
+                            <th>Rows</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> CPLX-001</td>
+                    <td class="question-cell">How many female subjects over 60 had serious adverse events?</td>
+                    <td>Multiple filter combination</td>
+                    <td class="answer-cell">There are **30 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT a.USUBJID) as female_subjects_over_60_with_sae
+FROM ADAE a
+JOIN ADSL s ON a.USUBJID = s.USUBJID
+WHERE UPPER(s.SEX) = 'F'
+  AND s.AGE &gt; 60
+  AND UPPER(a.AESER) = 'Y' LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>17031ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should combine SEX, AGE, and AESER filters</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> CPLX-002</td>
+                    <td class="question-cell">How many subjects in the safety population had Grade 3+ headache?</td>
+                    <td>Population + AE + Grade filter</td>
+                    <td class="answer-cell">There are **2 subjects** in the safety population.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_grade3plus_headache
+FROM ADAE 
+WHERE UPPER(SAFFL) = UPPER('Y') 
+  AND UPPER(AEDECOD) = UPPER('Headache')
+  AND UPPER(ATOXGR) != UPPER('.') 
+  AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></td>
+                    <td>95 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>10208ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should combine SAFFL, headache, and ATOXGR >= 3</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> CPLX-003</td>
+                    <td class="question-cell">Show subjects who had both nausea and vomiting</td>
+                    <td>Multiple AE combination</td>
+                    <td class="answer-cell">Here are the **42 records** found:</td>
+                    <td><pre class="sql-cell">SELECT DISTINCT USUBJID
+FROM ADAE
+WHERE UPPER(USUBJID) IN (
+    SELECT USUBJID 
+    FROM ADAE 
+    WHERE UPPER(AEDECOD) = UPPER('Nausea')
+)
+AND UPPER(USUBJID) IN (
+    SELECT USUBJID 
+    FROM ADAE 
+    WHERE UPPER(AEDECOD) = UPPER('Vomiting')
+) LIMIT 10000</pre></td>
+                    <td>94 <span class="conf-level">high</span></td>
+                    <td>42</td>
+                    <td>9244ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should find subjects with both AEs</td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="category-section">
+                <h2>Demographics <span class="category-stats">(5/5)</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Description</th>
+                            <th>Answer</th>
+                            <th>SQL</th>
+                            <th>Confidence</th>
+                            <th>Rows</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> DEMO-001</td>
+                    <td class="question-cell">How many male subjects are in the safety population?</td>
+                    <td>Gender filter with population</td>
+                    <td class="answer-cell">There are **94 subjects** in the safety population.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as male_subjects_count
+FROM ADSL 
+WHERE UPPER(SEX) = UPPER('M') 
+AND UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8653ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should filter by SEX = 'M' and SAFFL = 'Y'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> DEMO-002</td>
+                    <td class="question-cell">How many female patients are there?</td>
+                    <td>Simple gender filter</td>
+                    <td class="answer-cell">There are **205 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as female_patients
+FROM ADSL 
+WHERE UPPER(SEX) = UPPER('F') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>7827ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should filter by SEX = 'F'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> DEMO-003</td>
+                    <td class="question-cell">How many subjects are age 65 or older?</td>
+                    <td>Age threshold query</td>
+                    <td class="answer-cell">There are **122 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_age_65_plus
+FROM ADSL 
+WHERE AGE &gt;= 65 LIMIT 10000</pre></td>
+                    <td>88 <span class="conf-level">medium</span></td>
+                    <td>1</td>
+                    <td>9259ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should filter by AGE >= 65</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> DEMO-004</td>
+                    <td class="question-cell">What is the age distribution of subjects?</td>
+                    <td>Age distribution/statistics query</td>
+                    <td class="answer-cell">Found **45 records** matching your query.</td>
+                    <td><pre class="sql-cell">SELECT 
+    AGE,
+    COUNT(DISTINCT USUBJID) as subject_count
+FROM ADSL
+WHERE AGE IS NOT NULL
+GROUP BY AGE
+ORDER BY AGE LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>45</td>
+                    <td>7708ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should provide age statistics or distribution</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> DEMO-005</td>
+                    <td class="question-cell">How many subjects are between 50 and 70 years old?</td>
+                    <td>Age range query</td>
+                    <td class="answer-cell">There are **254 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subject_count
+FROM ADSL 
+WHERE AGE BETWEEN 50 AND 70 LIMIT 10000</pre></td>
+                    <td>92 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>9112ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should filter by AGE >= 50 AND AGE <= 70</td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="category-section">
+                <h2>Follow-up Flow <span class="category-stats">(10/10)</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Description</th>
+                            <th>Answer</th>
+                            <th>SQL</th>
+                            <th>Confidence</th>
+                            <th>Rows</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-001-Q1</td>
+                    <td class="question-cell">How many subjects are in the ITT Population?</td>
+                    <td>Initial ITT count</td>
+                    <td class="answer-cell">There are **233 subjects** in the ITT population.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as itt_subjects
+FROM ADSL 
+WHERE UPPER(ITTFL) = UPPER('Y') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8620ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should return ITT count with ITTFL = 'Y'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-001-Q2</td>
+                    <td class="question-cell">out of these how many are age 65 or above</td>
+                    <td>First refinement - age filter</td>
+                    <td class="answer-cell">There are **90 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as patients_age_65_plus
+FROM ADSL 
+WHERE UPPER(ITTFL) = UPPER('Y') 
+  AND AGE &gt;= 65 LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8171ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND add AGE >= 65</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-001-Q3</td>
+                    <td class="question-cell">Out of these how many reported serious adverse event</td>
+                    <td>Second refinement - SAE filter</td>
+                    <td class="answer-cell">There are **36 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT a.USUBJID) as patients_with_serious_ae
+FROM ADAE a
+JOIN ADSL s ON a.USUBJID = s.USUBJID
+WHERE UPPER(s.ITTFL) = 'Y' 
+  AND s.AGE &gt;= 65
+  AND UPPER(a.AESER) = 'Y' LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>14575ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND AGE >= 65 AND add AESER = 'Y'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-001-Q4</td>
+                    <td class="question-cell">can you list them</td>
+                    <td>List subjects from previous filter</td>
+                    <td class="answer-cell">Here are the **36 records** found:</td>
+                    <td><pre class="sql-cell">SELECT DISTINCT a.USUBJID, s.AGE, s.SEX FROM ADAE a
+JOIN ADSL s ON a.USUBJID = s.USUBJID WHERE UPPER(s.ITTFL) = 'Y' 
+  AND s.AGE &gt;= 65
+  AND UPPER(a.AESER) = 'Y' LIMIT 100</pre></td>
+                    <td>100 <span class="conf-level">high</span></td>
+                    <td>36</td>
+                    <td>7512ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should transform to SELECT and preserve all filters</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-002-Q1</td>
+                    <td class="question-cell">How many subjects are in the Safety Population?</td>
+                    <td>Initial safety count</td>
+                    <td class="answer-cell">There are **232 subjects** in the safety population.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as safety_population_count
+FROM ADSL
+WHERE UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>7985ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should return safety count with SAFFL = 'Y'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-002-Q2</td>
+                    <td class="question-cell">how many of them are female</td>
+                    <td>Gender refinement</td>
+                    <td class="answer-cell">There are **138 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as female_count
+FROM ADSL 
+WHERE UPPER(SAFFL) = UPPER('Y') 
+AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8214ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should preserve SAFFL = 'Y' AND add SEX = 'F'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-002-Q3</td>
+                    <td class="question-cell">of those, how many had any adverse events</td>
+                    <td>AE filter on female safety subjects</td>
+                    <td class="answer-cell">There are **136 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as patients_with_any_ae
+FROM ADAE 
+WHERE UPPER(SAFFL) = UPPER('Y') 
+  AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8333ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should preserve SAFFL = 'Y', SEX = 'F' AND add AE condition</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-003-Q1</td>
+                    <td class="question-cell">How many subjects had headache?</td>
+                    <td>Initial AE query</td>
+                    <td class="answer-cell">There are **22 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_headache
+FROM ADAE 
+WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache')) LIMIT 10000</pre></td>
+                    <td>92 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>7828ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should count subjects with headache</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-003-Q2</td>
+                    <td class="question-cell">how many of these were Grade 3 or higher</td>
+                    <td>Grade filter on headache</td>
+                    <td class="answer-cell">There are **2 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(*) as grade_3_plus_headache_events
+FROM ADAE 
+WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache'))
+  AND UPPER(ATOXGR) != UPPER('.') 
+  AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8362ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should preserve headache filter AND add ATOXGR >= 3</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FLOW-003-Q3</td>
+                    <td class="question-cell">show me the details</td>
+                    <td>Request details</td>
+                    <td class="answer-cell">Here are the **2 records** found:</td>
+                    <td><pre class="sql-cell">SELECT DISTINCT USUBJID, AEDECOD, AELLT, ATOXGR, AESER FROM ADAE WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache'))
+  AND UPPER(ATOXGR) != UPPER('.') 
+  AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 100</pre></td>
+                    <td>100 <span class="conf-level">high</span></td>
+                    <td>2</td>
+                    <td>4959ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should list subjects with headache grade 3+</td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="category-section">
+                <h2>Fuzzy Matching <span class="category-stats">(2/2)</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Description</th>
+                            <th>Answer</th>
+                            <th>SQL</th>
+                            <th>Confidence</th>
+                            <th>Rows</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FUZZY-001</td>
+                    <td class="question-cell">How many patients had headake?</td>
+                    <td>Typo in 'headache'</td>
+                    <td class="answer-cell">There are **22 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as patient_count
+FROM ADAE 
+WHERE UPPER(AEDECOD) LIKE '%HEADACHE%' LIMIT 10000</pre></td>
+                    <td>94 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>9094ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should fuzzy match 'headake' to 'HEADACHE'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> FUZZY-002</td>
+                    <td class="question-cell">How many subjects reported diarhea?</td>
+                    <td>Typo in 'diarrhea'</td>
+                    <td class="answer-cell">There are **17 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_diarrhea
+FROM ADAE 
+WHERE UPPER(AELLT) = UPPER('Diarrhea') LIMIT 10000</pre></td>
+                    <td>88 <span class="conf-level">medium</span></td>
+                    <td>1</td>
+                    <td>8649ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should fuzzy match to correct spelling</td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="category-section">
+                <h2>Non-Clinical <span class="category-stats">(3/3)</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Description</th>
+                            <th>Answer</th>
+                            <th>SQL</th>
+                            <th>Confidence</th>
+                            <th>Rows</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> NC-001</td>
+                    <td class="question-cell">Hi</td>
+                    <td>Simple greeting</td>
+                    <td class="answer-cell">Hello! I'm SAGE, your clinical data analysis assistant. I can help you query and analyze clinical trial data using natural language.
+
+I can answer questions about:
+- Patient counts and demographics
+- ...</td>
+                    <td><pre class="sql-cell">N/A</pre></td>
+                    <td>100 <span class="conf-level">high</span></td>
+                    <td>0</td>
+                    <td>5936ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should return instant helpful response without LLM call</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> NC-002</td>
+                    <td class="question-cell">What can you help me with?</td>
+                    <td>Help query</td>
+                    <td class="answer-cell">Hello! I'm SAGE, your clinical data analysis assistant. I can help you analyze clinical trial data by translating your questions into database queries.
+
+Here's what I can do for you:
+
+**Patient Analys...</td>
+                    <td><pre class="sql-cell">N/A</pre></td>
+                    <td>100 <span class="conf-level">high</span></td>
+                    <td>0</td>
+                    <td>8800ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should explain capabilities</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> NC-003</td>
+                    <td class="question-cell">Thank you</td>
+                    <td>Farewell/gratitude</td>
+                    <td class="answer-cell">You're welcome! I'm here to help you analyze your clinical trial data. 
+
+Feel free to ask me questions about your study data - I can help you count patients, analyze adverse events, look at demographi...</td>
+                    <td><pre class="sql-cell">N/A</pre></td>
+                    <td>100 <span class="conf-level">high</span></td>
+                    <td>0</td>
+                    <td>5583ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should respond politely</td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="category-section">
+                <h2>Population <span class="category-stats">(4/4)</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Question</th>
+                            <th>Description</th>
+                            <th>Answer</th>
+                            <th>SQL</th>
+                            <th>Confidence</th>
+                            <th>Rows</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> POP-001</td>
+                    <td class="question-cell">How many subjects are in the Safety Population?</td>
+                    <td>Basic safety population count</td>
+                    <td class="answer-cell">There are **232 subjects** in the safety population.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as safety_population_count
+FROM ADSL
+WHERE UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8087ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should return count with SAFFL = 'Y' filter</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> POP-002</td>
+                    <td class="question-cell">How many subjects are in the ITT Population?</td>
+                    <td>Basic ITT population count</td>
+                    <td class="answer-cell">There are **233 subjects** in the ITT population.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as itt_subjects
+FROM ADSL 
+WHERE UPPER(ITTFL) = UPPER('Y') LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>8266ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should return count with ITTFL = 'Y' filter</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> POP-003</td>
+                    <td class="question-cell">How many patients are in the efficacy population?</td>
+                    <td>Efficacy population count using 'patients' instead of 'subjects'</td>
+                    <td class="answer-cell">There are **232 subjects** in the efficacy population.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as efficacy_population_count
+FROM ADSL 
+WHERE UPPER(SAFFL) = 'Y' LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>22617ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should recognize 'patients' as subjects and use EFFFL = 'Y'</td>
+                </tr>
+                
+                <tr class="success">
+                    <td><span class="status-icon">✓</span> POP-004</td>
+                    <td class="question-cell">What is the total number of subjects in the study?</td>
+                    <td>Total study population without specific filter</td>
+                    <td class="answer-cell">There are **339 subjects** matching your criteria.</td>
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as total_subjects
+FROM ADSL LIMIT 10000</pre></td>
+                    <td>98 <span class="conf-level">high</span></td>
+                    <td>1</td>
+                    <td>7672ms</td>
+                </tr>
+                <tr class="expected-row success">
+                    <td colspan="8"><strong>Expected:</strong> Should count all subjects in ADSL</td>
+                </tr>
+                
+                    </tbody>
+                </table>
+            </div>
+            
+
+        <div class="flows-container">
+            <h2>📝 Conversation Flow Tests</h2>
+            
+            <div class="flow-section">
+                <h3>ITT Population Drill-down <span class="flow-stats">(4/4)</span></h3>
+                <p class="flow-desc">Tests context preservation across ITT population queries</p>
+                <div class="flow-steps">
+                    
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-001-Q1</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> How many subjects are in the ITT Population?</div>
+                    <div class="step-answer"><strong>A:</strong> There are **233 subjects** in the ITT population.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as itt_subjects
+FROM ADSL 
+WHERE UPPER(ITTFL) = UPPER('Y') LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should return ITT count with ITTFL = 'Y'</div>
+                    <div class="step-meta">Time: 8620ms | Rows: 1</div>
+                </div>
+                
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-001-Q2</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> out of these how many are age 65 or above</div>
+                    <div class="step-answer"><strong>A:</strong> There are **90 subjects** matching your criteria.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as patients_age_65_plus
+FROM ADSL 
+WHERE UPPER(ITTFL) = UPPER('Y') 
+  AND AGE &gt;= 65 LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND add AGE >= 65</div>
+                    <div class="step-meta">Time: 8171ms | Rows: 1</div>
+                </div>
+                
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-001-Q3</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> Out of these how many reported serious adverse event</div>
+                    <div class="step-answer"><strong>A:</strong> There are **36 subjects** matching your criteria.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT a.USUBJID) as patients_with_serious_ae
+FROM ADAE a
+JOIN ADSL s ON a.USUBJID = s.USUBJID
+WHERE UPPER(s.ITTFL) = 'Y' 
+  AND s.AGE &gt;= 65
+  AND UPPER(a.AESER) = 'Y' LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND AGE >= 65 AND add AESER = 'Y'</div>
+                    <div class="step-meta">Time: 14575ms | Rows: 1</div>
+                </div>
+                
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 4</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-001-Q4</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> can you list them</div>
+                    <div class="step-answer"><strong>A:</strong> Here are the **36 records** found:</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT DISTINCT a.USUBJID, s.AGE, s.SEX FROM ADAE a
+JOIN ADSL s ON a.USUBJID = s.USUBJID WHERE UPPER(s.ITTFL) = 'Y' 
+  AND s.AGE &gt;= 65
+  AND UPPER(a.AESER) = 'Y' LIMIT 100</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should transform to SELECT and preserve all filters</div>
+                    <div class="step-meta">Time: 7512ms | Rows: 36</div>
+                </div>
+                
+                </div>
+            </div>
+            
+            <div class="flow-section">
+                <h3>Safety Population with Demographics <span class="flow-stats">(3/3)</span></h3>
+                <p class="flow-desc">Tests demographic refinements on safety population</p>
+                <div class="flow-steps">
+                    
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-002-Q1</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> How many subjects are in the Safety Population?</div>
+                    <div class="step-answer"><strong>A:</strong> There are **232 subjects** in the safety population.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as safety_population_count
+FROM ADSL
+WHERE UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should return safety count with SAFFL = 'Y'</div>
+                    <div class="step-meta">Time: 7985ms | Rows: 1</div>
+                </div>
+                
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-002-Q2</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> how many of them are female</div>
+                    <div class="step-answer"><strong>A:</strong> There are **138 subjects** matching your criteria.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as female_count
+FROM ADSL 
+WHERE UPPER(SAFFL) = UPPER('Y') 
+AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should preserve SAFFL = 'Y' AND add SEX = 'F'</div>
+                    <div class="step-meta">Time: 8214ms | Rows: 1</div>
+                </div>
+                
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-002-Q3</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> of those, how many had any adverse events</div>
+                    <div class="step-answer"><strong>A:</strong> There are **136 subjects** matching your criteria.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as patients_with_any_ae
+FROM ADAE 
+WHERE UPPER(SAFFL) = UPPER('Y') 
+  AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should preserve SAFFL = 'Y', SEX = 'F' AND add AE condition</div>
+                    <div class="step-meta">Time: 8333ms | Rows: 1</div>
+                </div>
+                
+                </div>
+            </div>
+            
+            <div class="flow-section">
+                <h3>Adverse Event Deep Dive <span class="flow-stats">(3/3)</span></h3>
+                <p class="flow-desc">Tests AE-focused conversation flow</p>
+                <div class="flow-steps">
+                    
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 1</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-003-Q1</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> How many subjects had headache?</div>
+                    <div class="step-answer"><strong>A:</strong> There are **22 subjects** matching your criteria.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as subjects_with_headache
+FROM ADAE 
+WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache')) LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should count subjects with headache</div>
+                    <div class="step-meta">Time: 7828ms | Rows: 1</div>
+                </div>
+                
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 2</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-003-Q2</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> how many of these were Grade 3 or higher</div>
+                    <div class="step-answer"><strong>A:</strong> There are **2 subjects** matching your criteria.</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(*) as grade_3_plus_headache_events
+FROM ADAE 
+WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache'))
+  AND UPPER(ATOXGR) != UPPER('.') 
+  AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should preserve headache filter AND add ATOXGR >= 3</div>
+                    <div class="step-meta">Time: 8362ms | Rows: 1</div>
+                </div>
+                
+                <div class="flow-step success">
+                    <div class="step-header">
+                        <span class="step-number">Step 3</span>
+                        <span class="status-icon">✓</span>
+                        <span class="step-id">FLOW-003-Q3</span>
+                    </div>
+                    <div class="step-question"><strong>Q:</strong> show me the details</div>
+                    <div class="step-answer"><strong>A:</strong> Here are the **2 records** found:</div>
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT DISTINCT USUBJID, AEDECOD, AELLT, ATOXGR, AESER FROM ADAE WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache'))
+  AND UPPER(ATOXGR) != UPPER('.') 
+  AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 100</pre></div>
+                    <div class="step-expected"><strong>Expected:</strong> Should list subjects with headache grade 3+</div>
+                    <div class="step-meta">Time: 4959ms | Rows: 2</div>
+                </div>
+                
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="timestamp">
+            Generated: 2025-12-18 18:45:51
+        </div>
+    </div>
+
+    <script>
+        function filterResults() {
+            const showPassed = document.getElementById('showPassed').checked;
+            const showFailed = document.getElementById('showFailed').checked;
+
+            document.querySelectorAll('tr.success, tr.expected-row.success').forEach(el => {
+                el.style.display = showPassed ? '' : 'none';
+            });
+            document.querySelectorAll('tr.failure, tr.expected-row.failure').forEach(el => {
+                el.style.display = showFailed ? '' : 'none';
+            });
+            document.querySelectorAll('.flow-step.success').forEach(el => {
+                el.style.display = showPassed ? '' : 'none';
+            });
+            document.querySelectorAll('.flow-step.failure').forEach(el => {
+                el.style.display = showFailed ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

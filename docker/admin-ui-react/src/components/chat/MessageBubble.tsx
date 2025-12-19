@@ -14,6 +14,7 @@ import {
   Info,
   BookOpen,
   Table,
+  MousePointerClick,
 } from "lucide-react";
 import { CodeBlock } from "./CodeBlock";
 import { TypingIndicator } from "./TypingIndicator";
@@ -21,9 +22,10 @@ import type { ChatMessage } from "@/types/chat";
 
 interface MessageBubbleProps {
   message: ChatMessage;
+  onOptionClick?: (option: string) => void;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, onOptionClick }: MessageBubbleProps) {
   const [showMetadata, setShowMetadata] = useState(false);
   const [showSQL, setShowSQL] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
@@ -32,7 +34,39 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isStreaming = message.isStreaming && !message.content;
 
   // Check if this is a pipeline response
-  const isPipelineResponse = message.metadata?.pipeline === true;
+  const isPipelineResponse = message.metadata?.pipeline === true || message.metadata?.pipeline_used === true;
+
+  // Check if this is a clarification message with clickable options
+  const isClarificationMessage = message.metadata?.clarification_needed === true ||
+    message.metadata?.response_type === "clarification";
+
+  // Parse clarification options from content
+  const parseClarificationOptions = (content: string): { intro: string; options: Array<{ id: number; text: string }> } => {
+    const lines = content.split("\n");
+    const options: Array<{ id: number; text: string }> = [];
+    const introLines: string[] = [];
+    let foundOptions = false;
+
+    for (const line of lines) {
+      // Match numbered options like "1. Count of subjects..." or "  1. Count..."
+      const optionMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
+      if (optionMatch) {
+        foundOptions = true;
+        options.push({
+          id: parseInt(optionMatch[1], 10),
+          text: optionMatch[2].trim()
+        });
+      } else if (!foundOptions) {
+        // Keep intro text (before options)
+        introLines.push(line);
+      }
+    }
+
+    return {
+      intro: introLines.join("\n").trim(),
+      options
+    };
+  };
 
   // Simple markdown-like rendering for code blocks
   const renderContent = (content: string) => {
@@ -93,11 +127,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     return "var(--muted)";
   };
 
-  const getConfidenceLabel = (confidence: any) => {
-    if (typeof confidence === "object") {
-      const score = confidence.score || 0;
-      const level = confidence.level || "unknown";
-      return { score, level, color: confidence.color || confidenceColor(level) };
+  const getConfidenceLabel = (confidence: unknown): { score: number; level: string; color: string; explanation?: string } => {
+    if (confidence && typeof confidence === "object" && "score" in confidence) {
+      const confObj = confidence as { score?: number; level?: string; color?: string; explanation?: string };
+      const score = typeof confObj.score === "number" ? confObj.score : 0;
+      const level = typeof confObj.level === "string" ? confObj.level : "unknown";
+      const explanation = typeof confObj.explanation === "string" ? confObj.explanation : undefined;
+      return { score, level, color: confObj.color || confidenceColor(level), explanation };
     }
     if (typeof confidence === "number") {
       if (confidence >= 90) return { score: confidence, level: "high", color: "#10b981" };
@@ -151,6 +187,43 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         >
           {isStreaming ? (
             <TypingIndicator />
+          ) : isClarificationMessage && onOptionClick ? (
+            // Render clarification message with clickable options
+            (() => {
+              const { intro, options } = parseClarificationOptions(message.content);
+              return (
+                <div className="text-sm text-left">
+                  {/* Intro text */}
+                  <div className="whitespace-pre-wrap mb-3">
+                    {renderContent(intro)}
+                  </div>
+
+                  {/* Clickable Options */}
+                  {options.length > 0 && (
+                    <div className="space-y-2 mt-4">
+                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        <MousePointerClick className="w-3 h-3" />
+                        <span>Click an option below:</span>
+                      </div>
+                      {options.map((option) => (
+                        <button
+                          key={option.id}
+                          onClick={() => onOptionClick(option.text)}
+                          className="w-full text-left p-3 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 rounded-lg transition-all duration-200 group flex items-start gap-3"
+                        >
+                          <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-xs font-medium group-hover:bg-blue-200 dark:group-hover:bg-blue-900/60">
+                            {option.id}
+                          </span>
+                          <span className="flex-1 text-gray-700 dark:text-gray-200 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                            {option.text}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()
           ) : (
             <div className="text-sm whitespace-pre-wrap text-left">
               {renderContent(message.content)}
@@ -216,7 +289,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               )}
 
               {/* Results Toggle */}
-              {(message.metadata.table_result?.length > 0 || message.metadata.data?.length > 0) && (
+              {((message.metadata.table_result && message.metadata.table_result.length > 0) || (message.metadata.data && message.metadata.data.length > 0)) && (
                 <button
                   onClick={() => setShowResults(!showResults)}
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 rounded transition-colors"
@@ -227,7 +300,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               )}
 
               {/* Export CSV */}
-              {(message.metadata.table_result?.length > 0 || message.metadata.data?.length > 0) && (
+              {((message.metadata.table_result && message.metadata.table_result.length > 0) || (message.metadata.data && message.metadata.data.length > 0)) && (
                 <button
                   onClick={handleExportCSV}
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
@@ -254,7 +327,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   <Database className="w-3 h-3" />
                   <span>Generated SQL Query</span>
                 </div>
-                <CodeBlock code={message.metadata.sql || message.metadata.sql_query} language="sql" />
+                <CodeBlock code={message.metadata.sql || message.metadata.sql_query || ""} language="sql" />
               </div>
             )}
 
@@ -275,10 +348,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   {message.metadata.methodology.population_filter && (
                     <div><strong>Filter:</strong> <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">{message.metadata.methodology.population_filter}</code></div>
                   )}
-                  {message.metadata.methodology.columns_used?.length > 0 && (
+                  {message.metadata.methodology.columns_used && message.metadata.methodology.columns_used.length > 0 && (
                     <div><strong>Columns:</strong> {message.metadata.methodology.columns_used.slice(0, 5).join(", ")}{message.metadata.methodology.columns_used.length > 5 ? "..." : ""}</div>
                   )}
-                  {message.metadata.methodology.assumptions?.length > 0 && (
+                  {message.metadata.methodology.assumptions && message.metadata.methodology.assumptions.length > 0 && (
                     <div className="mt-2">
                       <strong>Assumptions:</strong>
                       <ul className="list-disc list-inside ml-2">
@@ -293,10 +366,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             )}
 
             {/* Results Table */}
-            {showResults && (message.metadata.table_result?.length > 0 || message.metadata.data?.length > 0) && (
+            {showResults && ((message.metadata.table_result && message.metadata.table_result.length > 0) || (message.metadata.data && message.metadata.data.length > 0)) && (
               <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-200 dark:border-gray-700">
                 {(() => {
-                  const data = message.metadata.table_result || message.metadata.data;
+                  const data = message.metadata.table_result || message.metadata.data || [];
+                  if (data.length === 0) return null;
                   return (
                     <>
                       <div className="flex items-center justify-between mb-2">
@@ -308,13 +382,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                         <table className="data-table text-xs w-full">
                           <thead className="sticky top-0 bg-gray-100 dark:bg-gray-800">
                             <tr>
-                              {Object.keys(data[0]).map((key) => (
+                              {Object.keys(data[0] || {}).map((key) => (
                                 <th key={key} className="px-2 py-1 text-left font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">{key}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {data.slice(0, 20).map((row: any, i: number) => (
+                            {data.slice(0, 20).map((row: Record<string, unknown>, i: number) => (
                               <tr key={i} className="hover:bg-gray-100 dark:hover:bg-gray-700/50">
                                 {Object.values(row).map((val, j) => (
                                   <td key={j} className="px-2 py-1 border-b border-gray-100 dark:border-gray-800">{String(val)}</td>
@@ -366,7 +440,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 </div>
 
                 {/* Warnings */}
-                {message.metadata.warnings?.length > 0 && (
+                {message.metadata.warnings && message.metadata.warnings.length > 0 && (
                   <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-800">
                     <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mb-1">
                       <AlertTriangle className="w-3 h-3" />
@@ -381,11 +455,14 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 )}
 
                 {/* Confidence Explanation */}
-                {message.metadata.confidence?.explanation && (
-                  <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                    <strong>Confidence Explanation:</strong> {message.metadata.confidence.explanation}
-                  </div>
-                )}
+                {(() => {
+                  const conf = getConfidenceLabel(message.metadata.confidence);
+                  return conf.explanation ? (
+                    <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                      <strong>Confidence Explanation:</strong> {conf.explanation}
+                    </div>
+                  ) : null;
+                })()}
               </div>
             )}
           </div>

@@ -2434,11 +2434,499 @@ core/engine/                          # Factory 4 - Inference Engine
 #### 4.15 Audit & Logging
 | # | Task | Priority | Status |
 |---|------|----------|--------|
-| 4.15.1 | Log all queries with timestamps | Medium | ⬜ |
-| 4.15.2 | Log generated SQL | Medium | ⬜ |
-| 4.15.3 | Log confidence scores | Medium | ⬜ |
-| 4.15.4 | Log execution times | Medium | ⬜ |
-| 4.15.5 | Log blocked queries (security) | High | ⬜ |
+| 4.15.1 | Log all queries with timestamps | Medium | ✅ |
+| 4.15.2 | Log generated SQL | Medium | ✅ |
+| 4.15.3 | Log confidence scores | Medium | ✅ |
+| 4.15.4 | Log execution times | Medium | ✅ |
+| 4.15.5 | Log blocked queries (security) | High | ✅ |
+
+#### 4.16 Performance Optimization
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.16.1 | Non-clinical query routing (instant response for "Hi", "Help") | Critical | ✅ |
+| 4.16.2 | Response caching layer (< 500ms for repeat queries) | High | ✅ |
+| 4.16.3 | Streaming SQL generation | High | ⬜ |
+| 4.16.4 | Timeout & error handling improvements | High | ✅ |
+| 4.16.5 | Prompt optimization for DeepSeek-R1 (shorter prompts) | Medium | ✅ |
+| 4.16.6 | Fallback model configuration (complexity-based selection) | Medium | ✅ |
+| 4.16.7 | GPU configuration (NVIDIA/AMD) | High | ✅ |
+| 4.16.8 | Progress feedback UI | Medium | ⬜ |
+| 4.16.9 | Performance test suite (376 tests passing) | High | ✅ |
+
+**Performance Targets:**
+
+| Query Type | CPU Target | GPU Target |
+|------------|------------|------------|
+| Non-clinical (Hi, Help) | < 100ms | < 100ms |
+| Cached queries | < 500ms | < 500ms |
+| Simple clinical queries | 30-60s | 5-15s |
+| Complex clinical queries | 60-120s | 15-30s |
+| SQL execution | < 1s | < 1s |
+
+**Optimized Query Flow:**
+```
+User Query → Non-Clinical Check (instant) → Cache Check (< 500ms)
+         ↓ (miss)
+    9-Step Pipeline with:
+    - Compact prompts (< 1500 tokens)
+    - Complexity-based model selection
+    - DeepSeek-R1 primary / Qwen fallback
+    - Progress streaming to UI
+         ↓
+    Cache Result → Return Response
+```
+
+---
+
+## Factory 4.5: LLM-Enhanced Features
+
+### Overview
+
+Factory 4.5 extends the core inference engine with intelligent LLM-powered enhancements while maintaining the **0% hallucination** requirement. Every LLM output is validated against actual data before use.
+
+**Core Principle:** LLM acts as a TRANSLATOR and ASSISTANT, never as the source of clinical facts. All LLM suggestions are validated against actual data before being used.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    FACTORY 4.5: LLM-ENHANCED FEATURES                            │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                    ENHANCED SYNONYM RESOLUTION                           │    │
+│  │                                                                          │    │
+│  │  User: "high blood pressure"                                            │    │
+│  │         │                                                                │    │
+│  │         ▼                                                                │    │
+│  │  ┌───────────────────┐    ┌───────────────────┐    ┌────────────────┐   │    │
+│  │  │ Step 1: Exact     │───►│ Step 2: LLM       │───►│ Step 3: Data   │   │    │
+│  │  │ Match in Data?    │ No │ Suggests Terms    │    │ Validation     │   │    │
+│  │  └───────────────────┘    └───────────────────┘    └────────────────┘   │    │
+│  │         │ Yes                    │                        │              │    │
+│  │         ▼                        ▼                        ▼              │    │
+│  │    Use exact term          ["Hypertension",        Check each term      │    │
+│  │                            "High blood pressure",   exists in AEDECOD   │    │
+│  │                            "Elevated BP"]           column              │    │
+│  │                                                           │              │    │
+│  │                                                           ▼              │    │
+│  │  Result: Include ALL validated terms in query                           │    │
+│  │  SQL: UPPER(AEDECOD) IN (UPPER('Hypertension'), UPPER('High BP'))      │    │
+│  │                                                                          │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                    QUERY DISAMBIGUATION                                  │    │
+│  │                                                                          │    │
+│  │  User: "Show me the severe cases"                                       │    │
+│  │         │                                                                │    │
+│  │         ▼                                                                │    │
+│  │  ┌─────────────────────────────────────────────────────────────────┐    │    │
+│  │  │ LLM generates clarification options based on schema context:    │    │    │
+│  │  │                                                                 │    │    │
+│  │  │   "Which type of 'severe' did you mean?                        │    │    │
+│  │  │    1. Severe adverse events (ATOXGR >= 3)                      │    │    │
+│  │  │    2. Serious adverse events (AESER = 'Y')                     │    │    │
+│  │  │    3. Severe toxicity (ASEV = 'SEVERE')"                       │    │    │
+│  │  │                                                                 │    │    │
+│  │  │   User selects → System proceeds with precise query            │    │    │
+│  │  └─────────────────────────────────────────────────────────────────┘    │    │
+│  │                                                                          │    │
+│  │  WHY SAFE: LLM only generates questions, not clinical facts              │    │
+│  │                                                                          │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                    METADATA-BASED EXPLANATION                            │    │
+│  │                                                                          │    │
+│  │  After SQL execution, generate user-friendly explanation                │    │
+│  │                                                                          │    │
+│  │  ┌─────────────────────────────────────────────────────────────────┐    │    │
+│  │  │ MAIN ANSWER:                                                    │    │    │
+│  │  │ "140 subjects had Grade 3 or higher adverse events"            │    │    │
+│  │  │                                                                 │    │    │
+│  │  │ DETAILS TAB (expandable):                                       │    │    │
+│  │  │ ┌─────────────────────────────────────────────────────────────┐ │    │    │
+│  │  │ │ 📊 What this means:                                         │ │    │    │
+│  │  │ │                                                             │ │    │    │
+│  │  │ │ 🔍 How we found this:                                       │ │    │    │
+│  │  │ │    • Table: ADAE (Adverse Events Analysis)                  │ │    │    │
+│  │  │ │    • Population: Safety (232 subjects)                      │ │    │    │
+│  │  │ │    • Filter: Toxicity Grade ≥ 3                            │ │    │    │
+│  │  │ │                                                             │ │    │    │
+│  │  │ │ 📖 Terms explained:                                         │ │    │    │
+│  │  │ │    • ATOXGR (Analysis Toxicity Grade): 1-5 scale           │ │    │    │
+│  │  │ │      - Grade 1: Mild                                        │ │    │    │
+│  │  │ │      - Grade 2: Moderate                                    │ │    │    │
+│  │  │ │      - Grade 3: Severe ← Your filter                       │ │    │    │
+│  │  │ │      - Grade 4: Life-threatening                            │ │    │    │
+│  │  │ │      - Grade 5: Death                                       │ │    │    │
+│  │  │ │                                                             │ │    │    │
+│  │  │ │ 🔢 SQL Query:                                               │ │    │    │
+│  │  │ │    SELECT COUNT(DISTINCT USUBJID) FROM ADAE                 │ │    │    │
+│  │  │ │    WHERE SAFFL = 'Y' AND ATOXGR >= '3'                      │ │    │    │
+│  │  │ │                                                             │ │    │    │
+│  │  │ │ ✅ Confidence: 92% (High)                                   │ │    │    │
+│  │  │ └─────────────────────────────────────────────────────────────┘ │    │    │
+│  │  └─────────────────────────────────────────────────────────────────┘    │    │
+│  │                                                                          │    │
+│  │  WHY SAFE: All explanations derived from Golden Metadata JSON            │    │
+│  │                                                                          │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 4.17 Enhanced Synonym Resolution
+
+**Purpose:** When user's exact term isn't in data, use LLM to suggest clinical synonyms, then validate each against actual data.
+
+**Algorithm:**
+```
+1. User query: "high blood pressure"
+2. Check if "high blood pressure" exists EXACTLY in AEDECOD → NO
+3. Ask LLM: "What clinical/MedDRA terms might mean 'high blood pressure'?"
+4. LLM suggests: ["Hypertension", "High blood pressure", "Elevated blood pressure", "BP increased"]
+5. Validate each against actual AEDECOD values in DuckDB
+6. Found in data: "Hypertension" (42 subjects), "Blood pressure increased" (8 subjects)
+7. Include ALL validated terms in query (no data missed)
+```
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.17.1 | Create `synonym_resolver.py` module | High | ⬜ |
+| 4.17.2 | Implement exact match check first | High | ⬜ |
+| 4.17.3 | LLM synonym suggestion prompt | High | ⬜ |
+| 4.17.4 | Data validation of LLM suggestions | Critical | ⬜ |
+| 4.17.5 | Include all validated synonyms in SQL | High | ⬜ |
+| 4.17.6 | Show breakdown in response (which terms matched) | Medium | ⬜ |
+| 4.17.7 | Cache synonym mappings for performance | Medium | ⬜ |
+| 4.17.8 | Unit tests for synonym resolution | High | ⬜ |
+
+### 4.18 Query Disambiguation
+
+**Purpose:** When query is ambiguous, generate contextual clarification options instead of guessing.
+
+**Triggers:**
+- Multiple interpretations possible (e.g., "severe" = Grade 3+ OR Serious AE?)
+- Missing required context (e.g., "compared to what?")
+- Ambiguous entity (e.g., "the drug" when multiple drugs exist)
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.18.1 | Create `query_disambiguator.py` module | High | ⬜ |
+| 4.18.2 | Define ambiguity patterns (severe, related, etc.) | High | ⬜ |
+| 4.18.3 | LLM prompt for generating clarification options | High | ⬜ |
+| 4.18.4 | Include actual data values in options | Critical | ⬜ |
+| 4.18.5 | Return structured options to UI | High | ⬜ |
+| 4.18.6 | Handle user selection and continue pipeline | High | ⬜ |
+| 4.18.7 | Skip disambiguation for clear queries | Medium | ⬜ |
+| 4.18.8 | Unit tests for disambiguation | High | ⬜ |
+
+### 4.19 Natural Language Error Messages
+
+**Purpose:** Convert technical errors into user-friendly explanations with suggestions.
+
+**Examples:**
+| Technical Error | User-Friendly Message |
+|----------------|----------------------|
+| `Column AETOXGR not found` | "The toxicity grade column isn't available. Try asking about 'adverse event severity' instead." |
+| `Table ADCM not found` | "Concomitant medication analysis data isn't loaded yet. Please check Data Management." |
+| `Timeout after 30s` | "This query is complex and taking longer than expected. Try breaking it into smaller questions." |
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.19.1 | Create `error_humanizer.py` module | Medium | ⬜ |
+| 4.19.2 | Map error types to friendly templates | Medium | ⬜ |
+| 4.19.3 | LLM enhancement for unusual errors | Low | ⬜ |
+| 4.19.4 | Include suggested alternative queries | Medium | ⬜ |
+| 4.19.5 | Log original error for debugging | Medium | ⬜ |
+
+### 4.20 Metadata-Based Column Explanation
+
+**Purpose:** Explain technical column names and values for non-technical users in the Details tab.
+
+**Detail Level:** Medium (columns + population + assumptions)
+
+**Source:** Golden Metadata JSON only (no LLM hallucination risk)
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.20.1 | Create `explanation_enricher.py` module | High | ⬜ |
+| 4.20.2 | Load column descriptions from Golden Metadata | High | ⬜ |
+| 4.20.3 | Generate "Terms Explained" section | High | ⬜ |
+| 4.20.4 | Generate "How we found this" section | High | ⬜ |
+| 4.20.5 | Hybrid approach: templates + LLM for unusual patterns | Medium | ⬜ |
+| 4.20.6 | Format for Details tab in UI | High | ⬜ |
+| 4.20.7 | Include codelist value meanings | Medium | ⬜ |
+
+### 4.21 Case-Insensitive SQL Processing ✅ COMPLETE
+
+**Purpose:** Ensure all string comparisons are case-insensitive to prevent missed matches.
+
+**Implementation:**
+- SQL Validator transforms all string comparisons:
+  - `column = 'value'` → `UPPER(column) = UPPER('value')`
+  - `column IN ('a', 'b')` → `UPPER(column) IN (UPPER('a'), UPPER('b'))`
+  - `column LIKE 'pattern'` → `UPPER(column) LIKE UPPER('pattern')`
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.21.1 | Add `make_case_insensitive()` to SQL Validator | High | ✅ |
+| 4.21.2 | Transform equality comparisons (=, <>, !=) | High | ✅ |
+| 4.21.3 | Transform LIKE comparisons | High | ✅ |
+| 4.21.4 | Transform IN clauses | High | ✅ |
+| 4.21.5 | Preserve numeric comparisons (don't transform) | High | ✅ |
+| 4.21.6 | Unit tests for case-insensitive transformation | High | ⬜ |
+
+---
+
+## UI Elegance Standards
+
+### Chat Response Format
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  CHAT UI RESPONSE STRUCTURE                                                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                          │    │
+│  │  💬 MAIN ANSWER (Always Visible)                                        │    │
+│  │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                      │    │
+│  │  "140 subjects had Grade 3 or higher adverse events."                   │    │
+│  │                                                                          │    │
+│  │  ┌──────────────────────────────────────────────────────────────────┐   │    │
+│  │  │ 🟢 92% Confidence │ [Details ▼] │ [SQL ▼] │ [Export CSV]         │   │    │
+│  │  └──────────────────────────────────────────────────────────────────┘   │    │
+│  │                                                                          │    │
+│  │  ┌──────────────────────────────────────────────────────────────────┐   │    │
+│  │  │ DETAILS TAB (Expandable)                                          │   │    │
+│  │  │                                                                   │   │    │
+│  │  │ 📊 What this means:                                               │   │    │
+│  │  │    Counts unique subjects with severe toxicity                   │   │    │
+│  │  │                                                                   │   │    │
+│  │  │ 🔍 How we found this:                                             │   │    │
+│  │  │    • Table: ADAE (Adverse Events Analysis Dataset)               │   │    │
+│  │  │    • Population: Safety Population (232 subjects)                │   │    │
+│  │  │    • Filter: ATOXGR >= 3 (Grade 3 or higher)                     │   │    │
+│  │  │                                                                   │   │    │
+│  │  │ 📖 Terms explained:                                               │   │    │
+│  │  │    • ATOXGR: Analysis Toxicity Grade (NCI CTCAE scale)           │   │    │
+│  │  │      - Grade 1: Mild                                              │   │    │
+│  │  │      - Grade 2: Moderate                                          │   │    │
+│  │  │      - Grade 3: Severe ← Included                                │   │    │
+│  │  │      - Grade 4: Life-threatening ← Included                      │   │    │
+│  │  │      - Grade 5: Death ← Included                                 │   │    │
+│  │  │                                                                   │   │    │
+│  │  │    • SAFFL: Safety Population Flag (Y = included)                │   │    │
+│  │  │                                                                   │   │    │
+│  │  │ ⚠️ Assumptions:                                                   │   │    │
+│  │  │    • Using Safety Population (default for AE queries)            │   │    │
+│  │  │    • Counting unique subjects (not events)                       │   │    │
+│  │  └──────────────────────────────────────────────────────────────────┘   │    │
+│  │                                                                          │    │
+│  │  ┌──────────────────────────────────────────────────────────────────┐   │    │
+│  │  │ SQL TAB (Expandable)                                              │   │    │
+│  │  │                                                                   │   │    │
+│  │  │ SELECT COUNT(DISTINCT USUBJID)                                    │   │    │
+│  │  │ FROM ADAE                                                         │   │    │
+│  │  │ WHERE UPPER(SAFFL) = UPPER('Y')                                   │   │    │
+│  │  │   AND UPPER(ATOXGR) >= '3'                                        │   │    │
+│  │  │                                                                   │   │    │
+│  │  │ [Copy SQL]                                                        │   │    │
+│  │  └──────────────────────────────────────────────────────────────────┘   │    │
+│  │                                                                          │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Confidence Badge Colors
+
+| Score | Color | Badge | Meaning |
+|-------|-------|-------|---------|
+| 90-100% | 🟢 Green | `HIGH` | Reliable result |
+| 70-89% | 🟡 Yellow | `MEDIUM` | Verify assumptions |
+| 50-69% | 🟠 Orange | `LOW` | Review methodology |
+| < 50% | 🔴 Red | `VERY LOW` | May be unreliable |
+
+### UI Checklist
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.22.1 | Implement collapsible Details tab | High | ⬜ |
+| 4.22.2 | Implement collapsible SQL tab | High | ⬜ |
+| 4.22.3 | Confidence badge with color coding | High | ⬜ |
+| 4.22.4 | Export to CSV button | Medium | ⬜ |
+| 4.22.5 | Copy SQL button | Medium | ⬜ |
+| 4.22.6 | Loading animation during query | Medium | ⬜ |
+| 4.22.7 | Progress stages display | Medium | ⬜ |
+| 4.22.8 | Error messages with helpful suggestions | High | ⬜ |
+| 4.22.9 | Mobile-responsive design | Low | ⬜ |
+
+---
+
+## LLM Response Consistency
+
+### Problem
+
+LLM responses can vary in:
+- Format (sometimes markdown, sometimes plain text)
+- Verbosity (sometimes brief, sometimes verbose)
+- SQL style (aliases, capitalization, formatting)
+
+### Solution: Response Templates + Post-Processing
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    LLM RESPONSE CONSISTENCY PIPELINE                             │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  1. STRUCTURED PROMPTS                                                          │
+│     Force LLM to return JSON-structured responses:                              │
+│                                                                                  │
+│     {                                                                           │
+│       "sql": "SELECT ...",                                                      │
+│       "explanation": "This query counts...",                                    │
+│       "assumptions": ["Using safety population", "Counting unique subjects"]   │
+│     }                                                                           │
+│                                                                                  │
+│  2. POST-PROCESSING                                                             │
+│     Normalize LLM output:                                                       │
+│     - SQL: Format with consistent style (uppercase keywords)                    │
+│     - Numbers: Always format with commas (1,234 not 1234)                      │
+│     - Percentages: Always one decimal (12.3% not 12.345%)                      │
+│                                                                                  │
+│  3. RESPONSE TEMPLATES                                                          │
+│     Use templates for common response types:                                    │
+│                                                                                  │
+│     COUNT_RESPONSE = "{count:,} {subject_term} {action_verb} {condition}"      │
+│     Example: "140 subjects had Grade 3+ adverse events"                        │
+│                                                                                  │
+│     LIST_RESPONSE = "Here are the {count:,} {item_type}:\n{table}"            │
+│     Example: "Here are the top 10 adverse events:\n[table]"                   │
+│                                                                                  │
+│  4. VALIDATION                                                                  │
+│     Check response format before returning:                                     │
+│     - Numbers match query results                                               │
+│     - No hallucinated statistics                                                │
+│     - Consistent terminology                                                    │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Consistency Checklist
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.23.1 | Define JSON response schema for LLM | High | ⬜ |
+| 4.23.2 | Create response post-processor | High | ⬜ |
+| 4.23.3 | SQL formatter (consistent style) | Medium | ⬜ |
+| 4.23.4 | Number formatter (1,234 format) | Medium | ⬜ |
+| 4.23.5 | Response templates for common patterns | High | ⬜ |
+| 4.23.6 | Validation: numbers match results | Critical | ⬜ |
+| 4.23.7 | Consistency tests across queries | High | ⬜ |
+
+---
+
+## Testing Strategy
+
+### Golden Questions Test Suite
+
+**Purpose:** Comprehensive regression testing with real-world questions.
+
+**Location:** `tests/golden_questions.py`
+
+**Categories:**
+| Category | Count | Purpose |
+|----------|-------|---------|
+| Population | 4 | Safety/ITT population counts |
+| Demographics | 5 | Age, gender, race distributions |
+| Adverse Events | 8 | AE counts, grades, relatedness |
+| Complex | 3 | Multi-condition, joins |
+| Non-Clinical | 3 | "Hi", "Help", greetings |
+| Fuzzy Matching | 2 | Typo correction |
+| **Conversation Flows** | 3 | Multi-turn context |
+| **Total** | 35 | |
+
+### Test Execution
+
+```bash
+# Run all golden question tests
+py tests/golden_questions.py
+
+# Output: tests/golden_test_results.html (viewable in browser)
+```
+
+### Testing Checklist
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 4.24.1 | Golden questions test suite (35 questions) | High | ✅ |
+| 4.24.2 | HTML report generator | High | ✅ |
+| 4.24.3 | Case-insensitive SQL tests | High | ⬜ |
+| 4.24.4 | Synonym resolution tests | High | ⬜ |
+| 4.24.5 | Disambiguation flow tests | High | ⬜ |
+| 4.24.6 | LLM consistency tests | High | ⬜ |
+| 4.24.7 | Performance benchmark tests | Medium | ⬜ |
+| 4.24.8 | CI/CD integration | Medium | ⬜ |
+
+### Pass/Fail Criteria
+
+| Test Type | Pass Criteria |
+|-----------|---------------|
+| Population queries | Correct count ± 0 |
+| AE queries | Correct count, correct table (ADAE) |
+| Fuzzy matching | Typo resolved to correct term |
+| Conversation flows | Context preserved across turns |
+| Non-clinical | Instant response (< 100ms) |
+| Case sensitivity | Same result regardless of case |
+
+---
+
+## Code Quality Standards
+
+### Redundancy Prevention
+
+| Principle | Implementation |
+|-----------|----------------|
+| Single source of truth | Constants in one file, imported elsewhere |
+| No duplicate logic | Common patterns extracted to utility functions |
+| Clean imports | Remove unused imports |
+| Type hints | All functions have type annotations |
+| Docstrings | All public functions documented |
+
+### Deprecated Code Removal
+
+When adding new features:
+1. ✅ Remove old implementations (don't leave commented code)
+2. ✅ Update imports across codebase
+3. ✅ Update tests to use new implementations
+4. ✅ Update documentation
+
+### File Organization
+
+```
+core/engine/
+├── models.py              # Shared dataclasses (PipelineResult, EntityMatch, etc.)
+├── clinical_config.py     # Clinical rules (SINGLE SOURCE)
+├── input_sanitizer.py     # Step 1
+├── entity_extractor.py    # Step 2 (includes typo dictionary)
+├── table_resolver.py      # Step 3
+├── context_builder.py     # Step 4
+├── sql_generator.py       # Step 5
+├── sql_validator.py       # Step 6 (includes case-insensitive transform)
+├── executor.py            # Step 7
+├── confidence_scorer.py   # Step 8
+├── explanation_generator.py # Step 9
+├── pipeline.py            # Orchestrator
+├── cache.py               # Query caching
+├── synonym_resolver.py    # NEW: LLM synonym resolution
+├── query_disambiguator.py # NEW: Ambiguity handling
+├── error_humanizer.py     # NEW: Friendly error messages
+└── explanation_enricher.py # NEW: Details tab content
+```
 
 ---
 
@@ -2492,7 +2980,7 @@ core/engine/                          # Factory 4 - Inference Engine
 │  ├── Confidence Scorer            ████████████████████  100% ✓         │
 │  ├── Explanation Generator        ████████████████████  100% ✓         │
 │  ├── Pipeline Orchestrator        ████████████████████  100% ✓         │
-│  ├── Unit Tests (194 passing)     ████████████████████  100% ✓         │
+│  ├── Unit Tests (376 passing)     ████████████████████  100% ✓         │
 │  ├── Chat Router Integration      ████████████████████  100% ✓         │
 │  ├── Chat UI Enhancements         ████████████████████  100% ✓         │
 │  ├── Audit Logging                ████████████████████  100% ✓         │

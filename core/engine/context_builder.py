@@ -82,7 +82,10 @@ class ContextBuilder:
               query: str,
               table_resolution: TableResolution,
               entities: List[EntityMatch],
-              include_full_schema: bool = False
+              include_full_schema: bool = False,
+              accumulated_filters: Optional[str] = None,
+              preserve_filters: bool = False,
+              conversation_context: Optional[str] = None
              ) -> LLMContext:
         """
         Build LLM context.
@@ -92,12 +95,18 @@ class ContextBuilder:
             table_resolution: Resolved table information
             entities: Extracted entities
             include_full_schema: Whether to include all columns
+            accumulated_filters: SQL filters from previous queries that must be preserved
+            preserve_filters: Whether to preserve accumulated filters (for REFINE queries)
+            conversation_context: Full conversation context for follow-up queries
 
         Returns:
             LLMContext ready for LLM
         """
         # Build system prompt with clinical rules
-        system_prompt = self._build_system_prompt(table_resolution)
+        system_prompt = self._build_system_prompt(
+            table_resolution,
+            accumulated_filters=accumulated_filters if preserve_filters else None
+        )
 
         # Build schema context
         schema_context = self._build_schema_context(
@@ -111,11 +120,16 @@ class ContextBuilder:
         # Build clinical rules context
         clinical_rules = self._build_clinical_rules(table_resolution)
 
+        # Add refinement context if preserving filters
+        if preserve_filters and accumulated_filters:
+            clinical_rules += self._build_refinement_context(accumulated_filters)
+
         # Build user prompt
         user_prompt = self._build_user_prompt(
             query,
             table_resolution,
-            entities
+            entities,
+            accumulated_filters=accumulated_filters if preserve_filters else None
         )
 
         # Estimate token count (rough: 4 chars per token)
@@ -131,48 +145,86 @@ class ContextBuilder:
             token_count_estimate=token_estimate
         )
 
-    def _build_system_prompt(self, table_resolution: TableResolution) -> str:
-        """Build the system prompt."""
-        return f"""You are a clinical data SQL expert for DuckDB. Generate accurate SQL queries.
+    def _build_system_prompt(self,
+                             table_resolution: TableResolution,
+                             accumulated_filters: Optional[str] = None
+                            ) -> str:
+        """Build the system prompt - LLM-first approach."""
+
+        # Get grade column for emphasis
+        grade_col = table_resolution.get_grade_column()
+        grade_note = ""
+        if grade_col:
+            grade_note = f"\n- For toxicity/grade queries, use {grade_col}"
+
+        # Add accumulated filters for refinement queries
+        refinement_rule = ""
+        if accumulated_filters:
+            refinement_rule = f"""
+
+FOLLOW-UP QUERY:
+This refines previous results. Include these filters: {accumulated_filters}"""
+
+        # Get available tables for context
+        available = ", ".join(table_resolution.available_tables) if table_resolution.available_tables else "ADSL, ADAE"
+
+        # LLM-first system prompt - gives context, lets LLM decide
+        return f"""You are a SQL expert for clinical trial data (DuckDB). Generate accurate SQL.
+
+AVAILABLE TABLES: {available}
+
+TABLE SELECTION GUIDE:
+- ADSL (Subject-Level Analysis): Use for demographics (age, sex, race), population counts
+- ADAE (Adverse Events Analysis): Use for adverse event queries (nausea, headache, toxicity)
 
 CRITICAL RULES:
-1. Use table: {table_resolution.selected_table} ({table_resolution.table_type})
-2. Apply population filter: {table_resolution.population_filter or 'None required'}
-3. For subject counts, use COUNT(DISTINCT USUBJID)
-4. Only generate SELECT queries - no INSERT, UPDATE, DELETE
-5. Use exact column names from the schema provided
+- ONLY use columns listed in the schema below - do NOT invent column names
+- Use AEDECOD for adverse event terms (not PT_NAME, PREFERRED_TERM, or other names)
+- Use ATOXGR for toxicity grades - NOTE: it's VARCHAR with '.' for missing values
+  Use: ATOXGR != '.' AND CAST(ATOXGR AS INTEGER) >= 3 for Grade 3+
+- Use COUNT(DISTINCT USUBJID) when counting patients/subjects
+- Use COUNT(*) when counting events/records{grade_note}
 
-POPULATION: {table_resolution.population_name}
-TABLE: {table_resolution.selected_table}
+SPELLING VARIATIONS (handle BOTH in queries):
+- UK/US: anaemia/anemia, diarrhoea/diarrhea, oedema/edema, haemorrhage/hemorrhage
+- Use IN ('Term1', 'Term2') or UPPER(AEDECOD) LIKE '%TERM%' to match variants{refinement_rule}
 
-Show your reasoning in <think> tags, then provide the SQL in a ```sql code block."""
+Output SQL in ```sql block."""
 
     def _build_schema_context(self,
                               table_resolution: TableResolution,
                               include_full: bool = False
                              ) -> str:
-        """Build schema context string."""
-        table = table_resolution.selected_table
-        columns = table_resolution.table_columns
+        """Build comprehensive schema context for LLM decision-making."""
+        lines = []
 
-        lines = [f"## Schema for {table}"]
+        # Key columns for each table type
+        key_columns = {
+            'ADAE': ['USUBJID', 'AEDECOD', 'AETERM', 'ATOXGR', 'AETOXGR', 'AESEV',
+                     'AESER', 'AEREL', 'TRTEMFL', 'SAFFL', 'SEX'],
+            'ADSL': ['USUBJID', 'AGE', 'SEX', 'RACE', 'ARM', 'TRT01A',
+                     'SAFFL', 'ITTFL', 'EFFFL'],
+            'AE': ['USUBJID', 'AEDECOD', 'AETERM', 'AETOXGR', 'AESEV', 'AESER'],
+            'DM': ['USUBJID', 'AGE', 'SEX', 'RACE', 'ARM', 'ACTARM'],
+        }
+
+        # Provide schema for multiple tables so LLM can choose
+        tables_to_show = ['ADSL', 'ADAE']  # Primary tables
+        for t in tables_to_show:
+            if t in [tbl.upper() for tbl in table_resolution.available_tables]:
+                cols = key_columns.get(t, [])
+                lines.append(f"{t}: {', '.join(cols)}")
+
+        # Add column descriptions
         lines.append("")
-        lines.append("| Column | Description |")
-        lines.append("|--------|-------------|")
-
-        # Get metadata descriptions
-        table_meta = self.metadata.get('variables', {}).get(table, {})
-
-        for col in columns:
-            desc = self._get_column_description(table, col, table_meta)
-            lines.append(f"| {col} | {desc} |")
-
-        # Add column priority info
-        if table_resolution.columns_resolved:
-            lines.append("")
-            lines.append("## Column Usage Notes")
-            for concept, resolution in table_resolution.columns_resolved.items():
-                lines.append(f"- {resolution.column_name}: {resolution.reason}")
+        lines.append("COLUMN GUIDE:")
+        lines.append("- AEDECOD: Adverse event coded term (use for specific AE searches like 'Nausea', 'Anaemia')")
+        lines.append("- AESER: Serious adverse event flag ('Y' = serious)")
+        lines.append("- ATOXGR: Maximum toxicity grade (VARCHAR with '.' for missing; cast to INTEGER after filtering '.')")
+        lines.append("- TRTEMFL: Treatment-emergent flag ('Y' = occurred during treatment)")
+        lines.append("- SAFFL: Safety population flag ('Y' = in safety population)")
+        lines.append("- AGE: Patient age in years")
+        lines.append("- SEX: Patient sex ('M' or 'F')")
 
         return "\n".join(lines)
 
@@ -218,74 +270,88 @@ Show your reasoning in <think> tags, then provide the SQL in a ```sql code block
         return common.get(column.upper(), column)
 
     def _build_entity_context(self, entities: List[EntityMatch]) -> str:
-        """Build entity resolution context."""
+        """Build entity resolution context - compact format."""
         if not entities:
             return ""
 
-        lines = ["## Entity Resolution"]
-        lines.append("")
-        lines.append("The following terms were resolved:")
-        lines.append("")
-
+        # Compact inline format
+        mappings = []
         for entity in entities:
             if entity.match_type == "grade":
-                lines.append(f"- Grade {entity.matched_term} → Use {entity.column}")
+                mappings.append(f"Grade {entity.matched_term}→{entity.column}")
             else:
-                lines.append(f"- \"{entity.original_term}\" → {entity.matched_term} "
-                           f"(table: {entity.table}, column: {entity.column})")
+                mappings.append(f"'{entity.original_term}'→{entity.matched_term}")
 
-        return "\n".join(lines)
+        return f"TERMS: {'; '.join(mappings)}" if mappings else ""
 
     def _build_clinical_rules(self, table_resolution: TableResolution) -> str:
-        """Build clinical rules context."""
-        lines = ["## Clinical Rules (MUST FOLLOW)"]
-        lines.append("")
-        lines.append(f"1. Use {table_resolution.selected_table} table")
+        """Build clinical rules context - minimal to reduce tokens."""
+        rules = []
 
-        if table_resolution.population_filter:
-            lines.append(f"2. Filter: WHERE {table_resolution.population_filter}")
-        else:
-            lines.append("2. No population filter required")
-
-        # Add column priorities
+        # Add CRITICAL grade column rule - must be emphatic
         grade_col = table_resolution.get_grade_column()
         if grade_col:
-            lines.append(f"3. For toxicity grade, use {grade_col}")
+            # Strongly emphasize which column to use for toxicity grades
+            if grade_col == 'ATOXGR':
+                rules.append(
+                    f"CRITICAL: For toxicity grade queries, MUST use {grade_col} "
+                    f"(maximum grade during study). DO NOT use AETOXGR (grade at onset)."
+                )
+            elif grade_col == 'AETOXGR':
+                rules.append(
+                    f"CRITICAL: For toxicity grade queries, use {grade_col} "
+                    f"(grade at onset). ATOXGR not available."
+                )
+            else:
+                rules.append(f"CRITICAL: For toxicity grade queries, use {grade_col}")
 
+        # Only add assumptions if present
         if table_resolution.assumptions:
-            lines.append("")
-            lines.append("Assumptions made:")
-            for assumption in table_resolution.assumptions:
-                lines.append(f"- {assumption}")
+            rules.append(f"Note: {'; '.join(table_resolution.assumptions)}")
 
-        return "\n".join(lines)
+        return "\n".join(rules) if rules else ""
 
     def _build_user_prompt(self,
                            query: str,
                            table_resolution: TableResolution,
-                           entities: List[EntityMatch]
+                           entities: List[EntityMatch],
+                           accumulated_filters: Optional[str] = None
                           ) -> str:
-        """Build the user prompt."""
-        lines = ["## Query"]
-        lines.append("")
-        lines.append(query)
-        lines.append("")
-        lines.append("Generate a DuckDB SQL query to answer this question.")
-        lines.append("")
-        lines.append("Requirements:")
-        lines.append(f"- Use table: {table_resolution.selected_table}")
+        """Build the user prompt - compact for fast inference."""
+        lines = [f"Q: {query}"]
 
-        if table_resolution.population_filter:
-            lines.append(f"- Apply filter: {table_resolution.population_filter}")
+        # Add accumulated filters reminder for refinement queries
+        if accumulated_filters:
+            lines.append(f"REMEMBER: Include these filters from previous query: {accumulated_filters}")
 
+        # Add entity hints inline if present
+        entity_hints = []
         for entity in entities:
             if entity.table and entity.column:
-                lines.append(f"- Use {entity.column} = '{entity.matched_term}' for '{entity.original_term}'")
+                entity_hints.append(f"{entity.column}='{entity.matched_term}'")
 
-        lines.append("")
-        lines.append("Show your reasoning in <think> tags, then provide SQL in ```sql block.")
+        if entity_hints:
+            lines.append(f"USE: {', '.join(entity_hints)}")
 
         return "\n".join(lines)
+
+    def _build_refinement_context(self, accumulated_filters: str) -> str:
+        """Build context for refinement queries that need to preserve filters."""
+        return f"""
+
+=== REFINEMENT QUERY RULES ===
+This question is a FOLLOW-UP that refines previous results.
+Your SQL MUST include ALL of these conditions from the previous query:
+{accumulated_filters}
+
+DO NOT interpret "of these", "of those", "out of these" as adverse event names.
+These are REFERENCE WORDS meaning "from the previous result set".
+
+Example correct pattern:
+Previous: ITTFL = 'Y' AND AGE >= 65
+New question: "out of these, how many had serious adverse events"
+Correct SQL: WHERE ITTFL = 'Y' AND AGE >= 65 AND AESER = 'Y'
+=== END REFINEMENT RULES ==="""
 
     def get_table_schema(self, table_name: str) -> Optional[SchemaInfo]:
         """Get schema for a specific table."""
@@ -295,11 +361,17 @@ Show your reasoning in <think> tags, then provide the SQL in a ```sql code block
         if not self.db_path:
             return None
 
+        # Validate table name to prevent SQL injection
+        from .sql_security import validate_table_name
+        if not validate_table_name(table_name):
+            logger.warning(f"Invalid table name rejected in get_table_schema: {table_name}")
+            return None
+
         try:
             import duckdb
             conn = duckdb.connect(self.db_path, read_only=True)
             try:
-                # Get columns
+                # Get columns (table_name validated above)
                 columns = conn.execute(f"""
                     SELECT column_name, data_type
                     FROM information_schema.columns
@@ -307,7 +379,7 @@ Show your reasoning in <think> tags, then provide the SQL in a ```sql code block
                     ORDER BY ordinal_position
                 """).fetchall()
 
-                # Get row count
+                # Get row count (table_name validated above)
                 count = conn.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
 
                 schema = SchemaInfo(
