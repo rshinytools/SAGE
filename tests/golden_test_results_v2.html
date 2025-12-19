@@ -1,308 +1,1069 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <title>SAGE Golden V2 Results</title>
+    <title>SAGE Golden Test Suite v2 Results</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
         h1 { color: #2c3e50; }
-        .stats { background: #eee; padding: 15px; border-radius: 5px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
-        th { background-color: #f2f2f2; }
-        .success { background-color: #dff0d8; }
-        .failure { background-color: #f2dede; }
-        pre { white-space: pre-wrap; font-size: 0.9em; }
+        h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .summary { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .summary-stats { display: flex; gap: 30px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 32px; font-weight: bold; }
+        .stat-label { color: #666; }
+        .pass { color: #27ae60; }
+        .fail { color: #e74c3c; }
+        .manual { color: #f39c12; }
+        .category { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #3498db; color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f8f9fa; }
+        .result-pass { background: #d4edda; }
+        .result-fail { background: #f8d7da; }
+        .result-manual { background: #fff3cd; }
+        .sql { font-family: monospace; font-size: 12px; background: #f8f9fa; padding: 5px; border-radius: 4px; max-width: 400px; overflow: hidden; text-overflow: ellipsis; }
+        .confidence { font-weight: bold; }
+        .confidence-high { color: #27ae60; }
+        .confidence-medium { color: #f39c12; }
+        .confidence-low { color: #e74c3c; }
+        .flow-header { background: #9b59b6; color: white; padding: 10px; margin-top: 20px; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <h1>SAGE Golden Test Suite v2</h1>
-    <div class="stats">
-        <strong>Date:</strong> 2025-12-18 21:29:14<br>
-        <strong>Total Questions:</strong> 25<br>
-        <strong>Technical Pass Rate:</strong> 4/25 (16.0%)
-    </div>
-    
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Category</th>
-            <th>Question</th>
-            <th>SQL / Answer</th>
-            <th>Expected</th>
-            <th>Time</th>
-        </tr>
+    <h1>SAGE Golden Test Suite v2 Results</h1>
+    <p>Generated: 2025-12-18 22:10:17</p>
 
-        <tr class="success">
-            <td>POP-001</td>
-            <td>Populations</td>
-            <td>How many subjects are in the Safety Population?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'id': '9c90a8aa-c5f0-4927-8cd2-f7835b7d6e8f', 'role': 'assistant', 'content': 'There are **232 subjects** in the safety population.', 'timestamp': '2025-12-19T05:28:25.093683', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': 10...
-            </td>
-            <td>Count with SAFFL='Y'</td>
-            <td>7620ms</td>
-        </tr>
-        <tr class="success">
-            <td>POP-002</td>
-            <td>Populations</td>
-            <td>Count the number of subjects in the ITT population</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'id': '63c637af-a784-4715-ac20-b7e39923ba73', 'role': 'assistant', 'content': 'There are **233 subjects** in the ITT population.', 'timestamp': '2025-12-19T05:28:32.394087', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': 100.0...
-            </td>
-            <td>Count with ITTFL='Y'</td>
-            <td>7298ms</td>
-        </tr>
-        <tr class="success">
-            <td>POP-003</td>
-            <td>Populations</td>
-            <td>How many patients are in the efficacy population?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'id': '35dee2b3-550e-4416-a8fc-f182a37a402b', 'role': 'assistant', 'content': 'There are **339 subjects** in the efficacy population.', 'timestamp': '2025-12-19T05:28:49.887858', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': ...
-            </td>
-            <td>Count with EFFFL='Y'</td>
-            <td>17485ms</td>
-        </tr>
-        <tr class="success">
-            <td>POP-004</td>
-            <td>Populations</td>
-            <td>What is the total number of subjects in the study?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'id': '49b62adc-496f-4177-9654-25aca34bab46', 'role': 'assistant', 'content': 'There are **339 subjects** matching your criteria.', 'timestamp': '2025-12-19T05:28:57.110961', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': 100....
-            </td>
-            <td>Count all in ADSL</td>
-            <td>7219ms</td>
-        </tr>
-        <tr class="failure">
-            <td>POP-005</td>
-            <td>Populations</td>
-            <td>Count subjects in the Per-Protocol population</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"}...
-            </td>
-            <td>Count with PPROTFL='Y'</td>
-            <td>17278ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-001-Q1</td>
-            <td>Flow 1</td>
-            <td>How many subjects are in the Safety Population?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>SAFFL='Y'</td>
-            <td>28ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-001-Q2</td>
-            <td>Flow 1</td>
-            <td>How many of them are Female?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>SAFFL='Y' AND SEX='F'</td>
-            <td>13ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-001-Q3</td>
-            <td>Flow 1</td>
-            <td>Out of those, how many are over 65?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>SAFFL='Y' AND SEX='F' AND AGE>65</td>
-            <td>16ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-001-Q4</td>
-            <td>Flow 1</td>
-            <td>List them</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"}...
-            </td>
-            <td>Show table</td>
-            <td>3ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-002-Q1</td>
-            <td>Flow 2</td>
-            <td>How many subjects had Headache?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Headache</td>
-            <td>25ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-002-Q2</td>
-            <td>Flow 2</td>
-            <td>How many of these were Grade 3?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Headache AND G3</td>
-            <td>16ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-002-Q3</td>
-            <td>Flow 2</td>
-            <td>Are any of them serious?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Headache AND G3 AND SAE</td>
-            <td>15ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-002-Q4</td>
-            <td>Flow 2</td>
-            <td>Show me the details</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Show table</td>
-            <td>15ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-003-Q1</td>
-            <td>Flow 3</td>
-            <td>How many subjects are in the ITT population?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>ITTFL='Y'</td>
-            <td>13ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-003-Q2</td>
-            <td>Flow 3</td>
-            <td>How many of these completed the study?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>ITT AND Completed</td>
-            <td>16ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-003-Q3</td>
-            <td>Flow 3</td>
-            <td>How many of the completers were in the treatment arm?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>ITT AND Compl AND Trt</td>
-            <td>15ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-003-Q4</td>
-            <td>Flow 3</td>
-            <td>What is the gender breakdown of this group?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Group by SEX</td>
-            <td>15ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-004-Q1</td>
-            <td>Flow 4</td>
-            <td>How many subjects are from Site 701?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>SITEID='701'</td>
-            <td>14ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-004-Q2</td>
-            <td>Flow 4</td>
-            <td>How many of them had adverse events?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"}...
-            </td>
-            <td>Site AND AE</td>
-            <td>2ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-004-Q3</td>
-            <td>Flow 4</td>
-            <td>Which AEs were most common for them?</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Site AEs Grouped</td>
-            <td>13ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-004-Q4</td>
-            <td>Flow 4</td>
-            <td>List the serious ones</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Site AEs SAEs List</td>
-            <td>15ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-005-Q1</td>
-            <td>Flow 5</td>
-            <td>Show me all subjects with Nausea</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Nausea List</td>
-            <td>13ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-005-Q2</td>
-            <td>Flow 5</td>
-            <td>Filter to only those where it was related to treatment</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Nausea AND Related</td>
-            <td>15ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-005-Q3</td>
-            <td>Flow 5</td>
-            <td>And only if it was severe</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Nausea AND Related AND Severe</td>
-            <td>15ms</td>
-        </tr>
-        <tr class="failure">
-            <td>FLOW-005-Q4</td>
-            <td>Flow 5</td>
-            <td>Count them by gender</td>
-            <td>
-                <b>SQL:</b> <pre></pre>
-                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
-            </td>
-            <td>Group By SEX</td>
-            <td>15ms</td>
-        </tr></table></body></html>
+    <div class="summary">
+        <h2>Summary</h2>
+        <div class="summary-stats">
+            <div class="stat">
+                <div class="stat-value">100</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value pass">54</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value fail">37</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value manual">9</div>
+                <div class="stat-label">Manual Check</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" style="color: #e74c3c;">54.0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2>Populations (7/10 - 70%)</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Confidence</th>
+                <th>Result</th>
+            </tr>
+
+            <tr class="result-pass">
+                <td>1</td>
+                <td>How many subjects are in the Safety Population?</td>
+                <td>232</td>
+                <td>232</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>2</td>
+                <td>Count the number of subjects in the ITT population</td>
+                <td>233</td>
+                <td>233</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>3</td>
+                <td>What is the total number of subjects in the study?</td>
+                <td>339</td>
+                <td>339</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>4</td>
+                <td>How many subjects are randomized?</td>
+                <td>233</td>
+                <td>233</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>5</td>
+                <td>How many subjects are NOT in the safety population?</td>
+                <td>107</td>
+                <td>107</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>6</td>
+                <td>How many subjects are enrolled but not randomized?</td>
+                <td>0</td>
+                <td>106</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>7</td>
+                <td>How many subjects died during the study?</td>
+                <td>146</td>
+                <td>0</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>8</td>
+                <td>How many subjects are in both Safety and ITT populations?</td>
+                <td>232</td>
+                <td>232</td>
+                <td class="confidence confidence-medium">86%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>9</td>
+                <td>How many subjects are in ITT but not in Safety population?</td>
+                <td>1</td>
+                <td>1</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>10</td>
+                <td>How many enrolled subjects are there?</td>
+                <td>233</td>
+                <td>339</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+        </table>
+    </div>
+
+    <div class="category">
+        <h2>Demographics (9/15 - 60%)</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Confidence</th>
+                <th>Result</th>
+            </tr>
+
+            <tr class="result-pass">
+                <td>11</td>
+                <td>How many male subjects are there?</td>
+                <td>134</td>
+                <td>134</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>12</td>
+                <td>Count female patients in Safety Population</td>
+                <td>138</td>
+                <td>138</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>13</td>
+                <td>What is the gender distribution of patients?</td>
+                <td>{'F': 205, 'M': 134}</td>
+                <td>2</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>14</td>
+                <td>How many subjects are 65 or older?</td>
+                <td>122</td>
+                <td>122</td>
+                <td class="confidence confidence-medium">88%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>15</td>
+                <td>How many subjects are under 18?</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>16</td>
+                <td>How many subjects are between 18 and 65?</td>
+                <td>217</td>
+                <td>233</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>17</td>
+                <td>What is the breakdown of race?</td>
+                <td>{'ASIAN': 254, 'WHITE': 75, 'BLACK OR AFRICAN AMERICAN': 3, 'UNKNOWN': 2, 'OTHER': 2, 'NOT REPORTED': 2, 'AMERICAN INDIAN OR ALASKA NATIVE': 1}</td>
+                <td>7</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>18</td>
+                <td>How many Asian subjects are in the study?</td>
+                <td>254</td>
+                <td>254</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>19</td>
+                <td>How many White subjects are in the study?</td>
+                <td>75</td>
+                <td>75</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>20</td>
+                <td>How many White females are in the study?</td>
+                <td>54</td>
+                <td>54</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>21</td>
+                <td>Show me the gender ratio</td>
+                <td>{'F': 205, 'M': 134}</td>
+                <td>2</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>22</td>
+                <td>Count subjects by treatment arm</td>
+                <td>{'Treatment B': 232, '': 107}</td>
+                <td>106</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>23</td>
+                <td>How many subjects are in Treatment A?</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>24</td>
+                <td>How many subjects are in Treatment B?</td>
+                <td>0</td>
+                <td>103</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>25</td>
+                <td>How many subjects are over 75 years old?</td>
+                <td>12</td>
+                <td>12</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+        </table>
+    </div>
+
+    <div class="category">
+        <h2>Adverse Events (16/30 - 53%)</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Confidence</th>
+                <th>Result</th>
+            </tr>
+
+            <tr class="result-fail">
+                <td>26</td>
+                <td>How many subjects reported at least one adverse event?</td>
+                <td>243</td>
+                <td>0</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>27</td>
+                <td>How many subjects had serious adverse events (SAE)?</td>
+                <td>96</td>
+                <td>0</td>
+                <td class="confidence confidence-medium">88%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>28</td>
+                <td>How many subjects had severe adverse events?</td>
+                <td>55</td>
+                <td>149</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>29</td>
+                <td>How many subjects had fatal adverse events?</td>
+                <td>30</td>
+                <td>30</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>30</td>
+                <td>How many subjects had Headache?</td>
+                <td>21</td>
+                <td>22</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>31</td>
+                <td>Count patients with Nausea</td>
+                <td>82</td>
+                <td>82</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>32</td>
+                <td>How many subjects reported Vomiting?</td>
+                <td>55</td>
+                <td>55</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>33</td>
+                <td>How many subjects had Diarrhoea?</td>
+                <td>23</td>
+                <td>23</td>
+                <td class="confidence confidence-high">93%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>34</td>
+                <td>How many subjects had Pyrexia?</td>
+                <td>32</td>
+                <td>32</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>35</td>
+                <td>How many subjects had Fatigue?</td>
+                <td>34</td>
+                <td>34</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>36</td>
+                <td>Count subjects with Constipation</td>
+                <td>79</td>
+                <td>79</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>37</td>
+                <td>How many subjects had Cough?</td>
+                <td>45</td>
+                <td>45</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>38</td>
+                <td>How many subjects had Anaemia?</td>
+                <td>140</td>
+                <td>140</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>39</td>
+                <td>Count subjects with Back pain</td>
+                <td>29</td>
+                <td>34</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>40</td>
+                <td>How many subjects had Grade 3 adverse events?</td>
+                <td>138</td>
+                <td>149</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>41</td>
+                <td>How many subjects had Grade 4 or 5 adverse events?</td>
+                <td>55</td>
+                <td>55</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>42</td>
+                <td>Count subjects with related adverse events</td>
+                <td>243</td>
+                <td>0</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>43</td>
+                <td>How many subjects had possibly related AEs?</td>
+                <td>161</td>
+                <td>0</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>44</td>
+                <td>How many subjects had unrelated AEs?</td>
+                <td>194</td>
+                <td>0</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>45</td>
+                <td>What are the most common adverse events?</td>
+                <td>{'White blood cell count decreased': 342, 'Neutrophil count decreased': 305, 'Anaemia': 249, 'Platelet count decreased': 193, 'Aspartate aminotransferase increased': 148, 'Alanine aminotransferase increased': 140, 'Nausea': 130, 'Constipation': 97, 'Decreased appetite': 87, 'Vomiting': 83}</td>
+                <td>N/A</td>
+                <td class="confidence confidence-high">95%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>46</td>
+                <td>List the top 5 AEs by frequency</td>
+                <td>{'White blood cell count decreased': 342, 'Neutrophil count decreased': 305, 'Anaemia': 249, 'Platelet count decreased': 193, 'Aspartate aminotransferase increased': 148}</td>
+                <td>5</td>
+                <td class="confidence confidence-high">91%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>47</td>
+                <td>How many subjects had gastrointestinal disorders?</td>
+                <td>163</td>
+                <td>163</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>48</td>
+                <td>Count subjects with cardiac disorders</td>
+                <td>41</td>
+                <td>41</td>
+                <td class="confidence confidence-high">95%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>49</td>
+                <td>How many subjects had respiratory disorders?</td>
+                <td>97</td>
+                <td>0</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>50</td>
+                <td>How many subjects had nervous system disorders?</td>
+                <td>66</td>
+                <td>66</td>
+                <td class="confidence confidence-high">93%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>51</td>
+                <td>How many subjects had skin disorders?</td>
+                <td>58</td>
+                <td>6</td>
+                <td class="confidence confidence-medium">89%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>52</td>
+                <td>How many subjects had infections?</td>
+                <td>87</td>
+                <td>43</td>
+                <td class="confidence confidence-high">91%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>53</td>
+                <td>How many treatment-emergent adverse events occurred?</td>
+                <td>3946</td>
+                <td>3946</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>54</td>
+                <td>How many adverse event records are there in total?</td>
+                <td>4332</td>
+                <td>4332</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>55</td>
+                <td>How many subjects had Asthenia?</td>
+                <td>38</td>
+                <td>38</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+        </table>
+    </div>
+
+    <div class="category">
+        <h2>Complex Logic (3/10 - 30%)</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Confidence</th>
+                <th>Result</th>
+            </tr>
+
+            <tr class="result-fail">
+                <td>56</td>
+                <td>How many females over 65 had serious adverse events?</td>
+                <td>22</td>
+                <td>18</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>57</td>
+                <td>Count male subjects in ITT with Grade 3+ Nausea</td>
+                <td>0</td>
+                <td>3</td>
+                <td class="confidence confidence-low">0%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>58</td>
+                <td>How many subjects in Safety pop had related Anaemia?</td>
+                <td>140</td>
+                <td>0</td>
+                <td class="confidence confidence-high">97%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>59</td>
+                <td>Show subjects who had both Nausea and Vomiting</td>
+                <td>4332</td>
+                <td>42</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>60</td>
+                <td>How many subjects had either Vomiting or Diarrhoea?</td>
+                <td>71</td>
+                <td>71</td>
+                <td class="confidence confidence-high">93%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>61</td>
+                <td>Count White females with serious SAEs</td>
+                <td>12</td>
+                <td>0</td>
+                <td class="confidence confidence-high">93%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>62</td>
+                <td>How many subjects under 40 had cardiac events?</td>
+                <td>1</td>
+                <td>0</td>
+                <td class="confidence confidence-high">90%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>63</td>
+                <td>How many elderly subjects (over 75) had Fatigue?</td>
+                <td>3</td>
+                <td>3</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>64</td>
+                <td>How many female patients had adverse events?</td>
+                <td>145</td>
+                <td>145</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>65</td>
+                <td>How many subjects had more than 5 adverse events?</td>
+                <td>4332</td>
+                <td>197</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+        </table>
+    </div>
+
+    <div class="category">
+        <h2>Fuzzy Matching (5/10 - 50%)</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Confidence</th>
+                <th>Result</th>
+            </tr>
+
+            <tr class="result-pass">
+                <td>66</td>
+                <td>How many patients had headake?</td>
+                <td>21</td>
+                <td>21</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>67</td>
+                <td>Count subjects with nausia</td>
+                <td>82</td>
+                <td>82</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>68</td>
+                <td>How many had diarrhea?</td>
+                <td>23</td>
+                <td>23</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>69</td>
+                <td>How many had diarrhoea?</td>
+                <td>23</td>
+                <td>23</td>
+                <td class="confidence confidence-high">93%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>70</td>
+                <td>Count cases of anemia</td>
+                <td>140</td>
+                <td>124</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>71</td>
+                <td>How many ppl had SAEs?</td>
+                <td>96</td>
+                <td>230</td>
+                <td class="confidence confidence-medium">89%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>72</td>
+                <td>How many participants had belly pain?</td>
+                <td>13</td>
+                <td>10</td>
+                <td class="confidence confidence-high">93%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>73</td>
+                <td>Count occurrences of low blood cell count</td>
+                <td>101</td>
+                <td>0</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>74</td>
+                <td>How many subjects had decreased appetite?</td>
+                <td>63</td>
+                <td>63</td>
+                <td class="confidence confidence-high">94%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>75</td>
+                <td>How many subjects had fever?</td>
+                <td>32</td>
+                <td>29</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+        </table>
+    </div>
+
+    <div class="category">
+        <h2>Negative Testing (4/5 - 80%)</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Confidence</th>
+                <th>Result</th>
+            </tr>
+
+            <tr class="result-pass">
+                <td>76</td>
+                <td>How many subjects had Ebola?</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>77</td>
+                <td>Count subjects with Grade 10 AEs</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="confidence confidence-high">97%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>78</td>
+                <td>How many subjects had FakeDisease123?</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>79</td>
+                <td>How many subjects in the 'Moon' population?</td>
+                <td>0</td>
+                <td>1</td>
+                <td class="confidence confidence-low">0%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>80</td>
+                <td>Count subjects with adverse events from Mars</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="confidence confidence-high">96%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+        </table>
+    </div>
+
+    <div class="category">
+        <h2>Conversational Flow (10/20 - 50%)</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Confidence</th>
+                <th>Result</th>
+            </tr>
+<tr><td colspan="6" class="flow-header">FLOW-001</td></tr>
+            <tr class="result-pass">
+                <td>81</td>
+                <td>How many subjects are in the Safety Population?</td>
+                <td>232</td>
+                <td>232</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>82</td>
+                <td>How many of them are Female?</td>
+                <td>138</td>
+                <td>138</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>83</td>
+                <td>Out of those, how many are over 65?</td>
+                <td>47</td>
+                <td>47</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>84</td>
+                <td>List them</td>
+                <td>47</td>
+                <td>47</td>
+                <td class="confidence confidence-high">100%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+<tr><td colspan="6" class="flow-header">FLOW-002</td></tr>
+            <tr class="result-pass">
+                <td>85</td>
+                <td>How many subjects had Anaemia?</td>
+                <td>140</td>
+                <td>140</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>86</td>
+                <td>How many of these were Grade 3?</td>
+                <td>34</td>
+                <td>36</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>87</td>
+                <td>Are any of them serious?</td>
+                <td>6</td>
+                <td>1</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>88</td>
+                <td>Show me the details</td>
+                <td>6</td>
+                <td>6</td>
+                <td class="confidence confidence-high">100%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+<tr><td colspan="6" class="flow-header">FLOW-003</td></tr>
+            <tr class="result-pass">
+                <td>89</td>
+                <td>How many subjects are in the ITT population?</td>
+                <td>233</td>
+                <td>233</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>90</td>
+                <td>How many of these had adverse events?</td>
+                <td>231</td>
+                <td>231</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>91</td>
+                <td>Which AEs were most common for them?</td>
+                <td>{'White blood cell count decreased': 342, 'Neutrophil count decreased': 305, 'Anaemia': 249, 'Platelet count decreased': 193, 'Aspartate aminotransferase increased': 147}</td>
+                <td>N/A</td>
+                <td class="confidence confidence-high">95%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>92</td>
+                <td>List the serious ones</td>
+                <td>143</td>
+                <td>N/A</td>
+                <td class="confidence confidence-high">92%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+<tr><td colspan="6" class="flow-header">FLOW-004</td></tr>
+            <tr class="result-fail">
+                <td>93</td>
+                <td>Show me all subjects with Nausea</td>
+                <td>130</td>
+                <td>82</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>94</td>
+                <td>Filter to only those where it was related to treatment</td>
+                <td>130</td>
+                <td>N/A</td>
+                <td class="confidence confidence-high">91%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>95</td>
+                <td>And only if it was severe</td>
+                <td>2</td>
+                <td>1</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>96</td>
+                <td>Count them by gender</td>
+                <td>{'F': 2}</td>
+                <td>52</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+<tr><td colspan="6" class="flow-header">FLOW-005</td></tr>
+            <tr class="result-pass">
+                <td>97</td>
+                <td>How many males had serious adverse events?</td>
+                <td>40</td>
+                <td>40</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-pass">
+                <td>98</td>
+                <td>Of these, how many were over 65?</td>
+                <td>14</td>
+                <td>14</td>
+                <td class="confidence confidence-high">98%</td>
+                <td><strong>PASS</strong></td>
+            </tr>
+
+            <tr class="result-manual">
+                <td>99</td>
+                <td>What were the most common serious AEs for this group?</td>
+                <td>{'White blood cell count decreased': 2, 'Platelet count decreased': 1, 'Myocardial infarction': 1, 'Disease progression': 1, 'Neutrophil count decreased': 1}</td>
+                <td>18</td>
+                <td class="confidence confidence-high">97%</td>
+                <td><strong>MANUAL</strong></td>
+            </tr>
+
+            <tr class="result-fail">
+                <td>100</td>
+                <td>List all the events with details</td>
+                <td>19</td>
+                <td>14</td>
+                <td class="confidence confidence-high">100%</td>
+                <td><strong>FAIL</strong></td>
+            </tr>
+
+        </table>
+    </div>
+
+</body>
+</html>

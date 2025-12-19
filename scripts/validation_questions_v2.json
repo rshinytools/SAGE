@@ -1,0 +1,847 @@
+[
+  {
+    "id": 1,
+    "question": "How many subjects are in the Safety Population?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SAFFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Basic safety population count"
+  },
+  {
+    "id": 2,
+    "question": "Count the number of subjects in the ITT population",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE ITTFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Intent-to-treat population"
+  },
+  {
+    "id": 3,
+    "question": "What is the total number of subjects in the study?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl",
+    "answer_type": "count",
+    "notes": "All subjects"
+  },
+  {
+    "id": 4,
+    "question": "How many subjects are randomized?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE RANDFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Randomized subjects"
+  },
+  {
+    "id": 5,
+    "question": "How many subjects are NOT in the safety population?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SAFFL = 'N'",
+    "answer_type": "count",
+    "notes": "Non-safety population"
+  },
+  {
+    "id": 6,
+    "question": "How many subjects are enrolled but not randomized?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE ENRLFL = 'Y' AND RANDFL = 'N'",
+    "answer_type": "count",
+    "notes": "Enrolled but not randomized"
+  },
+  {
+    "id": 7,
+    "question": "How many subjects died during the study?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE DTHFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Death flag"
+  },
+  {
+    "id": 8,
+    "question": "How many subjects are in both Safety and ITT populations?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SAFFL = 'Y' AND ITTFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Intersection of populations"
+  },
+  {
+    "id": 9,
+    "question": "How many subjects are in ITT but not in Safety population?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE ITTFL = 'Y' AND SAFFL = 'N'",
+    "answer_type": "count",
+    "notes": "ITT minus Safety"
+  },
+  {
+    "id": 10,
+    "question": "How many enrolled subjects are there?",
+    "category": "Populations",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE ENRLFL = 'Y'",
+    "answer_type": "count",
+    "notes": "All enrolled"
+  },
+  {
+    "id": 11,
+    "question": "How many male subjects are there?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SEX = 'M'",
+    "answer_type": "count",
+    "notes": "Male count"
+  },
+  {
+    "id": 12,
+    "question": "Count female patients in Safety Population",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SEX = 'F' AND SAFFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Female in safety"
+  },
+  {
+    "id": 13,
+    "question": "What is the gender distribution of patients?",
+    "category": "Demographics",
+    "sql_template": "SELECT SEX, COUNT(*) FROM adsl GROUP BY SEX",
+    "answer_type": "distribution",
+    "notes": "Sex breakdown"
+  },
+  {
+    "id": 14,
+    "question": "How many subjects are 65 or older?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE AGE >= 65",
+    "answer_type": "count",
+    "notes": "Elderly patients"
+  },
+  {
+    "id": 15,
+    "question": "How many subjects are under 18?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE AGE < 18",
+    "answer_type": "count",
+    "notes": "Pediatric check - likely 0"
+  },
+  {
+    "id": 16,
+    "question": "How many subjects are between 18 and 65?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE AGE >= 18 AND AGE < 65",
+    "answer_type": "count",
+    "notes": "Working age adults"
+  },
+  {
+    "id": 17,
+    "question": "What is the breakdown of race?",
+    "category": "Demographics",
+    "sql_template": "SELECT RACE, COUNT(*) FROM adsl GROUP BY RACE",
+    "answer_type": "distribution",
+    "notes": "Race distribution"
+  },
+  {
+    "id": 18,
+    "question": "How many Asian subjects are in the study?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE UPPER(RACE) LIKE '%ASIAN%'",
+    "answer_type": "count",
+    "notes": "Asian subjects"
+  },
+  {
+    "id": 19,
+    "question": "How many White subjects are in the study?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE UPPER(RACE) LIKE '%WHITE%'",
+    "answer_type": "count",
+    "notes": "White subjects"
+  },
+  {
+    "id": 20,
+    "question": "How many White females are in the study?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE UPPER(RACE) LIKE '%WHITE%' AND SEX = 'F'",
+    "answer_type": "count",
+    "notes": "White female intersection"
+  },
+  {
+    "id": 21,
+    "question": "Show me the gender ratio",
+    "category": "Demographics",
+    "sql_template": "SELECT SEX, COUNT(*) FROM adsl GROUP BY SEX",
+    "answer_type": "distribution",
+    "notes": "Same as Q13"
+  },
+  {
+    "id": 22,
+    "question": "Count subjects by treatment arm",
+    "category": "Demographics",
+    "sql_template": "SELECT TRT01A, COUNT(*) FROM adsl WHERE TRT01A != '' GROUP BY TRT01A",
+    "answer_type": "distribution",
+    "notes": "Treatment distribution"
+  },
+  {
+    "id": 23,
+    "question": "How many subjects are in Treatment A?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE TRT01P = 'Treatment A'",
+    "answer_type": "count",
+    "notes": "Treatment A planned"
+  },
+  {
+    "id": 24,
+    "question": "How many subjects are in Treatment B?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE TRT01A = 'Treatment B'",
+    "answer_type": "count",
+    "notes": "Treatment B actual"
+  },
+  {
+    "id": 25,
+    "question": "How many subjects are over 75 years old?",
+    "category": "Demographics",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE AGE > 75",
+    "answer_type": "count",
+    "notes": "Very elderly"
+  },
+  {
+    "id": 26,
+    "question": "How many subjects reported at least one adverse event?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae",
+    "answer_type": "count",
+    "notes": "Any AE"
+  },
+  {
+    "id": 27,
+    "question": "How many subjects had serious adverse events (SAE)?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE AESER = 'Y'",
+    "answer_type": "count",
+    "notes": "SAE subjects"
+  },
+  {
+    "id": 28,
+    "question": "How many subjects had severe adverse events?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE ATOXGR IN ('4', '5')",
+    "answer_type": "count",
+    "notes": "Grade 4-5 (severe/life-threatening)"
+  },
+  {
+    "id": 29,
+    "question": "How many subjects had fatal adverse events?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE AEOUT = 'FATAL'",
+    "answer_type": "count",
+    "notes": "Fatal outcome"
+  },
+  {
+    "id": 30,
+    "question": "How many subjects had Headache?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'HEADACHE'",
+    "answer_type": "count",
+    "notes": "Specific AE term"
+  },
+  {
+    "id": 31,
+    "question": "Count patients with Nausea",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'NAUSEA'",
+    "answer_type": "count",
+    "notes": "Nausea subjects"
+  },
+  {
+    "id": 32,
+    "question": "How many subjects reported Vomiting?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'VOMITING'",
+    "answer_type": "count",
+    "notes": "Vomiting subjects"
+  },
+  {
+    "id": 33,
+    "question": "How many subjects had Diarrhoea?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('DIARRHOEA', 'DIARRHEA')",
+    "answer_type": "count",
+    "notes": "Diarrhoea (UK/US spelling)"
+  },
+  {
+    "id": 34,
+    "question": "How many subjects had Pyrexia?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'PYREXIA'",
+    "answer_type": "count",
+    "notes": "Fever"
+  },
+  {
+    "id": 35,
+    "question": "How many subjects had Fatigue?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'FATIGUE'",
+    "answer_type": "count",
+    "notes": "Fatigue subjects"
+  },
+  {
+    "id": 36,
+    "question": "Count subjects with Constipation",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'CONSTIPATION'",
+    "answer_type": "count",
+    "notes": "Constipation subjects"
+  },
+  {
+    "id": 37,
+    "question": "How many subjects had Cough?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'COUGH'",
+    "answer_type": "count",
+    "notes": "Cough subjects"
+  },
+  {
+    "id": 38,
+    "question": "How many subjects had Anaemia?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('ANAEMIA', 'ANEMIA')",
+    "answer_type": "count",
+    "notes": "Anaemia (UK/US spelling)"
+  },
+  {
+    "id": 39,
+    "question": "Count subjects with Back pain",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'BACK PAIN'",
+    "answer_type": "count",
+    "notes": "Back pain subjects"
+  },
+  {
+    "id": 40,
+    "question": "How many subjects had Grade 3 adverse events?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE ATOXGR = '3'",
+    "answer_type": "count",
+    "notes": "Grade 3 subjects"
+  },
+  {
+    "id": 41,
+    "question": "How many subjects had Grade 4 or 5 adverse events?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE ATOXGR IN ('4', '5')",
+    "answer_type": "count",
+    "notes": "Grade 4-5 subjects"
+  },
+  {
+    "id": 42,
+    "question": "Count subjects with related adverse events",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEREL) LIKE '%RELATED%' AND UPPER(AEREL) NOT LIKE '%NOT RELATED%' AND UPPER(AEREL) NOT LIKE '%UNLIKELY%'",
+    "answer_type": "count",
+    "notes": "Treatment-related AEs"
+  },
+  {
+    "id": 43,
+    "question": "How many subjects had possibly related AEs?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEREL) = 'POSSIBLY RELATED'",
+    "answer_type": "count",
+    "notes": "Possibly related"
+  },
+  {
+    "id": 44,
+    "question": "How many subjects had unrelated AEs?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEREL) = 'NOT RELATED'",
+    "answer_type": "count",
+    "notes": "Not related"
+  },
+  {
+    "id": 45,
+    "question": "What are the most common adverse events?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT AEDECOD, COUNT(*) FROM adae GROUP BY AEDECOD ORDER BY COUNT(*) DESC LIMIT 10",
+    "answer_type": "distribution",
+    "notes": "Top AEs"
+  },
+  {
+    "id": 46,
+    "question": "List the top 5 AEs by frequency",
+    "category": "Adverse Events",
+    "sql_template": "SELECT AEDECOD, COUNT(*) FROM adae GROUP BY AEDECOD ORDER BY COUNT(*) DESC LIMIT 5",
+    "answer_type": "distribution",
+    "notes": "Top 5 AEs"
+  },
+  {
+    "id": 47,
+    "question": "How many subjects had gastrointestinal disorders?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEBODSYS) LIKE '%GASTROINTESTINAL%'",
+    "answer_type": "count",
+    "notes": "GI SOC"
+  },
+  {
+    "id": 48,
+    "question": "Count subjects with cardiac disorders",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEBODSYS) LIKE '%CARDIAC%'",
+    "answer_type": "count",
+    "notes": "Cardiac SOC"
+  },
+  {
+    "id": 49,
+    "question": "How many subjects had respiratory disorders?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEBODSYS) LIKE '%RESPIRATORY%'",
+    "answer_type": "count",
+    "notes": "Respiratory SOC"
+  },
+  {
+    "id": 50,
+    "question": "How many subjects had nervous system disorders?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEBODSYS) LIKE '%NERVOUS%'",
+    "answer_type": "count",
+    "notes": "Nervous system SOC"
+  },
+  {
+    "id": 51,
+    "question": "How many subjects had skin disorders?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEBODSYS) LIKE '%SKIN%'",
+    "answer_type": "count",
+    "notes": "Skin SOC"
+  },
+  {
+    "id": 52,
+    "question": "How many subjects had infections?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEBODSYS) LIKE '%INFECTION%'",
+    "answer_type": "count",
+    "notes": "Infections SOC"
+  },
+  {
+    "id": 53,
+    "question": "How many treatment-emergent adverse events occurred?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(*) FROM adae WHERE TRTEMFL = 'Y'",
+    "answer_type": "count",
+    "notes": "TEAE count"
+  },
+  {
+    "id": 54,
+    "question": "How many adverse event records are there in total?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(*) FROM adae",
+    "answer_type": "count",
+    "notes": "Total AE records"
+  },
+  {
+    "id": 55,
+    "question": "How many subjects had Asthenia?",
+    "category": "Adverse Events",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'ASTHENIA'",
+    "answer_type": "count",
+    "notes": "Asthenia subjects"
+  },
+  {
+    "id": 56,
+    "question": "How many females over 65 had serious adverse events?",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE SEX = 'F' AND AGE >= 65 AND AESER = 'Y'",
+    "answer_type": "count",
+    "notes": "Female + elderly + SAE"
+  },
+  {
+    "id": 57,
+    "question": "Count male subjects in ITT with Grade 3+ Nausea",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE SEX = 'M' AND ITTFL = 'Y' AND UPPER(AEDECOD) = 'NAUSEA' AND ATOXGR IN ('3', '4', '5')",
+    "answer_type": "count",
+    "notes": "Male + ITT + Nausea Grade 3+"
+  },
+  {
+    "id": 58,
+    "question": "How many subjects in Safety pop had related Anaemia?",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE SAFFL = 'Y' AND UPPER(AEDECOD) IN ('ANAEMIA', 'ANEMIA') AND UPPER(AEREL) NOT IN ('NOT RELATED', 'UNLIKELY RELATED')",
+    "answer_type": "count",
+    "notes": "Safety + Anaemia + Related"
+  },
+  {
+    "id": 59,
+    "question": "Show subjects who had both Nausea and Vomiting",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT a.USUBJID) FROM adae a WHERE a.USUBJID IN (SELECT USUBJID FROM adae WHERE UPPER(AEDECOD) = 'NAUSEA') AND a.USUBJID IN (SELECT USUBJID FROM adae WHERE UPPER(AEDECOD) = 'VOMITING')",
+    "answer_type": "count",
+    "notes": "Intersection of two AEs"
+  },
+  {
+    "id": 60,
+    "question": "How many subjects had either Vomiting or Diarrhoea?",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('VOMITING', 'DIARRHOEA', 'DIARRHEA')",
+    "answer_type": "count",
+    "notes": "Union of two AEs"
+  },
+  {
+    "id": 61,
+    "question": "Count White females with serious SAEs",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(RACE) LIKE '%WHITE%' AND SEX = 'F' AND AESER = 'Y'",
+    "answer_type": "count",
+    "notes": "Race + Sex + SAE"
+  },
+  {
+    "id": 62,
+    "question": "How many subjects under 40 had cardiac events?",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE AGE < 40 AND UPPER(AEBODSYS) LIKE '%CARDIAC%'",
+    "answer_type": "count",
+    "notes": "Age + SOC"
+  },
+  {
+    "id": 63,
+    "question": "How many elderly subjects (over 75) had Fatigue?",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE AGE > 75 AND UPPER(AEDECOD) = 'FATIGUE'",
+    "answer_type": "count",
+    "notes": "Elderly + specific AE"
+  },
+  {
+    "id": 64,
+    "question": "How many female patients had adverse events?",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE SEX = 'F'",
+    "answer_type": "count",
+    "notes": "Female + any AE"
+  },
+  {
+    "id": 65,
+    "question": "How many subjects had more than 5 adverse events?",
+    "category": "Complex Logic",
+    "sql_template": "SELECT COUNT(*) FROM (SELECT USUBJID, COUNT(*) as cnt FROM adae GROUP BY USUBJID HAVING COUNT(*) > 5) subq",
+    "answer_type": "count",
+    "notes": "Aggregation query"
+  },
+  {
+    "id": 66,
+    "question": "How many patients had headake?",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'HEADACHE'",
+    "answer_type": "count",
+    "notes": "Typo: headake -> Headache"
+  },
+  {
+    "id": 67,
+    "question": "Count subjects with nausia",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'NAUSEA'",
+    "answer_type": "count",
+    "notes": "Typo: nausia -> Nausea"
+  },
+  {
+    "id": 68,
+    "question": "How many had diarrhea?",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('DIARRHOEA', 'DIARRHEA')",
+    "answer_type": "count",
+    "notes": "US spelling"
+  },
+  {
+    "id": 69,
+    "question": "How many had diarrhoea?",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('DIARRHOEA', 'DIARRHEA')",
+    "answer_type": "count",
+    "notes": "UK spelling"
+  },
+  {
+    "id": 70,
+    "question": "Count cases of anemia",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('ANAEMIA', 'ANEMIA')",
+    "answer_type": "count",
+    "notes": "US spelling for anaemia"
+  },
+  {
+    "id": 71,
+    "question": "How many ppl had SAEs?",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE AESER = 'Y'",
+    "answer_type": "count",
+    "notes": "Slang: ppl -> people"
+  },
+  {
+    "id": 72,
+    "question": "How many participants had belly pain?",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'ABDOMINAL PAIN'",
+    "answer_type": "count",
+    "notes": "Mapping: belly pain -> Abdominal pain"
+  },
+  {
+    "id": 73,
+    "question": "Count occurrences of low blood cell count",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'WHITE BLOOD CELL COUNT DECREASED'",
+    "answer_type": "count",
+    "notes": "Mapping to WBC decreased"
+  },
+  {
+    "id": 74,
+    "question": "How many subjects had decreased appetite?",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'DECREASED APPETITE'",
+    "answer_type": "count",
+    "notes": "Direct match"
+  },
+  {
+    "id": 75,
+    "question": "How many subjects had fever?",
+    "category": "Fuzzy Matching",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'PYREXIA'",
+    "answer_type": "count",
+    "notes": "Mapping: fever -> Pyrexia"
+  },
+  {
+    "id": 76,
+    "question": "How many subjects had Ebola?",
+    "category": "Negative Testing",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'EBOLA'",
+    "answer_type": "count",
+    "expected_answer": 0,
+    "notes": "Should be 0 - non-existent AE"
+  },
+  {
+    "id": 77,
+    "question": "Count subjects with Grade 10 AEs",
+    "category": "Negative Testing",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE ATOXGR = '10'",
+    "answer_type": "count",
+    "expected_answer": 0,
+    "notes": "Should be 0 - impossible grade"
+  },
+  {
+    "id": 78,
+    "question": "How many subjects had FakeDisease123?",
+    "category": "Negative Testing",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'FAKEDISEASE123'",
+    "answer_type": "count",
+    "expected_answer": 0,
+    "notes": "Should be 0 - non-existent term"
+  },
+  {
+    "id": 79,
+    "question": "How many subjects in the 'Moon' population?",
+    "category": "Negative Testing",
+    "sql_template": "SELECT 0",
+    "answer_type": "count",
+    "expected_answer": 0,
+    "notes": "Invalid population - should handle gracefully"
+  },
+  {
+    "id": 80,
+    "question": "Count subjects with adverse events from Mars",
+    "category": "Negative Testing",
+    "sql_template": "SELECT 0",
+    "answer_type": "count",
+    "expected_answer": 0,
+    "notes": "Nonsensical query"
+  },
+  {
+    "id": 81,
+    "question": "How many subjects are in the Safety Population?",
+    "flow_id": "FLOW-001",
+    "turn": 1,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SAFFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Flow 1 Turn 1: Safety population"
+  },
+  {
+    "id": 82,
+    "question": "How many of them are Female?",
+    "flow_id": "FLOW-001",
+    "turn": 2,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SAFFL = 'Y' AND SEX = 'F'",
+    "answer_type": "count",
+    "notes": "Flow 1 Turn 2: Safety + Female"
+  },
+  {
+    "id": 83,
+    "question": "Out of those, how many are over 65?",
+    "flow_id": "FLOW-001",
+    "turn": 3,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE SAFFL = 'Y' AND SEX = 'F' AND AGE > 65",
+    "answer_type": "count",
+    "notes": "Flow 1 Turn 3: Safety + Female + Elderly"
+  },
+  {
+    "id": 84,
+    "question": "List them",
+    "flow_id": "FLOW-001",
+    "turn": 4,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT USUBJID, AGE, SEX FROM adsl WHERE SAFFL = 'Y' AND SEX = 'F' AND AGE > 65",
+    "answer_type": "list",
+    "notes": "Flow 1 Turn 4: List the subjects"
+  },
+  {
+    "id": 85,
+    "question": "How many subjects had Anaemia?",
+    "flow_id": "FLOW-002",
+    "turn": 1,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('ANAEMIA', 'ANEMIA')",
+    "answer_type": "count",
+    "notes": "Flow 2 Turn 1: Anaemia subjects"
+  },
+  {
+    "id": 86,
+    "question": "How many of these were Grade 3?",
+    "flow_id": "FLOW-002",
+    "turn": 2,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('ANAEMIA', 'ANEMIA') AND ATOXGR = '3'",
+    "answer_type": "count",
+    "notes": "Flow 2 Turn 2: Anaemia + Grade 3"
+  },
+  {
+    "id": 87,
+    "question": "Are any of them serious?",
+    "flow_id": "FLOW-002",
+    "turn": 3,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) IN ('ANAEMIA', 'ANEMIA') AND ATOXGR = '3' AND AESER = 'Y'",
+    "answer_type": "count",
+    "notes": "Flow 2 Turn 3: Anaemia + Grade 3 + Serious"
+  },
+  {
+    "id": 88,
+    "question": "Show me the details",
+    "flow_id": "FLOW-002",
+    "turn": 4,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT USUBJID, AEDECOD, ATOXGR, AESER FROM adae WHERE UPPER(AEDECOD) IN ('ANAEMIA', 'ANEMIA') AND ATOXGR = '3' AND AESER = 'Y'",
+    "answer_type": "list",
+    "notes": "Flow 2 Turn 4: List details"
+  },
+  {
+    "id": 89,
+    "question": "How many subjects are in the ITT population?",
+    "flow_id": "FLOW-003",
+    "turn": 1,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(*) FROM adsl WHERE ITTFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Flow 3 Turn 1: ITT population"
+  },
+  {
+    "id": 90,
+    "question": "How many of these had adverse events?",
+    "flow_id": "FLOW-003",
+    "turn": 2,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE ITTFL = 'Y'",
+    "answer_type": "count",
+    "notes": "Flow 3 Turn 2: ITT + any AE"
+  },
+  {
+    "id": 91,
+    "question": "Which AEs were most common for them?",
+    "flow_id": "FLOW-003",
+    "turn": 3,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT AEDECOD, COUNT(*) FROM adae WHERE ITTFL = 'Y' GROUP BY AEDECOD ORDER BY COUNT(*) DESC LIMIT 5",
+    "answer_type": "distribution",
+    "notes": "Flow 3 Turn 3: Top AEs in ITT"
+  },
+  {
+    "id": 92,
+    "question": "List the serious ones",
+    "flow_id": "FLOW-003",
+    "turn": 4,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT USUBJID, AEDECOD FROM adae WHERE ITTFL = 'Y' AND AESER = 'Y'",
+    "answer_type": "list",
+    "notes": "Flow 3 Turn 4: Serious AEs in ITT"
+  },
+  {
+    "id": 93,
+    "question": "Show me all subjects with Nausea",
+    "flow_id": "FLOW-004",
+    "turn": 1,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT DISTINCT USUBJID FROM adae WHERE UPPER(AEDECOD) = 'NAUSEA'",
+    "answer_type": "list",
+    "notes": "Flow 4 Turn 1: Nausea subjects"
+  },
+  {
+    "id": 94,
+    "question": "Filter to only those where it was related to treatment",
+    "flow_id": "FLOW-004",
+    "turn": 2,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT DISTINCT USUBJID FROM adae WHERE UPPER(AEDECOD) = 'NAUSEA' AND UPPER(AEREL) NOT IN ('NOT RELATED', 'UNLIKELY RELATED')",
+    "answer_type": "list",
+    "notes": "Flow 4 Turn 2: Nausea + Related"
+  },
+  {
+    "id": 95,
+    "question": "And only if it was severe",
+    "flow_id": "FLOW-004",
+    "turn": 3,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT DISTINCT USUBJID FROM adae WHERE UPPER(AEDECOD) = 'NAUSEA' AND UPPER(AEREL) NOT IN ('NOT RELATED', 'UNLIKELY RELATED') AND ATOXGR IN ('3', '4', '5')",
+    "answer_type": "list",
+    "notes": "Flow 4 Turn 3: Nausea + Related + Severe"
+  },
+  {
+    "id": 96,
+    "question": "Count them by gender",
+    "flow_id": "FLOW-004",
+    "turn": 4,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT SEX, COUNT(DISTINCT USUBJID) FROM adae WHERE UPPER(AEDECOD) = 'NAUSEA' AND UPPER(AEREL) NOT IN ('NOT RELATED', 'UNLIKELY RELATED') AND ATOXGR IN ('3', '4', '5') GROUP BY SEX",
+    "answer_type": "distribution",
+    "notes": "Flow 4 Turn 4: Count by gender"
+  },
+  {
+    "id": 97,
+    "question": "How many males had serious adverse events?",
+    "flow_id": "FLOW-005",
+    "turn": 1,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE SEX = 'M' AND AESER = 'Y'",
+    "answer_type": "count",
+    "notes": "Flow 5 Turn 1: Male + SAE"
+  },
+  {
+    "id": 98,
+    "question": "Of these, how many were over 65?",
+    "flow_id": "FLOW-005",
+    "turn": 2,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT COUNT(DISTINCT USUBJID) FROM adae WHERE SEX = 'M' AND AESER = 'Y' AND AGE > 65",
+    "answer_type": "count",
+    "notes": "Flow 5 Turn 2: Male + SAE + Elderly"
+  },
+  {
+    "id": 99,
+    "question": "What were the most common serious AEs for this group?",
+    "flow_id": "FLOW-005",
+    "turn": 3,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT AEDECOD, COUNT(*) FROM adae WHERE SEX = 'M' AND AESER = 'Y' AND AGE > 65 GROUP BY AEDECOD ORDER BY COUNT(*) DESC LIMIT 5",
+    "answer_type": "distribution",
+    "notes": "Flow 5 Turn 3: Top SAEs for elderly males"
+  },
+  {
+    "id": 100,
+    "question": "List all the events with details",
+    "flow_id": "FLOW-005",
+    "turn": 4,
+    "category": "Conversational Flow",
+    "sql_template": "SELECT USUBJID, AEDECOD, ATOXGR, AESER FROM adae WHERE SEX = 'M' AND AESER = 'Y' AND AGE > 65",
+    "answer_type": "list",
+    "notes": "Flow 5 Turn 4: List details"
+  }
+]
