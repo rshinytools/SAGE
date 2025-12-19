@@ -61,6 +61,9 @@ def init_naming_service(metadata_path: str = None, cdisc_db_path: str = None):
         metadata_path=metadata_path,
         cdisc_db_path=cdisc_db_path
     )
+    # Also set the global in clinical_naming module so get_naming_service() works
+    import core.engine.clinical_naming as cn
+    cn._naming_service = _naming_service
     return _naming_service
 
 

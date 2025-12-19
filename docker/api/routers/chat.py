@@ -35,6 +35,7 @@ try:
         PipelineResult,
         get_confidence_color
     )
+    from core.engine.clinical_naming import get_naming_service, ClinicalNamingService
     PIPELINE_AVAILABLE = True
 except ImportError as e:
     PIPELINE_AVAILABLE = False
@@ -272,7 +273,27 @@ def format_pipeline_response(result: PipelineResult) -> Dict[str, Any]:
     if result.data:
         response["data"] = result.data
         response["row_count"] = result.row_count
-        response["columns"] = list(result.data[0].keys()) if result.data else []
+        columns = list(result.data[0].keys()) if result.data else []
+        response["columns"] = columns
+
+        # Add friendly column labels from metadata
+        # Maps technical names (AESTDTC) to friendly names (Start Date/Time of Adverse Event)
+        try:
+            naming_service = get_naming_service()
+            if naming_service:
+                # Get table name from methodology if available
+                table_name = None
+                if result.methodology and isinstance(result.methodology, dict):
+                    table_name = result.methodology.get("table_used")
+
+                response["column_labels"] = {
+                    col: naming_service.get_column_label(col, table_name)
+                    for col in columns
+                }
+        except Exception as e:
+            logger.warning(f"Could not get column labels: {e}")
+            # Fall back to technical names
+            response["column_labels"] = {col: col for col in columns}
 
     # Add SQL
     if result.sql:
@@ -506,6 +527,23 @@ async def send_message(
             response_content = result.answer
 
             # Build metadata for UI (confidence, methodology, SQL, etc.)
+            # Get column labels from naming service
+            columns = list(result.data[0].keys()) if result.data else None
+            column_labels = None
+            if columns:
+                try:
+                    naming_service = get_naming_service()
+                    if naming_service:
+                        table_name = None
+                        if result.methodology and isinstance(result.methodology, dict):
+                            table_name = result.methodology.get("table_used")
+                        column_labels = {
+                            col: naming_service.get_column_label(col, table_name)
+                            for col in columns
+                        }
+                except Exception as e:
+                    logger.warning(f"Could not get column labels: {e}")
+
             metadata = {
                 "success": result.success,
                 "confidence": result.confidence,
@@ -513,6 +551,8 @@ async def send_message(
                 "sql": result.sql,  # Available in Details for technical users
                 "data": result.data,
                 "row_count": result.row_count,
+                "columns": columns,
+                "column_labels": column_labels,
                 "warnings": result.warnings,
                 "execution_time_ms": result.total_time_ms,
                 "pipeline_used": True
@@ -748,6 +788,7 @@ class QueryResponse(BaseModel):
     data: Optional[List[Dict[str, Any]]] = None
     row_count: int = 0
     columns: Optional[List[str]] = None
+    column_labels: Optional[Dict[str, str]] = None  # Friendly column names from metadata
     sql: Optional[str] = None
     confidence: Optional[Dict[str, Any]] = None
     methodology: Optional[Dict[str, Any]] = None
@@ -899,7 +940,8 @@ async def execute_query(
             query=result.query,
             data=result.data,
             row_count=result.row_count,
-            columns=list(result.data[0].keys()) if result.data else None,
+            columns=formatted.get("columns"),
+            column_labels=formatted.get("column_labels"),
             sql=result.sql,
             confidence=formatted.get("confidence"),
             methodology=result.methodology,

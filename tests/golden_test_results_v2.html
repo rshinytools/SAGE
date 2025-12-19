@@ -1,0 +1,308 @@
+<html>
+<head>
+    <title>SAGE Golden V2 Results</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1 { color: #2c3e50; }
+        .stats { background: #eee; padding: 15px; border-radius: 5px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+        th { background-color: #f2f2f2; }
+        .success { background-color: #dff0d8; }
+        .failure { background-color: #f2dede; }
+        pre { white-space: pre-wrap; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>SAGE Golden Test Suite v2</h1>
+    <div class="stats">
+        <strong>Date:</strong> 2025-12-18 21:29:14<br>
+        <strong>Total Questions:</strong> 25<br>
+        <strong>Technical Pass Rate:</strong> 4/25 (16.0%)
+    </div>
+    
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Question</th>
+            <th>SQL / Answer</th>
+            <th>Expected</th>
+            <th>Time</th>
+        </tr>
+
+        <tr class="success">
+            <td>POP-001</td>
+            <td>Populations</td>
+            <td>How many subjects are in the Safety Population?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'id': '9c90a8aa-c5f0-4927-8cd2-f7835b7d6e8f', 'role': 'assistant', 'content': 'There are **232 subjects** in the safety population.', 'timestamp': '2025-12-19T05:28:25.093683', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': 10...
+            </td>
+            <td>Count with SAFFL='Y'</td>
+            <td>7620ms</td>
+        </tr>
+        <tr class="success">
+            <td>POP-002</td>
+            <td>Populations</td>
+            <td>Count the number of subjects in the ITT population</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'id': '63c637af-a784-4715-ac20-b7e39923ba73', 'role': 'assistant', 'content': 'There are **233 subjects** in the ITT population.', 'timestamp': '2025-12-19T05:28:32.394087', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': 100.0...
+            </td>
+            <td>Count with ITTFL='Y'</td>
+            <td>7298ms</td>
+        </tr>
+        <tr class="success">
+            <td>POP-003</td>
+            <td>Populations</td>
+            <td>How many patients are in the efficacy population?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'id': '35dee2b3-550e-4416-a8fc-f182a37a402b', 'role': 'assistant', 'content': 'There are **339 subjects** in the efficacy population.', 'timestamp': '2025-12-19T05:28:49.887858', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': ...
+            </td>
+            <td>Count with EFFFL='Y'</td>
+            <td>17485ms</td>
+        </tr>
+        <tr class="success">
+            <td>POP-004</td>
+            <td>Populations</td>
+            <td>What is the total number of subjects in the study?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'id': '49b62adc-496f-4177-9654-25aca34bab46', 'role': 'assistant', 'content': 'There are **339 subjects** matching your criteria.', 'timestamp': '2025-12-19T05:28:57.110961', 'metadata': {'success': True, 'confidence': {'score': 98, 'level': 'high', 'components': {'dictionary_match': {'score': 100....
+            </td>
+            <td>Count all in ADSL</td>
+            <td>7219ms</td>
+        </tr>
+        <tr class="failure">
+            <td>POP-005</td>
+            <td>Populations</td>
+            <td>Count subjects in the Per-Protocol population</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"}...
+            </td>
+            <td>Count with PPROTFL='Y'</td>
+            <td>17278ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-001-Q1</td>
+            <td>Flow 1</td>
+            <td>How many subjects are in the Safety Population?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>SAFFL='Y'</td>
+            <td>28ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-001-Q2</td>
+            <td>Flow 1</td>
+            <td>How many of them are Female?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>SAFFL='Y' AND SEX='F'</td>
+            <td>13ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-001-Q3</td>
+            <td>Flow 1</td>
+            <td>Out of those, how many are over 65?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>SAFFL='Y' AND SEX='F' AND AGE>65</td>
+            <td>16ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-001-Q4</td>
+            <td>Flow 1</td>
+            <td>List them</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"}...
+            </td>
+            <td>Show table</td>
+            <td>3ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-002-Q1</td>
+            <td>Flow 2</td>
+            <td>How many subjects had Headache?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Headache</td>
+            <td>25ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-002-Q2</td>
+            <td>Flow 2</td>
+            <td>How many of these were Grade 3?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Headache AND G3</td>
+            <td>16ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-002-Q3</td>
+            <td>Flow 2</td>
+            <td>Are any of them serious?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Headache AND G3 AND SAE</td>
+            <td>15ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-002-Q4</td>
+            <td>Flow 2</td>
+            <td>Show me the details</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Show table</td>
+            <td>15ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-003-Q1</td>
+            <td>Flow 3</td>
+            <td>How many subjects are in the ITT population?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>ITTFL='Y'</td>
+            <td>13ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-003-Q2</td>
+            <td>Flow 3</td>
+            <td>How many of these completed the study?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>ITT AND Completed</td>
+            <td>16ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-003-Q3</td>
+            <td>Flow 3</td>
+            <td>How many of the completers were in the treatment arm?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>ITT AND Compl AND Trt</td>
+            <td>15ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-003-Q4</td>
+            <td>Flow 3</td>
+            <td>What is the gender breakdown of this group?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Group by SEX</td>
+            <td>15ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-004-Q1</td>
+            <td>Flow 4</td>
+            <td>How many subjects are from Site 701?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>SITEID='701'</td>
+            <td>14ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-004-Q2</td>
+            <td>Flow 4</td>
+            <td>How many of them had adverse events?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"}...
+            </td>
+            <td>Site AND AE</td>
+            <td>2ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-004-Q3</td>
+            <td>Flow 4</td>
+            <td>Which AEs were most common for them?</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Site AEs Grouped</td>
+            <td>13ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-004-Q4</td>
+            <td>Flow 4</td>
+            <td>List the serious ones</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Site AEs SAEs List</td>
+            <td>15ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-005-Q1</td>
+            <td>Flow 5</td>
+            <td>Show me all subjects with Nausea</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Nausea List</td>
+            <td>13ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-005-Q2</td>
+            <td>Flow 5</td>
+            <td>Filter to only those where it was related to treatment</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Nausea AND Related</td>
+            <td>15ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-005-Q3</td>
+            <td>Flow 5</td>
+            <td>And only if it was severe</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Nausea AND Related AND Severe</td>
+            <td>15ms</td>
+        </tr>
+        <tr class="failure">
+            <td>FLOW-005-Q4</td>
+            <td>Flow 5</td>
+            <td>Count them by gender</td>
+            <td>
+                <b>SQL:</b> <pre></pre>
+                <b>Ans:</b> {'error': "('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))"}...
+            </td>
+            <td>Group By SEX</td>
+            <td>15ms</td>
+        </tr></table></body></html>

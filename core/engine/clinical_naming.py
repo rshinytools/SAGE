@@ -73,8 +73,21 @@ class ClinicalNamingService:
                     data = json.load(f)
 
                 # Index by variable name for fast lookup
-                # Handle both flat and nested structures
-                if 'variables' in data:
+                # Handle multiple structure formats
+                if 'domains' in data:
+                    # SAGE format: domains[].variables[] structure
+                    for domain in data.get('domains', []):
+                        domain_name = domain.get('name', '')
+                        for var in domain.get('variables', []):
+                            var_name = var.get('name', '').upper()
+                            if var_name:
+                                self._golden_metadata[var_name] = {
+                                    'label': var.get('label', ''),
+                                    'description': var.get('description', ''),
+                                    'table': var.get('domain', domain_name)
+                                }
+                elif 'variables' in data:
+                    # Flat variables[] structure
                     for var in data['variables']:
                         var_name = var.get('name', '').upper()
                         if var_name:
