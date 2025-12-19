@@ -283,7 +283,7 @@
                 <div class="summary-label">Pass Rate</div>
             </div>
             <div class="summary-card time">
-                <div class="summary-value">8924ms</div>
+                <div class="summary-value">9151ms</div>
                 <div class="summary-label">Avg Time</div>
             </div>
         </div>
@@ -321,7 +321,7 @@
 FROM ADAE LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8378ms</td>
+                    <td>7967ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should count distinct subjects with any AE</td>
@@ -337,7 +337,7 @@ FROM ADAE
 WHERE UPPER(AEDECOD) = UPPER('Headache') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8357ms</td>
+                    <td>8930ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should match 'headache' to AEDECOD or AELLT</td>
@@ -353,7 +353,7 @@ FROM ADAE
 WHERE UPPER(AEDECOD) = UPPER('Nausea') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8009ms</td>
+                    <td>9103ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should match 'nausea' in AE data</td>
@@ -369,7 +369,7 @@ FROM ADAE
 WHERE UPPER(AESER) = UPPER('Y') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>7511ms</td>
+                    <td>7812ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should filter by AESER = 'Y'</td>
@@ -382,10 +382,11 @@ WHERE UPPER(AESER) = UPPER('Y') LIMIT 10000</pre></td>
                     <td class="answer-cell">There are **149 subjects** matching your criteria.</td>
                     <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_grade3_plus_ae
 FROM ADAE 
-WHERE UPPER(ATOXGR) != UPPER('.') AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></td>
+WHERE UPPER(ATOXGR) != UPPER('.') 
+  AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>7983ms</td>
+                    <td>9012ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should use ATOXGR >= 3 (analysis grade, not AETOXGR)</td>
@@ -406,7 +407,7 @@ ORDER BY event_count DESC
 LIMIT 20;</pre></td>
                     <td>97 <span class="conf-level">high</span></td>
                     <td>20</td>
-                    <td>9690ms</td>
+                    <td>9459ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should return AE terms with counts, ordered by frequency</td>
@@ -419,10 +420,10 @@ LIMIT 20;</pre></td>
                     <td class="answer-cell">There are **0 subjects** matching your criteria.</td>
                     <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as subjects_with_treatment_related_aes
 FROM ADAE 
-WHERE UPPER(AEREL) = UPPER('Y') LIMIT 10000</pre></td>
+WHERE UPPER(AEREL) = UPPER('RELATED') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8418ms</td>
+                    <td>10679ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should filter by AEREL containing 'RELATED' or similar</td>
@@ -439,7 +440,7 @@ WHERE UPPER(AEDECOD) LIKE '%DIARR%'
    OR UPPER(AEDECOD) LIKE '%DIARRH%' LIMIT 10000</pre></td>
                     <td>96 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8392ms</td>
+                    <td>8194ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should match diarrhea/diarrhoea in AE data</td>
@@ -479,7 +480,7 @@ WHERE UPPER(adsl.SEX) = 'F'
   AND UPPER(adae.AESER) = 'Y' LIMIT 10000</pre></td>
                     <td>97 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>16196ms</td>
+                    <td>16103ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should combine SEX, AGE, and AESER filters</td>
@@ -498,7 +499,7 @@ WHERE UPPER(SAFFL) = UPPER('Y')
   AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></td>
                     <td>95 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>9826ms</td>
+                    <td>10728ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should combine SAFFL, headache, and ATOXGR >= 3</td>
@@ -523,7 +524,7 @@ AND UPPER(USUBJID) IN (
 ) LIMIT 10000</pre></td>
                     <td>94 <span class="conf-level">high</span></td>
                     <td>42</td>
-                    <td>9641ms</td>
+                    <td>8976ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should find subjects with both AEs</td>
@@ -561,7 +562,7 @@ WHERE UPPER(SEX) = UPPER('M')
 AND UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8791ms</td>
+                    <td>8756ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should filter by SEX = 'M' and SAFFL = 'Y'</td>
@@ -577,7 +578,7 @@ FROM ADSL
 WHERE UPPER(SEX) = UPPER('F') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8316ms</td>
+                    <td>7698ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should filter by SEX = 'F'</td>
@@ -593,7 +594,7 @@ FROM ADSL
 WHERE AGE &gt;= 65 LIMIT 10000</pre></td>
                     <td>88 <span class="conf-level">medium</span></td>
                     <td>1</td>
-                    <td>8205ms</td>
+                    <td>8184ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should filter by AGE >= 65</td>
@@ -613,7 +614,7 @@ GROUP BY AGE
 ORDER BY AGE LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>45</td>
-                    <td>7718ms</td>
+                    <td>7937ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should provide age statistics or distribution</td>
@@ -629,7 +630,7 @@ FROM ADSL
 WHERE AGE BETWEEN 50 AND 70 LIMIT 10000</pre></td>
                     <td>92 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>9237ms</td>
+                    <td>9543ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should filter by AGE >= 50 AND AGE <= 70</td>
@@ -666,7 +667,7 @@ FROM ADSL
 WHERE UPPER(ITTFL) = UPPER('Y') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8189ms</td>
+                    <td>7956ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should return ITT count with ITTFL = 'Y'</td>
@@ -683,7 +684,7 @@ WHERE UPPER(ITTFL) = UPPER('Y')
   AND AGE &gt;= 65 LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>7823ms</td>
+                    <td>7953ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND add AGE >= 65</td>
@@ -700,7 +701,7 @@ WHERE UPPER(USUBJID) IN (SELECT USUBJID FROM ADSL WHERE AGE &gt;= 65 AND UPPER(I
   AND UPPER(AESER) = UPPER('Y') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>16338ms</td>
+                    <td>16522ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND AGE >= 65 AND add AESER = 'Y'</td>
@@ -715,7 +716,7 @@ WHERE UPPER(USUBJID) IN (SELECT USUBJID FROM ADSL WHERE AGE &gt;= 65 AND UPPER(I
   AND UPPER(AESER) = UPPER('Y') LIMIT 100</pre></td>
                     <td>100 <span class="conf-level">high</span></td>
                     <td>52</td>
-                    <td>6952ms</td>
+                    <td>6858ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should transform to SELECT and preserve all filters</td>
@@ -731,7 +732,7 @@ FROM ADSL
 WHERE UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>7856ms</td>
+                    <td>8199ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should return safety count with SAFFL = 'Y'</td>
@@ -748,7 +749,7 @@ WHERE UPPER(SAFFL) = UPPER('Y')
   AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>7382ms</td>
+                    <td>7824ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should preserve SAFFL = 'Y' AND add SEX = 'F'</td>
@@ -765,7 +766,7 @@ WHERE UPPER(SAFFL) = UPPER('Y')
   AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>9257ms</td>
+                    <td>9044ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should preserve SAFFL = 'Y', SEX = 'F' AND add AE condition</td>
@@ -781,7 +782,7 @@ FROM ADAE
 WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache')) LIMIT 10000</pre></td>
                     <td>92 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8126ms</td>
+                    <td>8890ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should count subjects with headache</td>
@@ -792,14 +793,14 @@ WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache')) LIMIT 10000
                     <td class="question-cell">how many of these were Grade 3 or higher</td>
                     <td>Grade filter on headache</td>
                     <td class="answer-cell">There are **2 subjects** matching your criteria.</td>
-                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as patients_with_grade3_plus_headache
+                    <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as patients_with_grade3plus_headache
 FROM ADAE 
 WHERE UPPER(AEDECOD) LIKE UPPER('HEADACHE')
   AND UPPER(ATOXGR) != UPPER('.') 
   AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>9457ms</td>
+                    <td>9343ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should preserve headache filter AND add ATOXGR >= 3</td>
@@ -815,7 +816,7 @@ WHERE UPPER(AEDECOD) LIKE UPPER('HEADACHE')
   AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 100</pre></td>
                     <td>100 <span class="conf-level">high</span></td>
                     <td>2</td>
-                    <td>7288ms</td>
+                    <td>7748ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should list subjects with headache grade 3+</td>
@@ -852,7 +853,7 @@ FROM ADAE
 WHERE UPPER(AEDECOD) LIKE '%HEADACHE%' LIMIT 10000</pre></td>
                     <td>94 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8540ms</td>
+                    <td>8261ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should fuzzy match 'headake' to 'HEADACHE'</td>
@@ -868,7 +869,7 @@ FROM ADAE
 WHERE UPPER(AELLT) = UPPER('Diarrhea') LIMIT 10000</pre></td>
                     <td>88 <span class="conf-level">medium</span></td>
                     <td>1</td>
-                    <td>8703ms</td>
+                    <td>8137ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should fuzzy match to correct spelling</td>
@@ -899,13 +900,13 @@ WHERE UPPER(AELLT) = UPPER('Diarrhea') LIMIT 10000</pre></td>
                     <td><span class="status-icon">✓</span> NC-001</td>
                     <td class="question-cell">Hi</td>
                     <td>Simple greeting</td>
-                    <td class="answer-cell">Hello! I'm SAGE, your clinical data analysis assistant. I'm here to help you query and analyze clinical trial data using natural language.
+                    <td class="answer-cell">Hello! I'm SAGE, your clinical data analysis assistant. I can help you explore and analyze clinical trial data by translating your questions into database queries.
 
-I can help you explore your CDISC SDTM and ADaM datasets by ...</td>
+I work with CDISC SDTM and ADaM dat...</td>
                     <td><pre class="sql-cell">N/A</pre></td>
                     <td>100 <span class="conf-level">high</span></td>
                     <td>0</td>
-                    <td>5432ms</td>
+                    <td>5685ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should return instant helpful response without LLM call</td>
@@ -915,14 +916,15 @@ I can help you explore your CDISC SDTM and ADaM datasets by ...</td>
                     <td><span class="status-icon">✓</span> NC-002</td>
                     <td class="question-cell">What can you help me with?</td>
                     <td>Help query</td>
-                    <td class="answer-cell">I can help you analyze clinical trial data by translating your questions into database queries. Here's what I can do:
+                    <td class="answer-cell">I'm SAGE, your clinical data analysis assistant! I can help you explore and analyze clinical trial data by translating your questions into precise database queries.
 
-## **Data Analysis Capabilities**
-- **Patient Counts**: Find how many subjects me...</td>
+**What I can do for you:**
+
+📊 **Pa...</td>
                     <td><pre class="sql-cell">N/A</pre></td>
                     <td>100 <span class="conf-level">high</span></td>
                     <td>0</td>
-                    <td>9002ms</td>
+                    <td>9290ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should explain capabilities</td>
@@ -938,7 +940,7 @@ Just ask me questions in plain English about your study data - like patient coun
                     <td><pre class="sql-cell">N/A</pre></td>
                     <td>100 <span class="conf-level">high</span></td>
                     <td>0</td>
-                    <td>6226ms</td>
+                    <td>6311ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should respond politely</td>
@@ -975,7 +977,7 @@ FROM ADSL
 WHERE UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>8500ms</td>
+                    <td>8719ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should return count with SAFFL = 'Y' filter</td>
@@ -991,7 +993,7 @@ FROM ADSL
 WHERE UPPER(ITTFL) = UPPER('Y') LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>7899ms</td>
+                    <td>8224ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should return count with ITTFL = 'Y' filter</td>
@@ -1001,12 +1003,13 @@ WHERE UPPER(ITTFL) = UPPER('Y') LIMIT 10000</pre></td>
                     <td><span class="status-icon">✓</span> POP-003</td>
                     <td class="question-cell">How many patients are in the efficacy population?</td>
                     <td>Efficacy population count using 'patients' instead of 'subjects'</td>
-                    <td class="answer-cell">There are **339 subjects** in the efficacy population.</td>
+                    <td class="answer-cell">There are **232 subjects** in the efficacy population.</td>
                     <td><pre class="sql-cell">SELECT COUNT(DISTINCT USUBJID) as efficacy_population_count
-FROM ADSL LIMIT 10000</pre></td>
+FROM ADSL 
+WHERE UPPER(SAFFL) = 'Y' LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>17611ms</td>
+                    <td>19028ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should recognize 'patients' as subjects and use EFFFL = 'Y'</td>
@@ -1021,7 +1024,7 @@ FROM ADSL LIMIT 10000</pre></td>
 FROM ADSL LIMIT 10000</pre></td>
                     <td>98 <span class="conf-level">high</span></td>
                     <td>1</td>
-                    <td>7106ms</td>
+                    <td>7225ms</td>
                 </tr>
                 <tr class="expected-row success">
                     <td colspan="8"><strong>Expected:</strong> Should count all subjects in ADSL</td>
@@ -1052,7 +1055,7 @@ FROM ADSL LIMIT 10000</pre></td>
 FROM ADSL 
 WHERE UPPER(ITTFL) = UPPER('Y') LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should return ITT count with ITTFL = 'Y'</div>
-                    <div class="step-meta">Time: 8189ms | Rows: 1</div>
+                    <div class="step-meta">Time: 7956ms | Rows: 1</div>
                 </div>
                 
                 <div class="flow-step success">
@@ -1068,7 +1071,7 @@ FROM ADSL
 WHERE UPPER(ITTFL) = UPPER('Y') 
   AND AGE &gt;= 65 LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND add AGE >= 65</div>
-                    <div class="step-meta">Time: 7823ms | Rows: 1</div>
+                    <div class="step-meta">Time: 7953ms | Rows: 1</div>
                 </div>
                 
                 <div class="flow-step success">
@@ -1084,7 +1087,7 @@ FROM ADAE
 WHERE UPPER(USUBJID) IN (SELECT USUBJID FROM ADSL WHERE AGE &gt;= 65 AND UPPER(ITTFL) = UPPER('Y'))
   AND UPPER(AESER) = UPPER('Y') LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should preserve ITTFL = 'Y' AND AGE >= 65 AND add AESER = 'Y'</div>
-                    <div class="step-meta">Time: 16338ms | Rows: 1</div>
+                    <div class="step-meta">Time: 16522ms | Rows: 1</div>
                 </div>
                 
                 <div class="flow-step success">
@@ -1098,7 +1101,7 @@ WHERE UPPER(USUBJID) IN (SELECT USUBJID FROM ADSL WHERE AGE &gt;= 65 AND UPPER(I
                     <div class="step-sql"><strong>SQL:</strong><pre>SELECT DISTINCT USUBJID, AEDECOD, AELLT, ATOXGR, AESER FROM ADAE WHERE UPPER(USUBJID) IN (SELECT USUBJID FROM ADSL WHERE AGE &gt;= 65 AND UPPER(ITTFL) = UPPER('Y'))
   AND UPPER(AESER) = UPPER('Y') LIMIT 100</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should transform to SELECT and preserve all filters</div>
-                    <div class="step-meta">Time: 6952ms | Rows: 52</div>
+                    <div class="step-meta">Time: 6858ms | Rows: 52</div>
                 </div>
                 
                 </div>
@@ -1121,7 +1124,7 @@ WHERE UPPER(USUBJID) IN (SELECT USUBJID FROM ADSL WHERE AGE &gt;= 65 AND UPPER(I
 FROM ADSL
 WHERE UPPER(SAFFL) = UPPER('Y') LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should return safety count with SAFFL = 'Y'</div>
-                    <div class="step-meta">Time: 7856ms | Rows: 1</div>
+                    <div class="step-meta">Time: 8199ms | Rows: 1</div>
                 </div>
                 
                 <div class="flow-step success">
@@ -1137,7 +1140,7 @@ FROM ADSL
 WHERE UPPER(SAFFL) = UPPER('Y') 
   AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should preserve SAFFL = 'Y' AND add SEX = 'F'</div>
-                    <div class="step-meta">Time: 7382ms | Rows: 1</div>
+                    <div class="step-meta">Time: 7824ms | Rows: 1</div>
                 </div>
                 
                 <div class="flow-step success">
@@ -1153,7 +1156,7 @@ FROM ADAE
 WHERE UPPER(SAFFL) = UPPER('Y') 
   AND UPPER(SEX) = UPPER('F') LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should preserve SAFFL = 'Y', SEX = 'F' AND add AE condition</div>
-                    <div class="step-meta">Time: 9257ms | Rows: 1</div>
+                    <div class="step-meta">Time: 9044ms | Rows: 1</div>
                 </div>
                 
                 </div>
@@ -1176,7 +1179,7 @@ WHERE UPPER(SAFFL) = UPPER('Y')
 FROM ADAE 
 WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache')) LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should count subjects with headache</div>
-                    <div class="step-meta">Time: 8126ms | Rows: 1</div>
+                    <div class="step-meta">Time: 8890ms | Rows: 1</div>
                 </div>
                 
                 <div class="flow-step success">
@@ -1187,13 +1190,13 @@ WHERE UPPER(AEDECOD) IN (UPPER('Headache'), UPPER('Sinus headache')) LIMIT 10000
                     </div>
                     <div class="step-question"><strong>Q:</strong> how many of these were Grade 3 or higher</div>
                     <div class="step-answer"><strong>A:</strong> There are **2 subjects** matching your criteria.</div>
-                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as patients_with_grade3_plus_headache
+                    <div class="step-sql"><strong>SQL:</strong><pre>SELECT COUNT(DISTINCT USUBJID) as patients_with_grade3plus_headache
 FROM ADAE 
 WHERE UPPER(AEDECOD) LIKE UPPER('HEADACHE')
   AND UPPER(ATOXGR) != UPPER('.') 
   AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 10000</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should preserve headache filter AND add ATOXGR >= 3</div>
-                    <div class="step-meta">Time: 9457ms | Rows: 1</div>
+                    <div class="step-meta">Time: 9343ms | Rows: 1</div>
                 </div>
                 
                 <div class="flow-step success">
@@ -1208,7 +1211,7 @@ WHERE UPPER(AEDECOD) LIKE UPPER('HEADACHE')
   AND UPPER(ATOXGR) != UPPER('.') 
   AND CAST(ATOXGR AS INTEGER) &gt;= 3 LIMIT 100</pre></div>
                     <div class="step-expected"><strong>Expected:</strong> Should list subjects with headache grade 3+</div>
-                    <div class="step-meta">Time: 7288ms | Rows: 2</div>
+                    <div class="step-meta">Time: 7748ms | Rows: 2</div>
                 </div>
                 
                 </div>
@@ -1217,7 +1220,7 @@ WHERE UPPER(AEDECOD) LIKE UPPER('HEADACHE')
         </div>
 
         <div class="timestamp">
-            Generated: 2025-12-18 20:47:16
+            Generated: 2025-12-18 20:53:56
         </div>
     </div>
 

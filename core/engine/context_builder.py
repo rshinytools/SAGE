@@ -185,9 +185,11 @@ CRITICAL RULES:
 - Use COUNT(DISTINCT USUBJID) when counting patients/subjects
 - Use COUNT(*) when counting events/records{grade_note}
 
-SPELLING VARIATIONS (handle BOTH in queries):
-- UK/US: anaemia/anemia, diarrhoea/diarrhea, oedema/edema, haemorrhage/hemorrhage
-- Use IN ('Term1', 'Term2') or UPPER(AEDECOD) LIKE '%TERM%' to match variants{refinement_rule}
+CRITICAL - EXACT TERMS ONLY:
+- ONLY use the exact adverse event terms mentioned in the user's query
+- DO NOT add synonyms, related terms, or medical variants unless explicitly requested
+- If user asks about "headache", query ONLY for "headache" - not fever, migraine, or other terms
+- UK/US spelling variants (anaemia/anemia, diarrhoea/diarrhea) are acceptable ONLY for the specific term asked{refinement_rule}
 
 Output SQL in ```sql block."""
 

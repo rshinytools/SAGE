@@ -54,7 +54,7 @@ from .llm_providers import (
     LLMConfig, LLMProvider, LLMRequest, create_llm_provider, get_current_provider
 )
 from .sql_validator import SQLValidator, ValidatorConfig
-from .executor import SQLExecutor, MockExecutor, ExecutorConfig
+from .executor import SQLExecutor, ExecutorConfig, MockExecutor
 from .confidence_scorer import ConfidenceScorer, ScorerConfig
 from .explanation_generator import ExplanationGenerator, ResponseBuilder, init_naming_service
 from .cache import QueryCache, get_query_cache
@@ -62,12 +62,12 @@ from .cache import QueryCache, get_query_cache
 # New Accuracy Components
 from .query_analyzer import QueryAnalyzer, QueryAnalysis, QueryIntent, QuerySubject
 from .clarification_manager import ClarificationManager
-from .answer_verifier import AnswerVerifier, VerificationResult
+from .answer_verifier import AnswerVerifier
 from .response_format import (
     SAGEResponse, SAGEResponseBuilder, ResponseType,
     MethodologyInfo, EntityResolution, standardize_confidence, get_confidence_level
 )
-from .session_memory import SessionMemory, SessionManager, get_session_manager, QueryFilter
+from .session_memory import SessionMemory, SessionManager, get_session_manager
 from .data_knowledge import DataKnowledge, DataKnowledgeLearner, get_data_knowledge
 
 # Factory 4.5: LLM-Enhanced Features
@@ -1648,38 +1648,6 @@ class InferencePipeline:
                                 query_analysis.preserve_filters and
                                 query_analysis.intent == QueryIntent.REFINE_PREVIOUS)
 
-                # FORWARD INTENT TRACKING (Factory 4.5 Upgrade)
-                # Convert structured analysis conditions to session filters
-                # This bypasses the need for regex parsing of SQL and "locks in" the semantic intent
-                structured_filters = None
-                if query_analysis and query_analysis.conditions:
-                    structured_filters = []
-                    for cond in query_analysis.conditions:
-                        # Map QueryCondition to QueryFilter
-                        # Note: We use the condition's values to reconstruct a simple SQL fragment
-                        # if the specific column/operator/value structure matches our expectations.
-                        # However, for storage, we key off the concepts.
-                        
-                        # Construct a SQL fragment for the filter if possible
-                        sql_fragment = ""
-                        if cond.column and cond.operator:
-                            val_str = ""
-                            if cond.values:
-                                if len(cond.values) == 1:
-                                    val_str = f"'{cond.values[0]}'"
-                                else:
-                                    val_str = "(" + ", ".join(f"'{v}'" for v in cond.values) + ")"
-                            
-                            sql_fragment = f"{cond.column} {cond.operator} {val_str}"
-
-                        structured_filters.append(QueryFilter(
-                            natural=f"{cond.column} {cond.operator} {cond.values}", # Simplified natural desc
-                            sql=sql_fragment,  # This might be empty, session_memory will handle or regex can backfill
-                            table=table_resolution.selected_table,
-                            column=cond.column
-                        ))
-                    logger.info(f"Forward Intent Tracking: Extracting {len(structured_filters)} structured filters")
-
                 self.session.add_turn(
                     query=query,
                     response_type='answer',
@@ -1689,8 +1657,7 @@ class InferencePipeline:
                     table=table_resolution.selected_table,
                     population=table_resolution.population_name,
                     sql=final_sql,  # Use final_sql to ensure SQL is always passed
-                    is_refinement=is_refinement,
-                    filters=structured_filters  # Explicitly pass structured filters!
+                    is_refinement=is_refinement
                 )
                 logger.info(f"Session {self.session_id}: Turn recorded (is_refinement={is_refinement})")
 
