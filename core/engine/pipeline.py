@@ -34,6 +34,7 @@ New Accuracy Features:
 This is the main entry point for Factory 4.
 """
 
+import re
 import time
 import logging
 from typing import Optional, Dict, Any, List
@@ -77,6 +78,39 @@ from .query_disambiguator import QueryDisambiguator, create_query_disambiguator
 from .error_humanizer import ErrorHumanizer, create_error_humanizer
 
 logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# INSTANT RESPONSE PATTERNS (Checked BEFORE LLM classification)
+# =============================================================================
+# These patterns provide sub-100ms responses for simple non-clinical queries
+
+INSTANT_PATTERNS = {
+    'greeting': re.compile(r'^(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy)[\s!?.]*$', re.I),
+    'thanks': re.compile(r'^(thanks?|thank\s*you|thx|cheers)[\s!?.]*$', re.I),
+    'bye': re.compile(r'^(bye|goodbye|see\s*you|later)[\s!?.]*$', re.I),
+}
+
+INSTANT_RESPONSES = {
+    'greeting': """Hello! I'm SAGE, your clinical data assistant.
+
+**I can help you with:**
+- Counting patients/subjects with specific conditions
+- Analyzing adverse events by severity, type, or outcome
+- Demographics breakdowns (age, sex, race)
+- Population queries (safety, ITT, enrolled)
+
+**Example questions:**
+- "How many subjects are in the safety population?"
+- "How many patients had serious adverse events?"
+- "What is the age distribution?"
+
+What would you like to know?""",
+
+    'thanks': "You're welcome! Let me know if you have more questions about your clinical data.",
+
+    'bye': "Goodbye! Feel free to return when you have clinical data questions.",
+}
 
 
 # =============================================================================
@@ -1109,6 +1143,58 @@ class InferencePipeline:
             logger.error(f"Conversational response generation failed: {e}")
             return "I'm SAGE, a clinical data analysis assistant. Please ask me questions about your clinical trial data."
 
+    def _check_instant_response(self, query: str, start_time: float) -> Optional[PipelineResult]:
+        """
+        Check for instant response patterns (no LLM needed).
+
+        Uses regex patterns to detect simple greetings, thanks, and farewells
+        for sub-100ms responses.
+
+        Args:
+            query: User's input query
+            start_time: Pipeline start time for timing
+
+        Returns:
+            PipelineResult if instant pattern matched, None otherwise
+        """
+        query_clean = query.strip()
+
+        for category, pattern in INSTANT_PATTERNS.items():
+            if pattern.match(query_clean):
+                elapsed_ms = (time.time() - start_time) * 1000
+                logger.info(f"Instant response: {category} ({elapsed_ms:.1f}ms)")
+
+                return PipelineResult(
+                    success=True,
+                    query=query,
+                    answer=INSTANT_RESPONSES[category],
+                    data=None,
+                    row_count=0,
+                    sql=None,
+                    methodology=None,
+                    confidence={
+                        'score': 100,
+                        'level': 'high',
+                        'explanation': 'Instant response - pattern matched'
+                    },
+                    warnings=[],
+                    pipeline_stages={
+                        'instant_response': {
+                            'success': True,
+                            'time_ms': elapsed_ms,
+                            'category': category
+                        }
+                    },
+                    total_time_ms=elapsed_ms,
+                    metadata={
+                        'response_type': category,
+                        'instant': True,
+                        'pipeline_used': False
+                    }
+                )
+
+        return None
+
     def _check_non_clinical(self, query: str) -> Optional[PipelineResult]:
         """
         Use Claude to classify query intent and handle non-clinical queries.
@@ -1196,10 +1282,17 @@ class InferencePipeline:
             # by the LLM-based QueryAnalyzer at Step 1.5, not by pattern matching.
             # This allows the LLM to understand the infinite ways users phrase follow-ups.
 
-            # STEP 0: Non-Clinical Query Routing (instant response)
-            # Uses LLM to classify intent - greetings, help, etc. get instant responses
+            # STEP -1: Instant Response Check (regex, no LLM needed)
+            # Check for simple greetings/thanks/bye patterns for sub-100ms response
+            instant_result = self._check_instant_response(query, start_time)
+            if instant_result:
+                logger.info("Instant response matched - returning immediately")
+                return instant_result
+
+            # STEP 0: Non-Clinical Query Routing (LLM-based classification)
+            # Uses LLM to classify intent - help, identity, etc. get conversational responses
             if not direct_sql:
-                logger.info("Step 0: Checking for non-clinical query")
+                logger.info("Step 0: Checking for non-clinical query (LLM)")
                 non_clinical_result = self._check_non_clinical(working_query)
                 if non_clinical_result:
                     logger.info(f"Non-clinical query handled instantly")

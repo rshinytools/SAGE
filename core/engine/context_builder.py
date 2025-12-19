@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from .models import LLMContext, EntityMatch
 from .table_resolver import TableResolution
 from .clinical_config import ClinicalQueryConfig, DEFAULT_CLINICAL_CONFIG
+from .medical_synonyms import CRITICAL_SYNONYM_HINTS, get_spelling_variants
 
 logger = logging.getLogger(__name__)
 
@@ -174,8 +175,17 @@ This refines previous results. Include these filters: {accumulated_filters}"""
 AVAILABLE TABLES: {available}
 
 TABLE SELECTION GUIDE:
-- ADSL (Subject-Level Analysis): Use for demographics (age, sex, race), population counts
-- ADAE (Adverse Events Analysis): Use for adverse event queries (nausea, headache, toxicity)
+- ADSL (Subject-Level Analysis): Use for demographics, population counts, death/mortality, enrollment
+- ADAE (Adverse Events Analysis): Use ONLY for specific adverse event queries (nausea, headache, toxicity grades)
+
+CRITICAL - WHEN TO USE ADSL vs ADAE:
+- Subject DIED (mortality): Use ADSL.DTHFL = 'Y' (death flag). Do NOT search for death in AEDECOD!
+- FATAL adverse events: Use ADAE.AEOUT = 'FATAL' (AE with fatal outcome, NOT DTHFL)
+- "ENROLLED" subjects (only if user says "enrolled"): Use ADSL.ENRLFL = 'Y'
+- "TOTAL subjects" or "all subjects": Count ALL rows in ADSL (no population filter)
+- SAFETY population: Use ADSL.SAFFL = 'Y'
+- ITT population: Use ADSL.ITTFL = 'Y'
+- Specific adverse events (e.g., "nausea", "headache"): Use ADAE with AEDECOD
 
 CRITICAL RULES:
 - ONLY use columns listed in the schema below - do NOT invent column names
@@ -185,11 +195,13 @@ CRITICAL RULES:
 - Use COUNT(DISTINCT USUBJID) when counting patients/subjects
 - Use COUNT(*) when counting events/records{grade_note}
 
-CRITICAL - EXACT TERMS ONLY:
-- ONLY use the exact adverse event terms mentioned in the user's query
-- DO NOT add synonyms, related terms, or medical variants unless explicitly requested
-- If user asks about "headache", query ONLY for "headache" - not fever, migraine, or other terms
-- UK/US spelling variants (anaemia/anemia, diarrhoea/diarrhea) are acceptable ONLY for the specific term asked{refinement_rule}
+CRITICAL - TERM HANDLING:
+- Use the EXACT adverse event terms provided in the TERMS section below
+- When variants are provided (e.g., "'anemia'→IN ('ANAEMIA', 'ANEMIA')"), use the IN clause exactly as shown
+- For colloquial terms, use the medical term mapping provided (e.g., "belly pain"→"ABDOMINAL PAIN")
+- If no mapping is provided, use the exact term from the query
+- DO NOT add additional synonyms or related terms beyond what is explicitly mapped
+{CRITICAL_SYNONYM_HINTS}{refinement_rule}
 
 Output SQL in ```sql block."""
 
@@ -203,11 +215,11 @@ Output SQL in ```sql block."""
         # Key columns for each table type
         key_columns = {
             'ADAE': ['USUBJID', 'AEDECOD', 'AETERM', 'ATOXGR', 'AETOXGR', 'AESEV',
-                     'AESER', 'AEREL', 'TRTEMFL', 'SAFFL', 'SEX'],
+                     'AESER', 'AEREL', 'AEOUT', 'AESDTH', 'AEACN', 'TRTEMFL', 'SAFFL', 'SEX'],
             'ADSL': ['USUBJID', 'AGE', 'SEX', 'RACE', 'ARM', 'TRT01A',
-                     'SAFFL', 'ITTFL', 'EFFFL'],
+                     'SAFFL', 'ITTFL', 'EFFFL', 'ENRLFL', 'RANDFL', 'DTHFL', 'DTHDT'],
             'AE': ['USUBJID', 'AEDECOD', 'AETERM', 'AETOXGR', 'AESEV', 'AESER'],
-            'DM': ['USUBJID', 'AGE', 'SEX', 'RACE', 'ARM', 'ACTARM'],
+            'DM': ['USUBJID', 'AGE', 'SEX', 'RACE', 'ARM', 'ACTARM', 'DTHFL'],
         }
 
         # Provide schema for multiple tables so LLM can choose
@@ -221,10 +233,24 @@ Output SQL in ```sql block."""
         lines.append("")
         lines.append("COLUMN GUIDE:")
         lines.append("- AEDECOD: Adverse event coded term (use for specific AE searches like 'Nausea', 'Anaemia')")
-        lines.append("- AESER: Serious adverse event flag ('Y' = serious)")
+        lines.append("- AESER: SERIOUS adverse event flag ('Y' = serious) - regulatory term: life-threatening, hospitalization, death")
+        lines.append("- AESEV: SEVERITY of adverse event (MILD, MODERATE, SEVERE) - intensity term, NOT same as serious")
+        lines.append("  CRITICAL: 'serious' uses AESER='Y', 'severe' uses AESEV='SEVERE' - these are DIFFERENT concepts!")
         lines.append("- ATOXGR: Maximum toxicity grade (VARCHAR with '.' for missing; cast to INTEGER after filtering '.')")
         lines.append("- TRTEMFL: Treatment-emergent flag ('Y' = occurred during treatment)")
         lines.append("- SAFFL: Safety population flag ('Y' = in safety population)")
+        lines.append("- ITTFL: Intent-to-Treat population flag ('Y' = in ITT population)")
+        lines.append("- ENRLFL: Enrolled population flag ('Y' = subject is enrolled)")
+        lines.append("- RANDFL: Randomized population flag ('Y' = subject is randomized)")
+        lines.append("- DTHFL: Death flag ('Y' = subject died during study) - USE THIS for subject death queries, not AEDECOD")
+        lines.append("- DTHDT: Date of death")
+        lines.append("- AEOUT: Adverse event OUTCOME (RECOVERED, NOT RECOVERED, FATAL, RECOVERING, UNKNOWN)")
+        lines.append("  For 'fatal adverse event' queries, use AEOUT='FATAL' (NOT DTHFL)")
+        lines.append("- AESDTH: AE resulted in death flag ('Y' = this specific AE caused death)")
+        lines.append("- AEREL: Relationship to treatment (RELATED, NOT RELATED, POSSIBLY RELATED)")
+        lines.append("  For 'drug-related' or 'treatment-related' AE queries")
+        lines.append("- AEACN: Action taken with study treatment (DOSE REDUCED, DRUG WITHDRAWN, etc.)")
+        lines.append("  For 'AE leading to discontinuation' queries, use AEACN containing 'WITHDRAWN'")
         lines.append("- AGE: Patient age in years")
         lines.append("- SEX: Patient sex ('M' or 'F')")
 
@@ -248,6 +274,10 @@ Output SQL in ```sql block."""
             'SAFFL': 'Safety Population Flag (Y/N)',
             'ITTFL': 'Intent-to-Treat Population Flag (Y/N)',
             'EFFFL': 'Efficacy Population Flag (Y/N)',
+            'ENRLFL': 'Enrolled Population Flag (Y/N)',
+            'RANDFL': 'Randomized Population Flag (Y/N)',
+            'DTHFL': 'Death Flag (Y/N) - Y means subject died during study',
+            'DTHDT': 'Date of Death',
             'TRT01A': 'Actual Treatment (Period 1)',
             'TRT01P': 'Planned Treatment (Period 1)',
             'AEDECOD': 'AE Dictionary-Derived Term (MedDRA PT)',
@@ -272,15 +302,29 @@ Output SQL in ```sql block."""
         return common.get(column.upper(), column)
 
     def _build_entity_context(self, entities: List[EntityMatch]) -> str:
-        """Build entity resolution context - compact format."""
+        """Build entity resolution context - compact format.
+
+        Enhanced to show all variants for medical_synonym matches,
+        enabling the LLM to generate proper IN clauses.
+        """
         if not entities:
             return ""
 
-        # Compact inline format
+        # Compact inline format with variant support
         mappings = []
         for entity in entities:
             if entity.match_type == "grade":
                 mappings.append(f"Grade {entity.matched_term}→{entity.column}")
+            elif entity.match_type == "medical_synonym" and entity.metadata:
+                # Show all variants for synonym matches
+                variants = entity.metadata.get('all_variants', (entity.matched_term,))
+                if len(variants) > 1:
+                    # Multiple variants - show IN clause format
+                    variant_str = ", ".join(f"'{v}'" for v in variants)
+                    mappings.append(f"'{entity.original_term}'→UPPER({entity.column}) IN ({variant_str})")
+                else:
+                    # Single variant
+                    mappings.append(f"'{entity.original_term}'→UPPER({entity.column}) = '{variants[0]}'")
             else:
                 mappings.append(f"'{entity.original_term}'→{entity.matched_term}")
 
@@ -307,6 +351,16 @@ Output SQL in ```sql block."""
             else:
                 rules.append(f"CRITICAL: For toxicity grade queries, use {grade_col}")
 
+        # CRITICAL: Population flag rules
+        rules.append(
+            "CRITICAL: For DEATH/MORTALITY queries: Use ADSL.DTHFL = 'Y' (NOT adverse event terms). "
+            "Deaths are tracked via the DTHFL flag, not AEDECOD."
+        )
+        rules.append(
+            "CRITICAL: ONLY apply ENRLFL='Y' when user explicitly asks about 'enrolled' subjects. "
+            "For 'total subjects' or 'all subjects', count ALL rows in ADSL without any population filter."
+        )
+
         # Only add assumptions if present
         if table_resolution.assumptions:
             rules.append(f"Note: {'; '.join(table_resolution.assumptions)}")
@@ -319,18 +373,30 @@ Output SQL in ```sql block."""
                            entities: List[EntityMatch],
                            accumulated_filters: Optional[str] = None
                           ) -> str:
-        """Build the user prompt - compact for fast inference."""
+        """Build the user prompt - compact for fast inference.
+
+        Enhanced to include variant hints for medical synonyms.
+        """
         lines = [f"Q: {query}"]
 
         # Add accumulated filters reminder for refinement queries
         if accumulated_filters:
             lines.append(f"REMEMBER: Include these filters from previous query: {accumulated_filters}")
 
-        # Add entity hints inline if present
+        # Add entity hints inline if present - with variant support
         entity_hints = []
         for entity in entities:
             if entity.table and entity.column:
-                entity_hints.append(f"{entity.column}='{entity.matched_term}'")
+                if entity.match_type == "medical_synonym" and entity.metadata:
+                    # Show variants for synonym matches
+                    variants = entity.metadata.get('all_variants', (entity.matched_term,))
+                    if len(variants) > 1:
+                        variant_str = ", ".join(f"'{v}'" for v in variants)
+                        entity_hints.append(f"UPPER({entity.column}) IN ({variant_str})")
+                    else:
+                        entity_hints.append(f"UPPER({entity.column}) = '{variants[0]}'")
+                else:
+                    entity_hints.append(f"{entity.column}='{entity.matched_term}'")
 
         if entity_hints:
             lines.append(f"USE: {', '.join(entity_hints)}")

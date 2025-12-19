@@ -639,6 +639,41 @@ async def get_cache_stats(current_user: dict = Depends(get_current_user)):
         }
 
 
+@router.get("/cache/detailed")
+async def get_cache_detailed_stats(current_user: dict = Depends(get_current_user)):
+    """
+    Get detailed query cache statistics including age distribution.
+
+    Returns comprehensive stats with oldest/newest entry ages and TTL info.
+    """
+    try:
+        from core.engine.cache import get_query_cache
+
+        # Get or create cache with DuckDB path
+        db_path = str(DATA_DIR / "database" / "clinical.duckdb")
+        cache = get_query_cache(db_path=db_path)
+        stats = cache.get_detailed_stats()
+
+        return {
+            "success": True,
+            "data": stats,
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+    except Exception as e:
+        return {
+            "success": True,
+            "data": {
+                "size": 0,
+                "max_size": 1000,
+                "hits": 0,
+                "misses": 0,
+                "hit_rate": "0.0%",
+                "error": str(e)
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+
+
 @router.post("/cache/clear")
 async def clear_cache(current_user: dict = Depends(get_current_user)):
     """

@@ -7,6 +7,11 @@ Extracts clinical entities from user queries and resolves them
 using Factory 3 (FuzzyMatcher) and Factory 3.5 (MedDRA).
 
 This is STEP 2 of the 9-step pipeline.
+
+Enhanced with medical_synonyms module for:
+- UK/US spelling variants (anaemia/anemia)
+- Colloquial to medical term mappings (belly pain -> abdominal pain)
+- Complex phrase mappings (low blood cell count -> WBC decreased)
 """
 
 import re
@@ -16,6 +21,13 @@ from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass
 
 from .models import EntityMatch, EntityExtractionResult
+from .medical_synonyms import (
+    resolve_medical_term,
+    get_spelling_variants,
+    SynonymMapping,
+    COMPLEX_PHRASE_MAPPINGS,
+    COLLOQUIAL_MAPPINGS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -138,19 +150,54 @@ class EntityExtractor:
         )
 
     def _extract_candidates(self, query: str) -> List[str]:
-        """Extract candidate terms from query."""
-        # Tokenize
-        words = re.findall(r'\b[a-zA-Z]+\b', query.lower())
+        """Extract candidate terms from query.
+
+        Enhanced to check for:
+        1. Complex medical phrases first (3+ words like "low blood cell count")
+        2. Bigrams (2-word phrases like "belly pain")
+        3. Single words
+        """
+        query_lower = query.lower()
+        candidates = []
+        matched_spans = []  # Track what we've already matched
+
+        # 1. Check for complex phrases first (most specific)
+        # These are multi-word medical terms that need exact matching
+        for phrase in COMPLEX_PHRASE_MAPPINGS.keys():
+            if phrase in query_lower:
+                candidates.append(phrase)
+                # Mark this span as matched to avoid duplicate single-word matches
+                start = query_lower.find(phrase)
+                matched_spans.append((start, start + len(phrase)))
+
+        # 2. Check for colloquial phrases (2-word phrases)
+        for phrase in COLLOQUIAL_MAPPINGS.keys():
+            if phrase in query_lower:
+                candidates.append(phrase)
+                start = query_lower.find(phrase)
+                matched_spans.append((start, start + len(phrase)))
+
+        # 3. Tokenize for remaining words
+        words = re.findall(r'\b[a-zA-Z]+\b', query_lower)
 
         # Filter stop words and short words
-        candidates = []
         for word in words:
             if word not in self.STOP_WORDS and len(word) > 2:
-                candidates.append(word)
+                # Check if this word is part of an already-matched phrase
+                word_start = query_lower.find(word)
+                is_in_phrase = any(
+                    start <= word_start < end
+                    for start, end in matched_spans
+                )
+                if not is_in_phrase:
+                    candidates.append(word)
 
-        # Also extract multi-word phrases (bigrams)
+        # 4. Also extract bigrams for phrases not in colloquial dict
         for i in range(len(words) - 1):
             phrase = f"{words[i]} {words[i+1]}"
+            # Skip if already matched as colloquial phrase
+            if phrase in COLLOQUIAL_MAPPINGS:
+                continue
             # Skip if phrase is a reference phrase (follow-up query context)
             if phrase in self.SKIP_PHRASES:
                 continue
@@ -205,16 +252,16 @@ class EntityExtractor:
 
     def _resolve_term(self, term: str) -> Optional[EntityMatch]:
         """
-        Resolve a term using fuzzy matcher and MedDRA.
-
-        IMPORTANT: Data-driven approach - check actual data FIRST via FuzzyMatcher
-        before falling back to MedDRA. This prevents hallucinated entity matches
-        for non-clinical terms like "population" -> "Burkitt's leukaemia".
+        Resolve a term using medical synonyms, fuzzy matcher and MedDRA.
 
         Resolution Order:
-        1. FuzzyMatcher (Factory 3) - checks if term exists in actual data
-        2. MedDRA (Factory 3.5) - only if not found in data, with validation
-        3. Typo Dictionary - common typos/variations as final fallback
+        1. Medical Synonyms (NEW) - comprehensive dictionary of known mappings
+           - Complex phrases (low blood cell count -> WBC DECREASED)
+           - Colloquial terms (belly pain -> ABDOMINAL PAIN, fever -> PYREXIA)
+           - UK/US spelling variants (anaemia/anemia)
+        2. FuzzyMatcher (Factory 3) - checks if term exists in actual data
+        3. MedDRA (Factory 3.5) - medical terminology with validation
+        4. Typo Dictionary - common typos as final fallback
 
         Args:
             term: Term to resolve
@@ -222,7 +269,14 @@ class EntityExtractor:
         Returns:
             EntityMatch if resolved, None otherwise
         """
-        # Step 1: Try fuzzy matcher FIRST (data-driven approach)
+        # Step 1: Check medical synonyms FIRST (highest priority)
+        # This ensures known mappings are used consistently
+        synonym_match = self._try_medical_synonyms(term)
+        if synonym_match:
+            logger.debug(f"Term '{term}' resolved via medical synonyms")
+            return synonym_match
+
+        # Step 2: Try fuzzy matcher (data-driven approach)
         # This checks if the term actually exists in the clinical data
         if self.fuzzy_matcher:
             fuzzy_match = self._try_fuzzy(term)
@@ -230,7 +284,7 @@ class EntityExtractor:
                 logger.debug(f"Term '{term}' resolved via FuzzyMatcher (data-driven)")
                 return fuzzy_match
 
-        # Step 2: Fall back to MedDRA only if not found in data
+        # Step 3: Fall back to MedDRA only if not found in data
         # This handles typos and synonyms that might not be in the data
         # but are valid medical terms (e.g., "headake" -> "HEADACHE")
         if self.meddra_lookup:
@@ -243,13 +297,38 @@ class EntityExtractor:
                 else:
                     logger.debug(f"Term '{term}' rejected - MedDRA match not semantically similar")
 
-        # Step 3: Try typo dictionary as final fallback
+        # Step 4: Try typo dictionary as final fallback
         # This catches common typos that might not be in FuzzyMatcher or MedDRA
         typo_match = self._try_typo_dictionary(term)
         if typo_match:
             logger.debug(f"Term '{term}' resolved via typo dictionary")
             return typo_match
 
+        return None
+
+    def _try_medical_synonyms(self, term: str) -> Optional[EntityMatch]:
+        """
+        Try to resolve term via medical synonyms dictionary.
+
+        Handles:
+        - Complex phrases (low blood cell count)
+        - Colloquial terms (belly pain, fever)
+        - UK/US spelling variants (anaemia/anemia)
+        """
+        mapping = resolve_medical_term(term)
+        if mapping:
+            # For terms with variants, we'll store them specially
+            # The LLM prompt will use this to generate IN clauses
+            return EntityMatch(
+                original_term=term,
+                matched_term=mapping.canonical_term,
+                match_type="medical_synonym",
+                confidence=95.0,
+                table=mapping.table,
+                column=mapping.column,
+                # Store all variants for use in SQL generation
+                metadata={'all_variants': mapping.all_variants}
+            )
         return None
 
     def _try_typo_dictionary(self, term: str) -> Optional[EntityMatch]:

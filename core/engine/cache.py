@@ -142,6 +142,10 @@ class DataVersionTracker:
             logger.warning(f"Failed to compute data version: {e}")
             return None
 
+    def get_current_version(self) -> Optional[str]:
+        """Get the current version (for stats display)."""
+        return self.get_version()
+
     def has_changed(self, previous_version: Optional[str]) -> bool:
         """
         Check if data has changed since the given version.
@@ -452,6 +456,37 @@ class QueryCache:
                 'hit_rate_str': f"{hit_rate:.1f}%",
                 'data_version': self._last_known_version,
                 'db_path': self._version_tracker.db_path
+            }
+
+    def get_detailed_stats(self) -> Dict[str, Any]:
+        """
+        Get detailed cache statistics including age distribution.
+
+        Returns:
+            Comprehensive stats including age distribution and version info
+        """
+        with self._lock:
+            total = self.stats['hits'] + self.stats['misses']
+            hit_rate = (self.stats['hits'] / total * 100) if total > 0 else 0
+
+            # Calculate age distribution
+            now = time.time()
+            ages = [now - entry.created_at for entry in self._cache.values()]
+
+            return {
+                'size': len(self._cache),
+                'max_size': self.max_size,
+                'hits': self.stats['hits'],
+                'misses': self.stats['misses'],
+                'hit_rate': f"{hit_rate:.1f}%",
+                'evictions': self.stats.get('evictions', 0),
+                'expirations': self.stats.get('expirations', 0),
+                'data_invalidations': self.stats.get('data_invalidations', 0),
+                'oldest_entry_age_seconds': round(max(ages), 1) if ages else 0,
+                'newest_entry_age_seconds': round(min(ages), 1) if ages else 0,
+                'avg_entry_age_seconds': round(sum(ages) / len(ages), 1) if ages else 0,
+                'default_ttl_seconds': self.default_ttl,
+                'data_version': self._version_tracker.get_current_version() if self._version_tracker else None
             }
 
     def get_entries(self) -> List[Dict[str, Any]]:

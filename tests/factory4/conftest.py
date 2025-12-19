@@ -23,10 +23,12 @@ if env_path.exists():
 def mock_available_tables():
     """Provide mock available tables."""
     return {
-        'ADAE': ['USUBJID', 'STUDYID', 'AEDECOD', 'ATOXGR', 'AETOXGR',
-                 'SAFFL', 'TRTEMFL', 'AESER', 'AEREL', 'ASEV', 'AESEV'],
+        'ADAE': ['USUBJID', 'STUDYID', 'AEDECOD', 'AETERM', 'ATOXGR', 'AETOXGR',
+                 'SAFFL', 'TRTEMFL', 'AESER', 'AEREL', 'AESEV', 'AEOUT', 'AESDTH',
+                 'AEACN', 'SEX'],
         'ADSL': ['USUBJID', 'STUDYID', 'AGE', 'SEX', 'RACE', 'ETHNIC',
-                 'SAFFL', 'ITTFL', 'EFFFL', 'TRT01A', 'TRT01P'],
+                 'SAFFL', 'ITTFL', 'EFFFL', 'ENRLFL', 'RANDFL', 'DTHFL', 'DTHDT',
+                 'TRT01A', 'TRT01P', 'ARM'],
         'ADLB': ['USUBJID', 'STUDYID', 'PARAMCD', 'PARAM', 'AVAL',
                  'AVALC', 'SAFFL', 'ABLFL', 'BASE', 'CHG'],
         'ADCM': ['USUBJID', 'STUDYID', 'CMTRT', 'CMDECOD', 'SAFFL'],

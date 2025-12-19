@@ -55,12 +55,13 @@ class EntityMatch:
     """A matched entity from the query."""
     original_term: str          # What user typed
     matched_term: str           # What we found in data
-    match_type: str             # exact, fuzzy, meddra, etc.
+    match_type: str             # exact, fuzzy, meddra, medical_synonym, etc.
     confidence: float           # 0-100
     table: Optional[str] = None
     column: Optional[str] = None
     meddra_code: Optional[str] = None
     meddra_level: Optional[str] = None  # PT, HLT, HLGT, SOC
+    metadata: Optional[Dict[str, Any]] = None  # Additional data (e.g., all_variants for synonyms)
 
 
 @dataclass
