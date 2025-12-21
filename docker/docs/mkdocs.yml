@@ -28,6 +28,7 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.indexes
     - search.suggest
     - search.highlight
     - content.code.copy
@@ -71,30 +72,52 @@ nav:
     - Installation: getting-started/installation.md
     - Configuration: getting-started/configuration.md
     - First Query: getting-started/first-query.md
+  - Architecture:
+    - Overview: architecture/overview.md
+    - Data Flow: architecture/data-flow.md
+    - Security Model: architecture/security-model.md
+    - Technology Stack: architecture/technology-stack.md
+  - Factories:
+    - Factory 1 - Data:
+      - Overview: factories/factory1-data/overview.md
+      - SAS Reader: factories/factory1-data/sas-reader.md
+      - DuckDB Loader: factories/factory1-data/duckdb-loader.md
+      - Schema Tracker: factories/factory1-data/schema-tracker.md
+      - API Reference: factories/factory1-data/api-reference.md
+    - Factory 2 - Metadata:
+      - Overview: factories/factory2-metadata/overview.md
+      - Excel Parser: factories/factory2-metadata/excel-parser.md
+      - Approval Workflow: factories/factory2-metadata/approval-workflow.md
+      - CDISC Integration: factories/factory2-metadata/cdisc-integration.md
+      - API Reference: factories/factory2-metadata/api-reference.md
+    - Factory 3 - Dictionary:
+      - Overview: factories/factory3-dictionary/overview.md
+      - Fuzzy Matching: factories/factory3-dictionary/fuzzy-matching.md
+      - Value Scanning: factories/factory3-dictionary/value-scanning.md
+      - API Reference: factories/factory3-dictionary/api-reference.md
+    - Factory 3.5 - MedDRA:
+      - Overview: factories/factory35-meddra/overview.md
+      - Hierarchy: factories/factory35-meddra/hierarchy.md
+      - API Reference: factories/factory35-meddra/api-reference.md
+    - Factory 4 - Engine:
+      - Overview: factories/factory4-engine/overview.md
+      - Pipeline Steps: factories/factory4-engine/pipeline-steps.md
+      - Input Sanitizer: factories/factory4-engine/input-sanitizer.md
+      - Entity Extractor: factories/factory4-engine/entity-extractor.md
+      - SQL Generator: factories/factory4-engine/sql-generator.md
+      - Confidence Scorer: factories/factory4-engine/confidence-scorer.md
+      - API Reference: factories/factory4-engine/api-reference.md
   - User Guide:
     - Chat Interface: user-guide/chat-interface.md
-    - Asking Questions: user-guide/asking-questions.md
-    - Understanding Results: user-guide/understanding-results.md
     - Confidence Scores: user-guide/confidence-scores.md
   - Admin Guide:
     - User Management: admin-guide/user-management.md
-    - Metadata Management: admin-guide/metadata-management.md
     - Data Loading: admin-guide/data-loading.md
-    - System Configuration: admin-guide/system-configuration.md
-  - Technical:
-    - Architecture: technical/architecture.md
-    - Data Flow: technical/data-flow.md
-    - Four Factories: technical/four-factories.md
-    - Fuzzy Matching: technical/fuzzy-matching.md
-    - Confidence Scoring: technical/confidence-scoring.md
   - Compliance:
     - Validation Summary: compliance/validation-summary.md
-    - Data Integrity: compliance/data-integrity.md
     - Audit Trail: compliance/audit-trail.md
-    - Access Controls: compliance/access-controls.md
-  - API Reference:
-    - Endpoints: api-reference/endpoints.md
-    - Data Models: api-reference/data-models.md
+  - Reference:
+    - Documentation System: Documentation_System.md
 
 # Extra
 extra:
