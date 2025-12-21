@@ -18,6 +18,7 @@ import {
   MoreHorizontal,
   Pill,
   FlaskConical,
+  HelpCircle,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -34,6 +35,7 @@ type NavItem = {
 const menuItems: NavItem[] = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/chat", label: "AI Chat", icon: MessageSquare },
+  { path: "/documentation", label: "Documentation", icon: HelpCircle },
   { path: "/data-foundry", label: "Data Foundry", icon: Factory },
   { path: "/metadata", label: "Metadata Auditor", icon: FileSearch },
   { path: "/cdisc-library", label: "CDISC Library", icon: Library },

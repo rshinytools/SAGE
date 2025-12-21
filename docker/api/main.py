@@ -30,7 +30,7 @@ api_dir = Path(__file__).parent
 sys.path.insert(0, str(api_dir))
 
 # Import routers
-from routers import auth, data, metadata, tracker, system, chat, dictionary, meddra, golden_suite
+from routers import auth, data, metadata, tracker, system, chat, dictionary, meddra, golden_suite, docs
 
 
 @asynccontextmanager
@@ -135,6 +135,12 @@ app.include_router(
     tags=["Golden Test Suite"]
 )
 
+app.include_router(
+    docs.router,
+    prefix="/api/v1/docs",
+    tags=["Documentation"]
+)
+
 
 # ============================================
 # Root Endpoints
@@ -174,7 +180,8 @@ async def api_root():
             "meddra": "/api/v1/meddra",
             "tracker": "/api/v1/tracker",
             "system": "/api/v1/system",
-            "golden_suite": "/api/v1/golden-suite"
+            "golden_suite": "/api/v1/golden-suite",
+            "docs": "/api/v1/docs"
         }
     }
 

@@ -67,6 +67,14 @@ from .clinical_naming import (
     get_friendly_name
 )
 
+# System Knowledge (Ask the System feature)
+from .system_knowledge import (
+    SystemKnowledge,
+    SystemKnowledgeResponse,
+    SearchResult,
+    get_system_knowledge
+)
+
 __all__ = [
     # Models
     'SanitizationResult',
@@ -121,5 +129,11 @@ __all__ = [
     # Clinical Naming
     'ClinicalNamingService',
     'get_naming_service',
-    'get_friendly_name'
+    'get_friendly_name',
+
+    # System Knowledge
+    'SystemKnowledge',
+    'SystemKnowledgeResponse',
+    'SearchResult',
+    'get_system_knowledge'
 ]

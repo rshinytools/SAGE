@@ -10,5 +10,6 @@ from . import system
 from . import dictionary
 from . import meddra
 from . import golden_suite
+from . import docs
 
-__all__ = ['auth', 'data', 'metadata', 'tracker', 'system', 'dictionary', 'meddra', 'golden_suite']
+__all__ = ['auth', 'data', 'metadata', 'tracker', 'system', 'dictionary', 'meddra', 'golden_suite', 'docs']

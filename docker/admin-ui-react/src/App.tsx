@@ -21,6 +21,7 @@ import { SettingsPage } from "@/features/settings/SettingsPage";
 import { ChatPage } from "@/features/chat/ChatPage";
 import { CDISCLibraryPage } from "@/features/cdisc-library/CDISCLibraryPage";
 import { GoldenSuitePage } from "@/features/golden-suite/GoldenSuitePage";
+import { DocumentationPage } from "@/features/documentation/DocumentationPage";
 import { useAuthStore } from "@/stores/authStore";
 
 const queryClient = new QueryClient({
@@ -65,6 +66,17 @@ export default function App() {
             }
           >
             <Route path="/chat" element={<ChatPage />} />
+          </Route>
+
+          {/* Documentation Route - Available to ALL authenticated users */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/documentation" element={<DocumentationPage />} />
           </Route>
 
           {/* Admin Routes - Only for admin users */}
