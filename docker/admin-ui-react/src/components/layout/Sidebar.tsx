@@ -17,6 +17,7 @@ import {
   ChevronDown,
   MoreHorizontal,
   Pill,
+  FlaskConical,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -38,6 +39,7 @@ const menuItems: NavItem[] = [
   { path: "/cdisc-library", label: "CDISC Library", icon: Library },
   { path: "/dictionary", label: "Dictionary", icon: BookOpen },
   { path: "/meddra", label: "MedDRA Library", icon: Pill },
+  { path: "/golden-suite", label: "Golden Test Suite", icon: FlaskConical },
   { path: "/users", label: "Users", icon: Users, permission: "manage_users" },
   { path: "/audit", label: "Audit Logs", icon: ScrollText, permission: "view_audit" },
   { path: "/tracker", label: "Project Tracker", icon: ClipboardList },

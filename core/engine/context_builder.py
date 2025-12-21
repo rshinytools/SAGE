@@ -161,10 +161,21 @@ class ContextBuilder:
         # Add accumulated filters for refinement queries
         refinement_rule = ""
         if accumulated_filters:
+            # Check if there are cross-table filters (ADSL columns used with ADAE query)
+            ADSL_COLUMNS = {'ITTFL', 'SAFFL', 'EFFFL', 'PPROTFL', 'AGE', 'SEX', 'RACE',
+                            'ETHNIC', 'ARM', 'TRT01A', 'ENRLFL', 'RANDFL', 'DTHFL'}
+            has_adsl_filter = any(col in accumulated_filters.upper() for col in ADSL_COLUMNS)
+
+            cross_table_note = ""
+            if has_adsl_filter:
+                cross_table_note = """
+IMPORTANT: Population filters (SAFFL, ITTFL, etc.) are in ADSL, not ADAE.
+For ADAE queries, use: USUBJID IN (SELECT USUBJID FROM ADSL WHERE <filter>)"""
+
             refinement_rule = f"""
 
 FOLLOW-UP QUERY:
-This refines previous results. Include these filters: {accumulated_filters}"""
+This refines previous results. Include these filters: {accumulated_filters}{cross_table_note}"""
 
         # Get available tables for context
         available = ", ".join(table_resolution.available_tables) if table_resolution.available_tables else "ADSL, ADAE"
@@ -404,21 +415,69 @@ Output SQL in ```sql block."""
         return "\n".join(lines)
 
     def _build_refinement_context(self, accumulated_filters: str) -> str:
-        """Build context for refinement queries that need to preserve filters."""
+        """Build context for refinement queries that need to preserve filters.
+
+        Provides clear guidance on handling cross-table filters using subqueries.
+        """
+        # ADSL columns that need subquery when querying ADAE
+        ADSL_COLUMNS = {'ITTFL', 'SAFFL', 'EFFFL', 'PPROTFL', 'AGE', 'SEX', 'RACE',
+                        'ETHNIC', 'ARM', 'TRT01A', 'ENRLFL', 'RANDFL', 'DTHFL'}
+
+        # Parse filters and categorize by table
+        import re
+        adsl_filters = []
+        adae_filters = []
+
+        filter_parts = [f.strip() for f in accumulated_filters.split(' AND ') if f.strip()]
+        for f in filter_parts:
+            # Extract column name (handle UPPER() wrapping)
+            col_match = re.match(r"(?:UPPER\()?\s*(\w+)\s*\)?", f, re.IGNORECASE)
+            if col_match:
+                col = col_match.group(1).upper()
+                if col in ADSL_COLUMNS:
+                    adsl_filters.append(f)
+                else:
+                    adae_filters.append(f)
+            else:
+                # Default to ADAE
+                adae_filters.append(f)
+
+        # Build guidance based on filter types
+        cross_table_guidance = ""
+        if adsl_filters:
+            adsl_filter_str = ' AND '.join(adsl_filters)
+            cross_table_guidance = f"""
+
+CROSS-TABLE FILTER WARNING:
+Some filters are from ADSL (demographics/population): {adsl_filter_str}
+
+When querying ADAE, use a SUBQUERY to apply ADSL filters:
+Example: USUBJID IN (SELECT USUBJID FROM ADSL WHERE {adsl_filter_str})
+
+DO NOT write: ADSL.SAFFL = 'Y' (ADSL not in FROM clause!)
+DO NOT write: ADAE.SAFFL = 'Y' (SAFFL doesn't exist in ADAE!)
+CORRECT: USUBJID IN (SELECT USUBJID FROM ADSL WHERE SAFFL = 'Y')"""
+
         return f"""
 
 === REFINEMENT QUERY RULES ===
 This question is a FOLLOW-UP that refines previous results.
-Your SQL MUST include ALL of these conditions from the previous query:
-{accumulated_filters}
+
+Previous filters to preserve: {accumulated_filters}
+{cross_table_guidance}
 
 DO NOT interpret "of these", "of those", "out of these" as adverse event names.
 These are REFERENCE WORDS meaning "from the previous result set".
 
-Example correct pattern:
-Previous: ITTFL = 'Y' AND AGE >= 65
-New question: "out of these, how many had serious adverse events"
-Correct SQL: WHERE ITTFL = 'Y' AND AGE >= 65 AND AESER = 'Y'
+Example for ADAE query with ADSL filters:
+Previous: SAFFL = 'Y' AND AEDECOD LIKE '%HYPERTENSION%'
+New question: "are any of them grade 3 or higher"
+Correct SQL:
+SELECT COUNT(DISTINCT USUBJID) FROM ADAE
+WHERE USUBJID IN (SELECT USUBJID FROM ADSL WHERE SAFFL = 'Y')
+  AND UPPER(AEDECOD) LIKE '%HYPERTENSION%'
+  AND ATOXGR != '.' AND CAST(ATOXGR AS INTEGER) >= 3
+
 === END REFINEMENT RULES ==="""
 
     def get_table_schema(self, table_name: str) -> Optional[SchemaInfo]:

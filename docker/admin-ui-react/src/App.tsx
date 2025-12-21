@@ -20,6 +20,7 @@ import { ProjectTrackerPage } from "@/features/project-tracker/ProjectTrackerPag
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { ChatPage } from "@/features/chat/ChatPage";
 import { CDISCLibraryPage } from "@/features/cdisc-library/CDISCLibraryPage";
+import { GoldenSuitePage } from "@/features/golden-suite/GoldenSuitePage";
 import { useAuthStore } from "@/stores/authStore";
 
 const queryClient = new QueryClient({
@@ -97,6 +98,7 @@ export default function App() {
               }
             />
             <Route path="/tracker" element={<ProjectTrackerPage />} />
+            <Route path="/golden-suite" element={<GoldenSuitePage />} />
             <Route
               path="/settings"
               element={
