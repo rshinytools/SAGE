@@ -462,6 +462,30 @@ async def delete_conversation(
     return {"success": True}
 
 
+@router.delete("/conversations")
+async def delete_all_conversations(
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete all conversations for the current user."""
+    user_id = current_user.get("username", "anonymous")
+
+    # Find all conversations belonging to this user
+    conv_ids_to_delete = [
+        conv_id for conv_id, conv in conversations_db.items()
+        if conv.get("user_id") == user_id
+    ]
+
+    # Delete each conversation and its messages
+    deleted_count = 0
+    for conv_id in conv_ids_to_delete:
+        del conversations_db[conv_id]
+        if conv_id in messages_db:
+            del messages_db[conv_id]
+        deleted_count += 1
+
+    return {"success": True, "deleted_count": deleted_count}
+
+
 @router.post("/message")
 async def send_message(
     data: SendMessageRequest,

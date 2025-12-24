@@ -31,6 +31,12 @@ export const chatApi = {
     await apiClient.delete(`/chat/conversations/${id}`);
   },
 
+  // Delete all conversations
+  deleteAllConversations: async (): Promise<{ deleted_count: number }> => {
+    const response = await apiClient.delete<{ success: boolean; deleted_count: number }>("/chat/conversations");
+    return { deleted_count: response.data.deleted_count };
+  },
+
   // Send a message (non-streaming, for fallback)
   sendMessage: async (request: SendMessageRequest): Promise<ChatMessage> => {
     const response = await apiClient.post<ChatMessage>("/chat/message", request);

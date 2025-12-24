@@ -6,3 +6,4 @@ export { DataTable } from "./DataTable";
 export { CommandPalette } from "./CommandPalette";
 export { ErrorBoundary, withErrorBoundary } from "./ErrorBoundary";
 export { ToastProvider, useToast } from "./Toast";
+export { ConfirmDialog } from "./ConfirmDialog";

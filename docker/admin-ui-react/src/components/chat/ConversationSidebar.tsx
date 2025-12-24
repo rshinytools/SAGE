@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Plus, MessageSquare, Trash2, Edit2, Check, X, PanelLeftClose, PanelLeft } from "lucide-react";
+import { Plus, MessageSquare, Trash2, Edit2, Check, X, PanelLeftClose, PanelLeft, Trash } from "lucide-react";
 import type { Conversation } from "@/types/chat";
+import { ConfirmDialog } from "@/components/common";
 
 interface ConversationSidebarProps {
   conversations: Conversation[];
@@ -9,6 +10,7 @@ interface ConversationSidebarProps {
   onNew: () => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
+  onClearAll: () => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
 }
@@ -20,11 +22,14 @@ export function ConversationSidebar({
   onNew,
   onDelete,
   onRename,
+  onClearAll,
   isCollapsed,
   onToggleCollapse,
 }: ConversationSidebarProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState<string | null>(null);
 
   const startEditing = (conv: Conversation) => {
     setEditingId(conv.id);
@@ -98,6 +103,42 @@ export function ConversationSidebar({
             </button>
           ))}
         </div>
+
+        {/* Clear All Button */}
+        {conversations.length > 0 && (
+          <div className="p-2 border-t border-gray-200 dark:border-gray-800/50">
+            <button
+              onClick={() => setShowClearDialog(true)}
+              className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all duration-200"
+              title="Clear All Chats"
+            >
+              <Trash className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Confirmation Dialogs */}
+        <ConfirmDialog
+          open={showClearDialog}
+          onOpenChange={setShowClearDialog}
+          title="Clear All Conversations"
+          description={`Are you sure you want to delete all ${conversations.length} conversation${conversations.length === 1 ? '' : 's'}? This action cannot be undone.`}
+          confirmLabel="Delete All"
+          cancelLabel="Cancel"
+          variant="danger"
+          onConfirm={onClearAll}
+        />
+
+        <ConfirmDialog
+          open={showDeleteDialog !== null}
+          onOpenChange={(open) => !open && setShowDeleteDialog(null)}
+          title="Delete Conversation"
+          description="Are you sure you want to delete this conversation? This action cannot be undone."
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          variant="danger"
+          onConfirm={() => showDeleteDialog && onDelete(showDeleteDialog)}
+        />
       </div>
     );
   }
@@ -227,9 +268,7 @@ export function ConversationSidebar({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm("Delete this conversation?")) {
-                          onDelete(conv.id);
-                        }
+                        setShowDeleteDialog(conv.id);
                       }}
                       className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-all"
                       title="Delete"
@@ -243,6 +282,42 @@ export function ConversationSidebar({
           </div>
         )}
       </div>
+
+      {/* Clear All Button */}
+      {conversations.length > 0 && (
+        <div className="p-3 border-t border-gray-200 dark:border-gray-800/50">
+          <button
+            onClick={() => setShowClearDialog(true)}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all duration-200"
+          >
+            <Trash className="w-4 h-4" />
+            Clear All Chats
+          </button>
+        </div>
+      )}
+
+      {/* Confirmation Dialogs */}
+      <ConfirmDialog
+        open={showClearDialog}
+        onOpenChange={setShowClearDialog}
+        title="Clear All Conversations"
+        description={`Are you sure you want to delete all ${conversations.length} conversation${conversations.length === 1 ? '' : 's'}? This action cannot be undone.`}
+        confirmLabel="Delete All"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={onClearAll}
+      />
+
+      <ConfirmDialog
+        open={showDeleteDialog !== null}
+        onOpenChange={(open) => !open && setShowDeleteDialog(null)}
+        title="Delete Conversation"
+        description="Are you sure you want to delete this conversation? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={() => showDeleteDialog && onDelete(showDeleteDialog)}
+      />
     </div>
   );
 }

@@ -67,6 +67,7 @@ services:
       - ./tracker:/app/tracker
       - ./core:/app/core:ro
       - ./docker/api/routers:/app/routers:ro
+      - ./docs:/app/docs:ro
     environment:
       - DUCKDB_PATH=/app/data/database/clinical.duckdb
       - DATA_DIR=/app/data

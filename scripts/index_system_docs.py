@@ -189,7 +189,11 @@ class DocumentationIndexer:
         return sections[:20]  # Limit sections per document
 
     def _clean_for_search(self, text: str) -> str:
-        """Clean markdown content for search indexing."""
+        """Clean markdown content for search indexing.
+
+        IMPORTANT: Preserves newlines to maintain markdown structure
+        (tables and lists require newlines to render correctly).
+        """
         # Remove code blocks
         text = re.sub(r'```[\s\S]*?```', '', text)
         # Remove inline code
@@ -202,8 +206,11 @@ class DocumentationIndexer:
         text = re.sub(r'<[^>]+>', '', text)
         # Remove horizontal rules
         text = re.sub(r'^---+$', '', text, flags=re.MULTILINE)
-        # Normalize whitespace
-        text = ' '.join(text.split())
+        # Normalize horizontal whitespace only (preserve newlines for markdown!)
+        # Replace multiple spaces/tabs with single space, but keep newlines
+        text = re.sub(r'[^\S\n]+', ' ', text)
+        # Collapse multiple blank lines into single blank line
+        text = re.sub(r'\n\s*\n', '\n\n', text)
         return text.strip()
 
     def _extract_keywords(self, content: str, title: str) -> List[str]:

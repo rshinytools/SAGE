@@ -17,7 +17,10 @@ from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException, Query, Depends
 
 # Add project root to path
-project_root = Path(__file__).parent.parent.parent.parent
+# In container: routers at /app/routers, core at /app/core, docs at /app/docs
+# On host: this file is at docker/api/routers/docs.py
+import os
+project_root = Path(os.environ.get('APP_ROOT', '/app'))
 sys.path.insert(0, str(project_root))
 
 from .auth import get_current_user

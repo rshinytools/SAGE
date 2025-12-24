@@ -25,8 +25,7 @@ import {
 import { WPBox } from "@/components/layout/WPBox";
 import { docsApi, type CategoryInfo, type DocumentDetail, type SearchResult, type AskResponse } from "@/api/docs";
 import { cn } from "@/lib/utils";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 // ============================================================================
 // Category Icon Mapping
@@ -257,11 +256,10 @@ function AskResponseCard({ response, onSourceClick }: AskResponseCardProps) {
           <p className="text-sm text-gray-500 dark:text-gray-400">Based on SAGE documentation</p>
         </div>
       </div>
-      <div className="prose prose-sm dark:prose-invert max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {response.answer}
-        </ReactMarkdown>
-      </div>
+      <MarkdownRenderer
+        content={response.answer}
+        className="prose prose-sm dark:prose-invert max-w-none"
+      />
       {response.sources.length > 0 && (
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Sources</h4>
@@ -350,12 +348,12 @@ function DocumentViewer({ document, onBack }: DocumentViewerProps) {
       <WPBox>
         <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-semibold prose-h2:text-xl prose-h3:text-lg prose-a:text-[var(--color-brand-600)] dark:prose-a:text-[var(--color-brand-400)] prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-code:text-[var(--color-brand-600)] dark:prose-code:text-[var(--color-brand-400)]">
           {rawContent ? (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {rawContent.content}
-            </ReactMarkdown>
+            <MarkdownRenderer content={rawContent.content} />
           ) : (
             <>
-              <p className="lead">{document.summary}</p>
+              {/* Summary with markdown rendering */}
+              <MarkdownRenderer content={document.summary} className="lead" />
+              {/* Sections with markdown rendering */}
               {document.sections.map((section, index) => (
                 <div key={index}>
                   {section.level === 2 ? (
@@ -363,7 +361,7 @@ function DocumentViewer({ document, onBack }: DocumentViewerProps) {
                   ) : (
                     <h3>{section.heading}</h3>
                   )}
-                  <p>{section.content}</p>
+                  <MarkdownRenderer content={section.content} />
                 </div>
               ))}
             </>

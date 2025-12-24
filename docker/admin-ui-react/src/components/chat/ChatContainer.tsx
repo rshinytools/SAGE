@@ -5,10 +5,12 @@ import { ChatInput } from "./ChatInput";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { chatApi } from "@/api/chat";
 import { useChatStore } from "@/stores/chatStore";
+import { useToast } from "@/components/common";
 import type { MessageMetadata } from "@/types/chat";
 
 export function ChatContainer() {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [initialMessage, setInitialMessage] = useState("");
 
@@ -27,6 +29,7 @@ export function ChatContainer() {
     appendStreamingContent,
     finishStreaming,
     cancelStreaming,
+    clearAll,
   } = useChatStore();
 
   // Fetch conversations
@@ -64,6 +67,26 @@ export function ChatContainer() {
     onSuccess: (_, id) => {
       removeConversation(id);
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      toast.success("Conversation deleted");
+    },
+    onError: () => {
+      toast.error("Failed to delete conversation");
+    },
+  });
+
+  // Clear all conversations mutation
+  const clearAllMutation = useMutation({
+    mutationFn: chatApi.deleteAllConversations,
+    onSuccess: (result) => {
+      clearAll();
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      toast.success(
+        "All conversations cleared",
+        `${result.deleted_count} conversation${result.deleted_count === 1 ? '' : 's'} deleted`
+      );
+    },
+    onError: () => {
+      toast.error("Failed to clear conversations");
     },
   });
 
@@ -163,6 +186,10 @@ export function ChatContainer() {
     renameConversationMutation.mutate({ id, title });
   };
 
+  const handleClearAll = () => {
+    clearAllMutation.mutate();
+  };
+
   const handleToggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
@@ -194,6 +221,7 @@ export function ChatContainer() {
         onNew={handleNewChat}
         onDelete={handleDeleteConversation}
         onRename={handleRenameConversation}
+        onClearAll={handleClearAll}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebar}
       />

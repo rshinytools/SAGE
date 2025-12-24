@@ -1,5 +1,273 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
+
+/* ==================== Typography/Prose Styles for Markdown ==================== */
+/* These provide styling for ReactMarkdown content */
+
+.prose {
+  color: var(--foreground);
+  max-width: 65ch;
+  line-height: 1.75;
+}
+
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.prose p:first-child {
+  margin-top: 0;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose h1 {
+  font-size: 2.25em;
+  margin-top: 0;
+  margin-bottom: 0.8888889em;
+  line-height: 1.1111111;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.prose h2 {
+  font-size: 1.5em;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  line-height: 1.3333333;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.prose h3 {
+  font-size: 1.25em;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.prose h4 {
+  font-size: 1em;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose a {
+  color: var(--color-brand-600);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.prose a:hover {
+  color: var(--color-brand-700);
+}
+
+.dark .prose a {
+  color: var(--color-brand-400);
+}
+
+.dark .prose a:hover {
+  color: var(--color-brand-300);
+}
+
+/* Code blocks */
+.prose code {
+  color: var(--color-brand-600);
+  background-color: var(--color-gray-100);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.dark .prose code {
+  color: var(--color-brand-400);
+  background-color: var(--color-gray-800);
+}
+
+.prose pre {
+  background-color: var(--color-gray-100);
+  border-radius: 0.5rem;
+  padding: 1em;
+  overflow-x: auto;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.dark .prose pre {
+  background-color: var(--color-gray-800);
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 0.875em;
+}
+
+/* Blockquotes */
+.prose blockquote {
+  font-style: italic;
+  border-left: 4px solid var(--color-gray-300);
+  padding-left: 1em;
+  margin-left: 0;
+  margin-top: 1.6em;
+  margin-bottom: 1.6em;
+  color: var(--color-gray-600);
+}
+
+.dark .prose blockquote {
+  border-left-color: var(--color-gray-600);
+  color: var(--color-gray-400);
+}
+
+/* Lists */
+.prose ul {
+  list-style-type: disc;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose li > ul,
+.prose li > ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Tables */
+.prose table {
+  width: 100%;
+  table-layout: auto;
+  text-align: left;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  font-size: 0.875em;
+  line-height: 1.7142857;
+  border-collapse: collapse;
+}
+
+.prose thead {
+  border-bottom: 2px solid var(--color-gray-300);
+}
+
+.dark .prose thead {
+  border-bottom-color: var(--color-gray-600);
+}
+
+.prose thead th {
+  font-weight: 600;
+  padding: 0.5714286em 0.8571429em;
+  vertical-align: bottom;
+  color: var(--foreground);
+}
+
+.prose tbody tr {
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.dark .prose tbody tr {
+  border-bottom-color: var(--color-gray-700);
+}
+
+.prose tbody tr:last-child {
+  border-bottom: none;
+}
+
+.prose tbody td {
+  padding: 0.5714286em 0.8571429em;
+  vertical-align: top;
+}
+
+/* Horizontal rules */
+.prose hr {
+  border-color: var(--color-gray-200);
+  margin-top: 3em;
+  margin-bottom: 3em;
+}
+
+.dark .prose hr {
+  border-color: var(--color-gray-700);
+}
+
+/* Images */
+.prose img {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-radius: 0.5rem;
+}
+
+/* Size variants */
+.prose-sm {
+  font-size: 0.875rem;
+  line-height: 1.7142857;
+}
+
+.prose-sm p {
+  margin-top: 1.1428571em;
+  margin-bottom: 1.1428571em;
+}
+
+.prose-lg {
+  font-size: 1.125rem;
+  line-height: 1.7777778;
+}
+
+/* Max width none */
+.prose.max-w-none {
+  max-width: none;
+}
+
+/* Dark mode prose-invert */
+.dark .prose,
+.prose-invert {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose strong,
+.prose-invert h1,
+.prose-invert h2,
+.prose-invert h3,
+.prose-invert h4,
+.prose-invert strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.dark .prose-invert,
+.dark.prose-invert {
+  color: rgba(255, 255, 255, 0.9);
+}
 
 /* TailAdmin-inspired Theme Variables */
 :root {

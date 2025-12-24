@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2025-12-20T21:41:26.201682",
+  "generated_at": "2025-12-21T17:24:47.258873",
   "documents": [
     {
       "id": "admin-guide/data-loading",
@@ -15,7 +15,7 @@
         },
         {
           "heading": "Prerequisites",
-          "content": "Before loading data: 1. SAGE services running 2. Access to SAS7BDAT files 3. Administrator permissions",
+          "content": "Before loading data:\n\n1. SAGE services running\n2. Access to SAS7BDAT files\n3. Administrator permissions",
           "level": 2
         },
         {
@@ -25,27 +25,27 @@
         },
         {
           "heading": "SDTM Domains",
-          "content": "| Domain | Description | |--------|-------------| | DM | Demographics | | AE | Adverse Events | | CM | Concomitant Medications | | LB | Laboratory | | VS | Vital Signs | | EX | Exposure | | MH | Medical History |",
+          "content": "| Domain | Description |\n|--------|-------------|\n| DM | Demographics |\n| AE | Adverse Events |\n| CM | Concomitant Medications |\n| LB | Laboratory |\n| VS | Vital Signs |\n| EX | Exposure |\n| MH | Medical History |",
           "level": 3
         },
         {
           "heading": "ADaM Datasets",
-          "content": "| Dataset | Description | |---------|-------------| | ADSL | Subject Level | | ADAE | Adverse Events Analysis | | ADLB | Laboratory Analysis | | ADTTE | Time-to-Event | | ADEFF | Efficacy |",
+          "content": "| Dataset | Description |\n|---------|-------------|\n| ADSL | Subject Level |\n| ADAE | Adverse Events Analysis |\n| ADLB | Laboratory Analysis |\n| ADTTE | Time-to-Event |\n| ADEFF | Efficacy |",
           "level": 3
         },
         {
           "heading": "After Loading Data",
-          "content": "1. **Load Metadata**: Run Factory 2 to process specifications 2. **Build Indexes**: Run Factory 3 to create fuzzy matching 3. **Verify**: Test queries in chat interface",
+          "content": "1. **Load Metadata**: Run Factory 2 to process specifications\n2. **Build Indexes**: Run Factory 3 to create fuzzy matching\n3. **Verify**: Test queries in chat interface",
           "level": 2
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Backup First**: Keep original SAS files safe 2. **Version Control**: Track which files were loaded 3. **Validate**: Check row counts match source 4. **Document**: Record loading date and version",
+          "content": "1. **Backup First**: Keep original SAS files safe\n2. **Version Control**: Track which files were loaded\n3. **Validate**: Check row counts match source\n4. **Document**: Record loading date and version",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Metadata Approval - Dictionary Building - User Management",
+          "content": "- Metadata Approval\n- Dictionary Building\n- User Management",
           "level": 2
         }
       ],
@@ -117,7 +117,7 @@
         },
         {
           "heading": "User Roles",
-          "content": "| Role | Permissions | |------|-------------| | **viewer** | Query data, view results | | **analyst** | Query data, export data | | **admin** | Full access, user management |",
+          "content": "| Role | Permissions |\n|------|-------------|\n| **viewer** | Query data, view results |\n| **analyst** | Query data, export data |\n| **admin** | Full access, user management |",
           "level": 2
         },
         {
@@ -132,7 +132,7 @@
         },
         {
           "heading": "Token Expiration",
-          "content": "| Setting | Default | |---------|---------| | Access token expiry | 24 hours | | Refresh window | Last 4 hours |",
+          "content": "| Setting | Default |\n|---------|---------|\n| Access token expiry | 24 hours |\n| Refresh window | Last 4 hours |",
           "level": 3
         },
         {
@@ -147,17 +147,17 @@
         },
         {
           "heading": "Audit",
-          "content": "All user management actions are logged: - User creation - Role changes - Password resets - Account deactivation See Audit Trail for details.",
+          "content": "All user management actions are logged:\n\n- User creation\n- Role changes\n- Password resets\n- Account deactivation\n\nSee Audit Trail for details.",
           "level": 2
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Principle of Least Privilege**: Assign minimum required roles 2. **Regular Review**: Audit user access monthly 3. **Strong Passwords**: Enforce password policy 4. **Prompt Deactivation**: Remove access when no longer needed",
+          "content": "1. **Principle of Least Privilege**: Assign minimum required roles\n2. **Regular Review**: Audit user access monthly\n3. **Strong Passwords**: Enforce password policy\n4. **Prompt Deactivation**: Remove access when no longer needed",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Data Loading - Access Controls",
+          "content": "- Data Loading\n- Access Controls",
           "level": 2
         }
       ],
@@ -203,52 +203,52 @@
       "sections": [
         {
           "heading": "Factory 1: Data Foundry",
-          "content": "**Purpose:** Transform raw clinical data files into a queryable database. | Input | Processing | Output | |-------|------------|--------| | SAS7BDAT files | SAS Reader → Parquet conversion | DuckDB database |",
+          "content": "**Purpose:** Transform raw clinical data files into a queryable database.\n\n| Input | Processing | Output |\n|-------|------------|--------|\n| SAS7BDAT files | SAS Reader → Parquet conversion | DuckDB database |",
           "level": 2
         },
         {
           "heading": "Key Components",
-          "content": "- **SASReader**: Reads SAS7BDAT files using - **DuckDBLoader**: Loads Parquet files into DuckDB - **SchemaTracker**: Tracks table versions and changes",
+          "content": "- **SASReader**: Reads SAS7BDAT files using \n- **DuckDBLoader**: Loads Parquet files into DuckDB\n- **SchemaTracker**: Tracks table versions and changes",
           "level": 3
         },
         {
           "heading": "Supported Datasets",
-          "content": "| Type | Common Tables | |------|--------------| | **SDTM** | DM, AE, CM, LB, VS, EX, MH | | **ADaM** | ADSL, ADAE, ADLB, ADTTE, ADEFF | Detailed Factory 1 documentation →",
+          "content": "| Type | Common Tables |\n|------|--------------|\n| **SDTM** | DM, AE, CM, LB, VS, EX, MH |\n| **ADaM** | ADSL, ADAE, ADLB, ADTTE, ADEFF |\n\nDetailed Factory 1 documentation →",
           "level": 3
         },
         {
           "heading": "Factory 2: Metadata Refinery",
-          "content": "**Purpose:** Transform Excel specifications into structured metadata with human oversight. | Input | Processing | Output | |-------|------------|--------| | Excel specs | Parse → CDISC enrich → Approve | Golden Metadata JSON |",
+          "content": "**Purpose:** Transform Excel specifications into structured metadata with human oversight.\n\n| Input | Processing | Output |\n|-------|------------|--------|\n| Excel specs | Parse → CDISC enrich → Approve | Golden Metadata JSON |",
           "level": 2
         },
         {
           "heading": "Key Components",
-          "content": "- **ExcelParser**: Parses SDTM/ADaM specification files - **CDISCLibrary**: Enriches with CDISC Controlled Terminology - **ApprovalWorkflow**: Human-in-the-loop validation - **MetadataStore**: Stores approved metadata",
+          "content": "- **ExcelParser**: Parses SDTM/ADaM specification files\n- **CDISCLibrary**: Enriches with CDISC Controlled Terminology\n- **ApprovalWorkflow**: Human-in-the-loop validation\n- **MetadataStore**: Stores approved metadata",
           "level": 3
         },
         {
           "heading": "Human-in-the-Loop",
-          "content": "!!! important \"Approval Required\" All metadata mappings require human approval before use. This ensures accuracy and audit compliance. Detailed Factory 2 documentation →",
+          "content": "!!! important \"Approval Required\"\n All metadata mappings require human approval before use. This ensures accuracy and audit compliance.\n\nDetailed Factory 2 documentation →",
           "level": 3
         },
         {
           "heading": "Factory 3: Dictionary Plant",
-          "content": "**Purpose:** Build fuzzy matching indexes from live data. | Input | Processing | Output | |-------|------------|--------| | DuckDB data | Value scanning → Index building | Fuzzy indexes |",
+          "content": "**Purpose:** Build fuzzy matching indexes from live data.\n\n| Input | Processing | Output |\n|-------|------------|--------|\n| DuckDB data | Value scanning → Index building | Fuzzy indexes |",
           "level": 2
         },
         {
           "heading": "Key Components",
-          "content": "- **ValueScanner**: Profiles unique values in each column - **FuzzyMatcher**: RapidFuzz-based term matching - **SchemaMapper**: Maps columns to concepts",
+          "content": "- **ValueScanner**: Profiles unique values in each column\n- **FuzzyMatcher**: RapidFuzz-based term matching\n- **SchemaMapper**: Maps columns to concepts",
           "level": 3
         },
         {
           "heading": "Fuzzy Matching Capabilities",
-          "content": "- Handles typos: → - Resolves synonyms: → - UK/US spellings: → , Detailed Factory 3 documentation →",
+          "content": "- Handles typos: → \n- Resolves synonyms: → \n- UK/US spellings: → , \n\nDetailed Factory 3 documentation →",
           "level": 3
         },
         {
           "heading": "Factory 3.5: MedDRA Integration",
-          "content": "**Purpose:** Provide medical terminology hierarchy support. | Input | Processing | Output | |-------|------------|--------| | MedDRA files | Loader → Hierarchy builder | MedDRA Lookup |",
+          "content": "**Purpose:** Provide medical terminology hierarchy support.\n\n| Input | Processing | Output |\n|-------|------------|--------|\n| MedDRA files | Loader → Hierarchy builder | MedDRA Lookup |",
           "level": 2
         },
         {
@@ -263,7 +263,7 @@
         },
         {
           "heading": "The 9-Step Pipeline",
-          "content": "| Step | Component | Purpose | |------|-----------|---------| | 1 | InputSanitizer | Block PHI/PII, SQL injection | | 2 | EntityExtractor | Extract clinical terms | | 3 | TableResolver | Select table, apply clinical rules | | 4 | ContextBuilder | Prepare LLM context | | 5 | SQLGenerator | Generate DuckDB SQL | | 6 | SQLValidator | Validate SQL safety | | 7 | Executor | Execute against DuckDB | | 8 | ConfidenceScorer | Calculate confidence | | 9 | ExplanationGenerator | Build human response | Detailed Factory 4 documentation →",
+          "content": "| Step | Component | Purpose |\n|------|-----------|---------|\n| 1 | InputSanitizer | Block PHI/PII, SQL injection |\n| 2 | EntityExtractor | Extract clinical terms |\n| 3 | TableResolver | Select table, apply clinical rules |\n| 4 | ContextBuilder | Prepare LLM context |\n| 5 | SQLGenerator | Generate DuckDB SQL |\n| 6 | SQLValidator | Validate SQL safety |\n| 7 | Executor | Execute against DuckDB |\n| 8 | ConfidenceScorer | Calculate confidence |\n| 9 | ExplanationGenerator | Build human response |\n\nDetailed Factory 4 documentation →",
           "level": 3
         },
         {
@@ -278,17 +278,17 @@
         },
         {
           "heading": "3. Transparency",
-          "content": "Every answer includes: - The SQL query executed - The table and columns used - Any assumptions made - A confidence score",
+          "content": "Every answer includes:\n\n- The SQL query executed\n- The table and columns used\n- Any assumptions made\n- A confidence score",
           "level": 3
         },
         {
           "heading": "4. Security First",
-          "content": "- PHI/PII detection and blocking - SQL injection prevention - Read-only database access - Full audit logging",
+          "content": "- PHI/PII detection and blocking\n- SQL injection prevention\n- Read-only database access\n- Full audit logging",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- Data Flow Details - Security Model - Technology Stack",
+          "content": "- Data Flow Details\n- Security Model\n- Technology Stack",
           "level": 2
         }
       ],
@@ -355,57 +355,57 @@
       "sections": [
         {
           "heading": "Input",
-          "content": "- **Format:** SAS7BDAT files - **Location:** - **Types:** SDTM domains, ADaM datasets",
+          "content": "- **Format:** SAS7BDAT files\n- **Location:** \n- **Types:** SDTM domains, ADaM datasets",
           "level": 3
         },
         {
           "heading": "Processing Steps",
-          "content": "1. **SASReader**: Reads SAS file using 2. **DataFrame**: Converts to Pandas DataFrame 3. **Type Conversion**: Standardizes data types (dates, numerics) 4. **Parquet Export**: Writes columnar Parquet file 5. **DuckDB Load**: Creates table from Parquet",
+          "content": "1. **SASReader**: Reads SAS file using \n2. **DataFrame**: Converts to Pandas DataFrame\n3. **Type Conversion**: Standardizes data types (dates, numerics)\n4. **Parquet Export**: Writes columnar Parquet file\n5. **DuckDB Load**: Creates table from Parquet",
           "level": 3
         },
         {
           "heading": "Output",
-          "content": "- **Location:** - **Tables:** One per input file (DM, AE, ADSL, ADAE, etc.)",
+          "content": "- **Location:** \n- **Tables:** One per input file (DM, AE, ADSL, ADAE, etc.)",
           "level": 3
         },
         {
           "heading": "Input",
-          "content": "- **Format:** Excel specification files - **Location:** - **Content:** Variable definitions, codelists, domain specifications",
+          "content": "- **Format:** Excel specification files\n- **Location:** \n- **Content:** Variable definitions, codelists, domain specifications",
           "level": 3
         },
         {
           "heading": "Processing Steps",
-          "content": "1. **ExcelParser**: Extracts variable definitions 2. **Raw Metadata**: Structured representation 3. **CDISC Enrichment**: Adds controlled terminology 4. **Human Review**: Admin reviews mappings 5. **Approval**: Human approves each variable 6. **Golden Metadata**: Final approved JSON",
+          "content": "1. **ExcelParser**: Extracts variable definitions\n2. **Raw Metadata**: Structured representation\n3. **CDISC Enrichment**: Adds controlled terminology\n4. **Human Review**: Admin reviews mappings\n5. **Approval**: Human approves each variable\n6. **Golden Metadata**: Final approved JSON",
           "level": 3
         },
         {
           "heading": "Output",
-          "content": "- **Location:** - **Content:** Approved variable definitions with descriptions",
+          "content": "- **Location:** \n- **Content:** Approved variable definitions with descriptions",
           "level": 3
         },
         {
           "heading": "Input",
-          "content": "- **Source:** Live DuckDB data - **Tables:** All loaded tables",
+          "content": "- **Source:** Live DuckDB data\n- **Tables:** All loaded tables",
           "level": 3
         },
         {
           "heading": "Processing Steps",
-          "content": "1. **ValueScanner**: Scans all columns for unique values 2. **Unique Values**: Collects distinct values per column 3. **FuzzyMatcher Build**: Creates RapidFuzz index 4. **SchemaMapper**: Maps columns to clinical concepts",
+          "content": "1. **ValueScanner**: Scans all columns for unique values\n2. **Unique Values**: Collects distinct values per column\n3. **FuzzyMatcher Build**: Creates RapidFuzz index\n4. **SchemaMapper**: Maps columns to clinical concepts",
           "level": 3
         },
         {
           "heading": "Output",
-          "content": "- **Fuzzy Index:** - **Schema Map:**",
+          "content": "- **Fuzzy Index:** \n- **Schema Map:**",
           "level": 3
         },
         {
           "heading": "Input",
-          "content": "- **Format:** MedDRA ASCII files - **Content:** Medical terminology hierarchy",
+          "content": "- **Format:** MedDRA ASCII files\n- **Content:** Medical terminology hierarchy",
           "level": 3
         },
         {
           "heading": "Processing Steps",
-          "content": "1. **MedDRALoader**: Parses MedDRA ASCII files 2. **Hierarchy Build**: Constructs SOC→PT→LLT tree 3. **SQLite DB**: Stores for fast lookup 4. **MedDRALookup**: Query interface",
+          "content": "1. **MedDRALoader**: Parses MedDRA ASCII files\n2. **Hierarchy Build**: Constructs SOC→PT→LLT tree\n3. **SQLite DB**: Stores for fast lookup\n4. **MedDRALookup**: Query interface",
           "level": 3
         },
         {
@@ -415,7 +415,7 @@
         },
         {
           "heading": "Step-by-Step Detail",
-          "content": "#### Step 1: Input Sanitization #### Step 2: Entity Extraction #### Step 3: Table Resolution #### Step 4: Context Building #### Step 5: SQL Generation #### Step 6: SQL Validation #### Step 7: Execution #### Step 8: Confidence Scoring #### Step 9: Explanation Generation",
+          "content": "#### Step 1: Input Sanitization\n\n#### Step 2: Entity Extraction\n\n#### Step 3: Table Resolution\n\n#### Step 4: Context Building\n\n#### Step 5: SQL Generation\n\n#### Step 6: SQL Validation\n\n#### Step 7: Execution\n\n#### Step 8: Confidence Scoring\n\n#### Step 9: Explanation Generation",
           "level": 3
         },
         {
@@ -425,7 +425,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- Security Model - Technology Stack - Pipeline Steps Detail",
+          "content": "- Security Model\n- Technology Stack\n- Pipeline Steps Detail",
           "level": 2
         }
       ],
@@ -497,17 +497,17 @@
         },
         {
           "heading": "Role-Based Access Control (RBAC)",
-          "content": "| Role | Permissions | |------|-------------| | **viewer** | Read-only query access | | **analyst** | Query access + export | | **admin** | Full access + configuration |",
+          "content": "| Role | Permissions |\n|------|-------------|\n| **viewer** | Read-only query access |\n| **analyst** | Query access + export |\n| **admin** | Full access + configuration |",
           "level": 3
         },
         {
           "heading": "PHI/PII Blocking",
-          "content": "SAGE detects and blocks personally identifiable information: **Implementation:** !!! danger \"Blocked Query Example\"",
+          "content": "SAGE detects and blocks personally identifiable information:\n\n**Implementation:** \n\n!!! danger \"Blocked Query Example\"",
           "level": 3
         },
         {
           "heading": "SQL Injection Prevention",
-          "content": "Multi-layer SQL injection protection: 1. **Pattern Detection**: Blocks common injection patterns 2. **Query Parsing**: Validates SQL syntax 3. **Parameterization**: Never concatenates user input into SQL **Implementation:**",
+          "content": "Multi-layer SQL injection protection:\n\n1. **Pattern Detection**: Blocks common injection patterns\n2. **Query Parsing**: Validates SQL syntax\n3. **Parameterization**: Never concatenates user input into SQL\n\n**Implementation:**",
           "level": 3
         },
         {
@@ -517,7 +517,7 @@
         },
         {
           "heading": "Pre-Execution Checks",
-          "content": "Before any SQL runs, it must pass: | Check | Description | |-------|-------------| | **Syntax Valid** | Parses without errors | | **Tables Exist** | All referenced tables are real | | **Columns Exist** | All referenced columns are real | | **Read-Only** | No INSERT, UPDATE, DELETE, DROP | | **No Subversions** | No dangerous patterns |",
+          "content": "Before any SQL runs, it must pass:\n\n| Check | Description |\n|-------|-------------|\n| **Syntax Valid** | Parses without errors |\n| **Tables Exist** | All referenced tables are real |\n| **Columns Exist** | All referenced columns are real |\n| **Read-Only** | No INSERT, UPDATE, DELETE, DROP |\n| **No Subversions** | No dangerous patterns |",
           "level": 3
         },
         {
@@ -532,32 +532,32 @@
         },
         {
           "heading": "Query Logging",
-          "content": "Every query is logged with full traceability: **Storage:**",
+          "content": "Every query is logged with full traceability:\n\n**Storage:**",
           "level": 3
         },
         {
           "heading": "Compliance Fields",
-          "content": "| Field | Purpose | |-------|---------| | | When query occurred | | | Who ran the query | | | Conversation context | | | Original natural language | | | Actual SQL executed | | | Data sources used | | | Number of rows returned | | | Answer reliability |",
+          "content": "| Field | Purpose |\n|-------|---------|\n| | When query occurred |\n| | Who ran the query |\n| | Conversation context |\n| | Original natural language |\n| | Actual SQL executed |\n| | Data sources used |\n| | Number of rows returned |\n| | Answer reliability |",
           "level": 3
         },
         {
           "heading": "Production Checklist",
-          "content": "- [ ] JWT_SECRET_KEY is unique and secure - [ ] All blocking features are enabled - [ ] ALLOW_WRITE_OPERATIONS is false - [ ] Audit logging is configured - [ ] Network isolation is in place - [ ] TLS/SSL is enabled (reverse proxy)",
+          "content": "- [ ] JWT_SECRET_KEY is unique and secure\n- [ ] All blocking features are enabled\n- [ ] ALLOW_WRITE_OPERATIONS is false\n- [ ] Audit logging is configured\n- [ ] Network isolation is in place\n- [ ] TLS/SSL is enabled (reverse proxy)",
           "level": 3
         },
         {
           "heading": "Threat Mitigation",
-          "content": "| Threat | Mitigation | |--------|------------| | **Unauthorized Access** | JWT authentication, RBAC | | **PHI Exposure** | PHI pattern blocking | | **SQL Injection** | Pattern detection, validation | | **Prompt Injection** | Pattern detection | | **Data Modification** | Read-only database | | **Resource Exhaustion** | Timeouts, result limits | | **Audit Evasion** | Mandatory query logging |",
+          "content": "| Threat | Mitigation |\n|--------|------------|\n| **Unauthorized Access** | JWT authentication, RBAC |\n| **PHI Exposure** | PHI pattern blocking |\n| **SQL Injection** | Pattern detection, validation |\n| **Prompt Injection** | Pattern detection |\n| **Data Modification** | Read-only database |\n| **Resource Exhaustion** | Timeouts, result limits |\n| **Audit Evasion** | Mandatory query logging |",
           "level": 2
         },
         {
           "heading": "Compliance",
-          "content": "SAGE security model supports: - **GAMP 5**: Category 4 validation - **21 CFR Part 11**: Audit trails - **GxP**: Data integrity controls See Compliance Documentation for details.",
+          "content": "SAGE security model supports:\n\n- **GAMP 5**: Category 4 validation\n- **21 CFR Part 11**: Audit trails\n- **GxP**: Data integrity controls\n\nSee Compliance Documentation for details.",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Technology Stack - Access Controls - Audit Trail",
+          "content": "- Technology Stack\n- Access Controls\n- Audit Trail",
           "level": 2
         }
       ],
@@ -624,22 +624,22 @@
       "sections": [
         {
           "heading": "AI/LLM: Claude API",
-          "content": "| Property | Value | |----------|-------| | **Provider** | Anthropic | | **Model** | claude-sonnet-4-20250514 | | **Purpose** | Natural language → SQL translation | | **Temperature** | 0 (deterministic) | **Why Claude?** - Excellent SQL generation capabilities - Low hallucination rate - Fast response times - Enterprise-grade reliability",
+          "content": "| Property | Value |\n|----------|-------|\n| **Provider** | Anthropic |\n| **Model** | claude-sonnet-4-20250514 |\n| **Purpose** | Natural language → SQL translation |\n| **Temperature** | 0 (deterministic) |\n\n**Why Claude?**\n\n- Excellent SQL generation capabilities\n- Low hallucination rate\n- Fast response times\n- Enterprise-grade reliability",
           "level": 3
         },
         {
           "heading": "Database: DuckDB",
-          "content": "| Property | Value | |----------|-------| | **Type** | Embedded OLAP database | | **Format** | Columnar storage | | **Mode** | Read-only | | **File** | | **Why DuckDB?** - Blazing fast analytical queries - No server required - Native Parquet support - SQL standard compliant",
+          "content": "| Property | Value |\n|----------|-------|\n| **Type** | Embedded OLAP database |\n| **Format** | Columnar storage |\n| **Mode** | Read-only |\n| **File** | |\n\n**Why DuckDB?**\n\n- Blazing fast analytical queries\n- No server required\n- Native Parquet support\n- SQL standard compliant",
           "level": 3
         },
         {
           "heading": "Fuzzy Matching: RapidFuzz",
-          "content": "| Property | Value | |----------|-------| | **Library** | RapidFuzz | | **Algorithm** | Levenshtein distance | | **Speed** | C++ optimized | **Why RapidFuzz?** - 10-100x faster than alternatives - Handles medical terminology well - Configurable thresholds",
+          "content": "| Property | Value |\n|----------|-------|\n| **Library** | RapidFuzz |\n| **Algorithm** | Levenshtein distance |\n| **Speed** | C++ optimized |\n\n**Why RapidFuzz?**\n\n- 10-100x faster than alternatives\n- Handles medical terminology well\n- Configurable thresholds",
           "level": 3
         },
         {
           "heading": "FastAPI",
-          "content": "| Property | Value | |----------|-------| | **Framework** | FastAPI | | **Python** | 3.11+ | | **Async** | Full async/await support | | **Docs** | Auto-generated OpenAPI | **Why FastAPI?** - High performance - Automatic validation - Built-in OpenAPI docs - Type hints throughout",
+          "content": "| Property | Value |\n|----------|-------|\n| **Framework** | FastAPI |\n| **Python** | 3.11+ |\n| **Async** | Full async/await support |\n| **Docs** | Auto-generated OpenAPI |\n\n**Why FastAPI?**\n\n- High performance\n- Automatic validation\n- Built-in OpenAPI docs\n- Type hints throughout",
           "level": 3
         },
         {
@@ -649,12 +649,12 @@
         },
         {
           "heading": "React + TypeScript",
-          "content": "| Property | Value | |----------|-------| | **Framework** | React 18 | | **Language** | TypeScript | | **Build** | Vite | | **Styling** | Tailwind CSS | **Key Components:** - Chat interface with streaming - Confidence score badges - SQL viewer with syntax highlighting - Admin dashboard",
+          "content": "| Property | Value |\n|----------|-------|\n| **Framework** | React 18 |\n| **Language** | TypeScript |\n| **Build** | Vite |\n| **Styling** | Tailwind CSS |\n\n**Key Components:**\n\n- Chat interface with streaming\n- Confidence score badges\n- SQL viewer with syntax highlighting\n- Admin dashboard",
           "level": 3
         },
         {
           "heading": "UI Libraries",
-          "content": "| Library | Purpose | |---------|---------| | **Tailwind CSS** | Utility-first styling | | **Lucide React** | Icons | | **React Query** | API state management | | **React Router** | Navigation |",
+          "content": "| Library | Purpose |\n|---------|---------|\n| **Tailwind CSS** | Utility-first styling |\n| **Lucide React** | Icons |\n| **React Query** | API state management |\n| **React Router** | Navigation |",
           "level": 3
         },
         {
@@ -664,62 +664,62 @@
         },
         {
           "heading": "Nginx",
-          "content": "Reverse proxy for: - SSL termination - Static file serving - Load balancing (if needed)",
+          "content": "Reverse proxy for:\n\n- SSL termination\n- Static file serving\n- Load balancing (if needed)",
           "level": 3
         },
         {
           "heading": "Container Images",
-          "content": "| Service | Base Image | |---------|------------| | API | python:3.11-slim | | UI | node:20-alpine (build) + nginx:alpine | | Docs | squidfunk/mkdocs-material |",
+          "content": "| Service | Base Image |\n|---------|------------|\n| API | python:3.11-slim |\n| UI | node:20-alpine (build) + nginx:alpine |\n| Docs | squidfunk/mkdocs-material |",
           "level": 3
         },
         {
           "heading": "Prometheus",
-          "content": "Collects metrics: - Query latency - Error rates - Confidence score distribution - API request counts",
+          "content": "Collects metrics:\n\n- Query latency\n- Error rates\n- Confidence score distribution\n- API request counts",
           "level": 3
         },
         {
           "heading": "Grafana",
-          "content": "Pre-configured dashboards: - System health - Query performance - User activity - Error analysis",
+          "content": "Pre-configured dashboards:\n\n- System health\n- Query performance\n- User activity\n- Error analysis",
           "level": 3
         },
         {
           "heading": "Parquet Files",
-          "content": "Intermediate storage format: | Property | Value | |----------|-------| | **Format** | Apache Parquet | | **Compression** | Snappy | | **Schema** | Self-describing | **Benefits:** - 10x smaller than CSV - Column pruning (read only needed columns) - Predicate pushdown",
+          "content": "Intermediate storage format:\n\n| Property | Value |\n|----------|-------|\n| **Format** | Apache Parquet |\n| **Compression** | Snappy |\n| **Schema** | Self-describing |\n\n**Benefits:**\n\n- 10x smaller than CSV\n- Column pruning (read only needed columns)\n- Predicate pushdown",
           "level": 3
         },
         {
           "heading": "MedDRA Integration",
-          "content": "| Property | Value | |----------|-------| | **Storage** | SQLite | | **Hierarchy** | SOC → HLGT → HLT → PT → LLT | | **Version** | Configurable |",
+          "content": "| Property | Value |\n|----------|-------|\n| **Storage** | SQLite |\n| **Hierarchy** | SOC → HLGT → HLT → PT → LLT |\n| **Version** | Configurable |",
           "level": 3
         },
         {
           "heading": "Medical Synonyms",
-          "content": "Built-in dictionary for: - UK/US spellings (anaemia/anemia) - Colloquial terms (belly pain → ABDOMINAL PAIN) - Complex phrases (low blood cell count → WBC DECREASED)",
+          "content": "Built-in dictionary for:\n\n- UK/US spellings (anaemia/anemia)\n- Colloquial terms (belly pain → ABDOMINAL PAIN)\n- Complex phrases (low blood cell count → WBC DECREASED)",
           "level": 3
         },
         {
           "heading": "MkDocs Material",
-          "content": "| Property | Value | |----------|-------| | **Theme** | Material for MkDocs | | **Features** | Search, dark mode, code highlighting | | **Diagrams** | Mermaid support |",
+          "content": "| Property | Value |\n|----------|-------|\n| **Theme** | Material for MkDocs |\n| **Features** | Search, dark mode, code highlighting |\n| **Diagrams** | Mermaid support |",
           "level": 3
         },
         {
           "heading": "System Requirements",
-          "content": "| Component | Minimum | Recommended | |-----------|---------|-------------| | Python | 3.11 | 3.12 | | Docker | 24.0 | Latest | | RAM | 16 GB | 32+ GB | | Storage | 50 GB SSD | 200+ GB SSD |",
+          "content": "| Component | Minimum | Recommended |\n|-----------|---------|-------------|\n| Python | 3.11 | 3.12 |\n| Docker | 24.0 | Latest |\n| RAM | 16 GB | 32+ GB |\n| Storage | 50 GB SSD | 200+ GB SSD |",
           "level": 3
         },
         {
           "heading": "Performance Characteristics",
-          "content": "| Operation | Typical Time | |-----------|-------------| | Query sanitization | <10ms | | Entity extraction | <50ms | | SQL generation (Claude) | 500-2000ms | | SQL execution (DuckDB) | 10-500ms | | **Total query time** | **1-3 seconds** |",
+          "content": "| Operation | Typical Time |\n|-----------|-------------|\n| Query sanitization | <10ms |\n| Entity extraction | <50ms |\n| SQL generation (Claude) | 500-2000ms |\n| SQL execution (DuckDB) | 10-500ms |\n| **Total query time** | **1-3 seconds** |",
           "level": 2
         },
         {
           "heading": "Optimization Features",
-          "content": "- Query caching - Connection pooling - Lazy loading of indexes - Result pagination",
+          "content": "- Query caching\n- Connection pooling\n- Lazy loading of indexes\n- Result pagination",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- Architecture Overview - Data Flow - Security Model",
+          "content": "- Architecture Overview\n- Data Flow\n- Security Model",
           "level": 2
         }
       ],
@@ -786,57 +786,57 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "Every user action is logged with: - Who performed the action - When it occurred - What was requested - What was returned - How long it took",
+          "content": "Every user action is logged with:\n\n- Who performed the action\n- When it occurred\n- What was requested\n- What was returned\n- How long it took",
           "level": 2
         },
         {
           "heading": "Query Events",
-          "content": "| Field | Description | |-------|-------------| | timestamp | ISO 8601 timestamp | | event_type | \"query\" | | user_id | Authenticated user | | session_id | Conversation ID | | query | Original question | | sql_generated | Generated SQL | | tables_accessed | Tables queried | | columns_used | Columns in query | | result_count | Rows returned | | confidence_score | 0-100 score | | execution_time_ms | Processing time |",
+          "content": "| Field | Description |\n|-------|-------------|\n| timestamp | ISO 8601 timestamp |\n| event_type | \"query\" |\n| user_id | Authenticated user |\n| session_id | Conversation ID |\n| query | Original question |\n| sql_generated | Generated SQL |\n| tables_accessed | Tables queried |\n| columns_used | Columns in query |\n| result_count | Rows returned |\n| confidence_score | 0-100 score |\n| execution_time_ms | Processing time |",
           "level": 3
         },
         {
           "heading": "Authentication Events",
-          "content": "| Field | Description | |-------|-------------| | timestamp | ISO 8601 timestamp | | event_type | \"login\", \"logout\", \"failed_login\" | | user_id | Attempted user | | ip_address | Client IP | | success | true/false | | failure_reason | If applicable |",
+          "content": "| Field | Description |\n|-------|-------------|\n| timestamp | ISO 8601 timestamp |\n| event_type | \"login\", \"logout\", \"failed_login\" |\n| user_id | Attempted user |\n| ip_address | Client IP |\n| success | true/false |\n| failure_reason | If applicable |",
           "level": 3
         },
         {
           "heading": "System Events",
-          "content": "| Field | Description | |-------|-------------| | timestamp | ISO 8601 timestamp | | event_type | \"startup\", \"shutdown\", \"config_change\" | | performed_by | User or \"system\" | | details | Event specifics |",
+          "content": "| Field | Description |\n|-------|-------------|\n| timestamp | ISO 8601 timestamp |\n| event_type | \"startup\", \"shutdown\", \"config_change\" |\n| performed_by | User or \"system\" |\n| details | Event specifics |",
           "level": 3
         },
         {
           "heading": "Retention",
-          "content": "| Log Type | Default Retention | |----------|-------------------| | Query logs | 7 years | | Auth logs | 3 years | | System logs | 1 year |",
+          "content": "| Log Type | Default Retention |\n|----------|-------------------|\n| Query logs | 7 years |\n| Auth logs | 3 years |\n| System logs | 1 year |",
           "level": 3
         },
         {
           "heading": "Format",
-          "content": "- JSON Lines (.jsonl) - One record per line - Timestamped filenames - Compressed after 7 days",
+          "content": "- JSON Lines (.jsonl)\n- One record per line\n- Timestamped filenames\n- Compressed after 7 days",
           "level": 3
         },
         {
           "heading": "21 CFR Part 11",
-          "content": "| Requirement | SAGE Implementation | |-------------|---------------------| | 11.10(b) - Generate accurate copies | Export to CSV/PDF | | 11.10(c) - Record protection | Read-only logs, backups | | 11.10(e) - Audit trail | Comprehensive logging | | 11.10(g) - Authority checks | RBAC enforcement | | 11.10(k) - Device checks | Session management |",
+          "content": "| Requirement | SAGE Implementation |\n|-------------|---------------------|\n| 11.10(b) - Generate accurate copies | Export to CSV/PDF |\n| 11.10(c) - Record protection | Read-only logs, backups |\n| 11.10(e) - Audit trail | Comprehensive logging |\n| 11.10(g) - Authority checks | RBAC enforcement |\n| 11.10(k) - Device checks | Session management |",
           "level": 3
         },
         {
           "heading": "EU Annex 11",
-          "content": "| Requirement | SAGE Implementation | |-------------|---------------------| | 9 - Audit trail | Query/auth logging | | 12.1 - Security | Access controls | | 12.4 - Audit trail | Cannot modify logs |",
+          "content": "| Requirement | SAGE Implementation |\n|-------------|---------------------|\n| 9 - Audit trail | Query/auth logging |\n| 12.1 - Security | Access controls |\n| 12.4 - Audit trail | Cannot modify logs |",
           "level": 3
         },
         {
           "heading": "Immutability",
-          "content": "Logs cannot be modified after creation: - Append-only file format - Hash chains for verification - Regular backup to secure storage",
+          "content": "Logs cannot be modified after creation:\n- Append-only file format\n- Hash chains for verification\n- Regular backup to secure storage",
           "level": 3
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Regular Review**: Check logs weekly for anomalies 2. **Secure Storage**: Store backups off-site 3. **Access Control**: Limit who can view logs 4. **Retention Policy**: Follow regulatory requirements 5. **Integrity Checks**: Verify hash chains regularly",
+          "content": "1. **Regular Review**: Check logs weekly for anomalies\n2. **Secure Storage**: Store backups off-site\n3. **Access Control**: Limit who can view logs\n4. **Retention Policy**: Follow regulatory requirements\n5. **Integrity Checks**: Verify hash chains regularly",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Data Integrity - Access Controls - Validation Summary",
+          "content": "- Data Integrity\n- Access Controls\n- Validation Summary",
           "level": 2
         }
       ],
@@ -903,97 +903,97 @@
       "sections": [
         {
           "heading": "GAMP 5 Classification",
-          "content": "**Category 4: Configured Software Product** SAGE is a configurable software product that: - Uses standard commercial components (DuckDB, FastAPI, React) - Is configured for clinical trial data analysis - Does not require custom programming for basic use - Follows risk-based validation approach",
+          "content": "**Category 4: Configured Software Product**\n\nSAGE is a configurable software product that:\n- Uses standard commercial components (DuckDB, FastAPI, React)\n- Is configured for clinical trial data analysis\n- Does not require custom programming for basic use\n- Follows risk-based validation approach",
           "level": 3
         },
         {
           "heading": "Applicable Regulations",
-          "content": "| Regulation | Applicability | |------------|---------------| | 21 CFR Part 11 | Electronic records, audit trails | | EU Annex 11 | Computerized systems | | ICH E6(R2) | Good Clinical Practice | | GAMP 5 | Validation approach |",
+          "content": "| Regulation | Applicability |\n|------------|---------------|\n| 21 CFR Part 11 | Electronic records, audit trails |\n| EU Annex 11 | Computerized systems |\n| ICH E6(R2) | Good Clinical Practice |\n| GAMP 5 | Validation approach |",
           "level": 3
         },
         {
           "heading": "Risk-Based Validation",
-          "content": "SAGE follows a risk-based approach to validation: 1. **Risk Assessment**: Identify and assess risks 2. **Functional Specification**: Document intended use 3. **Configuration Specification**: Document settings 4. **Testing**: Verify configuration and function 5. **Traceability**: Map requirements to tests",
+          "content": "SAGE follows a risk-based approach to validation:\n\n1. **Risk Assessment**: Identify and assess risks\n2. **Functional Specification**: Document intended use\n3. **Configuration Specification**: Document settings\n4. **Testing**: Verify configuration and function\n5. **Traceability**: Map requirements to tests",
           "level": 3
         },
         {
           "heading": "Validation Documents",
-          "content": "| Document | Purpose | |----------|---------| | Validation Plan | Overall validation strategy | | User Requirements | What users need | | Functional Specification | What system does | | Configuration Specification | How system is configured | | Test Protocols | How to verify | | Traceability Matrix | Req → Test mapping | | Validation Report | Summary of results |",
+          "content": "| Document | Purpose |\n|----------|---------|\n| Validation Plan | Overall validation strategy |\n| User Requirements | What users need |\n| Functional Specification | What system does |\n| Configuration Specification | How system is configured |\n| Test Protocols | How to verify |\n| Traceability Matrix | Req → Test mapping |\n| Validation Report | Summary of results |",
           "level": 3
         },
         {
           "heading": "Data Integrity (ALCOA+)",
-          "content": "| Principle | Implementation | |-----------|----------------| | **Attributable** | All queries logged with user ID | | **Legible** | Results displayed clearly | | **Contemporaneous** | Timestamps on all actions | | **Original** | Raw data preserved in DuckDB | | **Accurate** | SQL executed deterministically |",
+          "content": "| Principle | Implementation |\n|-----------|----------------|\n| **Attributable** | All queries logged with user ID |\n| **Legible** | Results displayed clearly |\n| **Contemporaneous** | Timestamps on all actions |\n| **Original** | Raw data preserved in DuckDB |\n| **Accurate** | SQL executed deterministically |",
           "level": 3
         },
         {
           "heading": "Electronic Records",
-          "content": "| Requirement | Implementation | |-------------|----------------| | User Authentication | JWT tokens required | | Audit Trail | Query logging | | Record Retention | Configurable retention | | System Documentation | This documentation |",
+          "content": "| Requirement | Implementation |\n|-------------|----------------|\n| User Authentication | JWT tokens required |\n| Audit Trail | Query logging |\n| Record Retention | Configurable retention |\n| System Documentation | This documentation |",
           "level": 3
         },
         {
           "heading": "Access Control",
-          "content": "| Control | Implementation | |---------|----------------| | Authentication | Username/password + JWT | | Authorization | Role-based access (RBAC) | | Session Management | Token expiration | | Password Policy | Configurable requirements |",
+          "content": "| Control | Implementation |\n|---------|----------------|\n| Authentication | Username/password + JWT |\n| Authorization | Role-based access (RBAC) |\n| Session Management | Token expiration |\n| Password Policy | Configurable requirements |",
           "level": 3
         },
         {
           "heading": "Data Protection",
-          "content": "| Control | Implementation | |---------|----------------| | PHI Blocking | Input sanitization | | SQL Injection Prevention | Pattern detection + validation | | Read-Only Access | Database opened read-only | | Encryption | TLS for network traffic |",
+          "content": "| Control | Implementation |\n|---------|----------------|\n| PHI Blocking | Input sanitization |\n| SQL Injection Prevention | Pattern detection + validation |\n| Read-Only Access | Database opened read-only |\n| Encryption | TLS for network traffic |",
           "level": 3
         },
         {
           "heading": "Logged Events",
-          "content": "| Event | Data Captured | |-------|---------------| | Query Submitted | User, timestamp, query text | | SQL Generated | SQL, tables, columns | | Result Returned | Row count, confidence | | Error Occurred | Error message, stage |",
+          "content": "| Event | Data Captured |\n|-------|---------------|\n| Query Submitted | User, timestamp, query text |\n| SQL Generated | SQL, tables, columns |\n| Result Returned | Row count, confidence |\n| Error Occurred | Error message, stage |",
           "level": 3
         },
         {
           "heading": "Functional Requirements",
-          "content": "| ID | Requirement | Test | |----|-------------|------| | FR-001 | Translate natural language to SQL | Golden suite tests | | FR-002 | Execute SQL against DuckDB | Execution tests | | FR-003 | Calculate confidence scores | Scoring tests | | FR-004 | Maintain conversation context | Session tests |",
+          "content": "| ID | Requirement | Test |\n|----|-------------|------|\n| FR-001 | Translate natural language to SQL | Golden suite tests |\n| FR-002 | Execute SQL against DuckDB | Execution tests |\n| FR-003 | Calculate confidence scores | Scoring tests |\n| FR-004 | Maintain conversation context | Session tests |",
           "level": 3
         },
         {
           "heading": "Security Requirements",
-          "content": "| ID | Requirement | Test | |----|-------------|------| | SEC-001 | Block PHI in queries | Sanitizer tests | | SEC-002 | Prevent SQL injection | Validator tests | | SEC-003 | Authenticate users | Auth tests | | SEC-004 | Log all queries | Audit tests |",
+          "content": "| ID | Requirement | Test |\n|----|-------------|------|\n| SEC-001 | Block PHI in queries | Sanitizer tests |\n| SEC-002 | Prevent SQL injection | Validator tests |\n| SEC-003 | Authenticate users | Auth tests |\n| SEC-004 | Log all queries | Audit tests |",
           "level": 3
         },
         {
           "heading": "Test Types",
-          "content": "| Type | Purpose | Count | |------|---------|-------| | Unit Tests | Component isolation | 200+ | | Integration Tests | Component interaction | 50+ | | E2E Tests | Full pipeline | 35+ | | Golden Suite | Known questions | 75+ |",
+          "content": "| Type | Purpose | Count |\n|------|---------|-------|\n| Unit Tests | Component isolation | 200+ |\n| Integration Tests | Component interaction | 50+ |\n| E2E Tests | Full pipeline | 35+ |\n| Golden Suite | Known questions | 75+ |",
           "level": 3
         },
         {
           "heading": "Change Categories",
-          "content": "| Category | Review Required | Testing Required | |----------|-----------------|------------------| | Configuration | Single reviewer | Regression | | Functionality | Dual review | Full test suite | | Security | Security review | Security tests | | Infrastructure | Admin approval | Smoke tests |",
+          "content": "| Category | Review Required | Testing Required |\n|----------|-----------------|------------------|\n| Configuration | Single reviewer | Regression |\n| Functionality | Dual review | Full test suite |\n| Security | Security review | Security tests |\n| Infrastructure | Admin approval | Smoke tests |",
           "level": 3
         },
         {
           "heading": "Version Control",
-          "content": "All changes tracked in Git with: - Commit messages - Author identification - Timestamp - Linked to change request",
+          "content": "All changes tracked in Git with:\n- Commit messages\n- Author identification\n- Timestamp\n- Linked to change request",
           "level": 3
         },
         {
           "heading": "Review Schedule",
-          "content": "| Activity | Frequency | |----------|-----------| | Access Review | Monthly | | Audit Log Review | Weekly | | Security Scan | Quarterly | | Full Revalidation | Annual |",
+          "content": "| Activity | Frequency |\n|----------|-----------|\n| Access Review | Monthly |\n| Audit Log Review | Weekly |\n| Security Scan | Quarterly |\n| Full Revalidation | Annual |",
           "level": 3
         },
         {
           "heading": "User Training",
-          "content": "| Topic | Required For | |-------|--------------| | Basic Usage | All users | | Confidence Interpretation | All users | | Data Loading | Administrators | | System Configuration | Administrators |",
+          "content": "| Topic | Required For |\n|-------|--------------|\n| Basic Usage | All users |\n| Confidence Interpretation | All users |\n| Data Loading | Administrators |\n| System Configuration | Administrators |",
           "level": 3
         },
         {
           "heading": "Available Documents",
-          "content": "- Security Model - Audit Trail - Data Integrity - Access Controls - Traceability Matrix",
+          "content": "- Security Model\n- Audit Trail\n- Data Integrity\n- Access Controls\n- Traceability Matrix",
           "level": 3
         },
         {
           "heading": "Contacts",
-          "content": "For validation questions: - System Administrator - Quality Assurance team - IT Security team",
+          "content": "For validation questions:\n- System Administrator\n- Quality Assurance team\n- IT Security team",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Audit Trail Details - Data Integrity - Access Controls",
+          "content": "- Audit Trail Details\n- Data Integrity\n- Access Controls",
           "level": 2
         }
       ],
@@ -1060,17 +1060,17 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Ensure all metadata is human-approved before use",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Ensure all metadata is human-approved before use",
           "level": 2
         },
         {
           "heading": "Why Human Approval?",
-          "content": "Clinical data systems require human oversight for: 1. **Accuracy**: Verify parsed data is correct 2. **Compliance**: Meet GxP audit requirements 3. **Accountability**: Track who approved what 4. **Quality**: Catch parsing errors",
+          "content": "Clinical data systems require human oversight for:\n\n1. **Accuracy**: Verify parsed data is correct\n2. **Compliance**: Meet GxP audit requirements\n3. **Accountability**: Track who approved what\n4. **Quality**: Catch parsing errors",
           "level": 2
         },
         {
           "heading": "Workflow States",
-          "content": "| State | Description | Actions Available | |-------|-------------|-------------------| | **Pending** | Awaiting review | Assign reviewer | | **Under Review** | Being reviewed | Approve, Reject | | **Approved** | Ready for use | Export | | **Rejected** | Needs revision | Revise, Resubmit |",
+          "content": "| State | Description | Actions Available |\n|-------|-------------|-------------------|\n| **Pending** | Awaiting review | Assign reviewer |\n| **Under Review** | Being reviewed | Approve, Reject |\n| **Approved** | Ready for use | Export |\n| **Rejected** | Needs revision | Revise, Resubmit |",
           "level": 2
         },
         {
@@ -1080,17 +1080,17 @@
         },
         {
           "heading": "Pending Approvals View",
-          "content": "- List all pending submissions - Filter by submitter, date, type - Assign reviewers",
+          "content": "- List all pending submissions\n- Filter by submitter, date, type\n- Assign reviewers",
           "level": 3
         },
         {
           "heading": "Review View",
-          "content": "- Side-by-side comparison with source - Variable-by-variable review - Approve/Reject buttons - Comment field",
+          "content": "- Side-by-side comparison with source\n- Variable-by-variable review\n- Approve/Reject buttons\n- Comment field",
           "level": 3
         },
         {
           "heading": "History View",
-          "content": "- Complete audit trail - Export to PDF for compliance",
+          "content": "- Complete audit trail\n- Export to PDF for compliance",
           "level": 3
         },
         {
@@ -1115,12 +1115,12 @@
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Timely Review**: Review submissions within SLA 2. **Detailed Comments**: Provide clear feedback 3. **Separation of Duties**: Different submitter and reviewer 4. **Complete Review**: Check all variables 5. **Document Decisions**: Record rationale for approvals",
+          "content": "1. **Timely Review**: Review submissions within SLA\n2. **Detailed Comments**: Provide clear feedback\n3. **Separation of Duties**: Different submitter and reviewer\n4. **Complete Review**: Check all variables\n5. **Document Decisions**: Record rationale for approvals",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- CDISC Integration - Factory 2 Overview - Compliance Documentation",
+          "content": "- CDISC Integration\n- Factory 2 Overview\n- Compliance Documentation",
           "level": 2
         }
       ],
@@ -1164,17 +1164,17 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Enrich metadata with CDISC standard definitions",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Enrich metadata with CDISC standard definitions",
           "level": 2
         },
         {
           "heading": "What is CDISC?",
-          "content": "CDISC provides standardized terminology for clinical trials: - **SDTM**: Study Data Tabulation Model - **ADaM**: Analysis Data Model - **Controlled Terminology**: Standard code lists",
+          "content": "CDISC provides standardized terminology for clinical trials:\n\n- **SDTM**: Study Data Tabulation Model\n- **ADaM**: Analysis Data Model\n- **Controlled Terminology**: Standard code lists",
           "level": 2
         },
         {
           "heading": "Common Codelists",
-          "content": "| Codelist | Description | Example Values | |----------|-------------|----------------| | SEX | Sex of subject | M, F, U | | RACE | Race category | WHITE, BLACK, ASIAN | | NY | No/Yes | N, Y | | AEOUT | AE Outcome | RECOVERED, NOT RECOVERED | | AEREL | AE Relationship | RELATED, NOT RELATED |",
+          "content": "| Codelist | Description | Example Values |\n|----------|-------------|----------------|\n| SEX | Sex of subject | M, F, U |\n| RACE | Race category | WHITE, BLACK, ASIAN |\n| NY | No/Yes | N, Y |\n| AEOUT | AE Outcome | RECOVERED, NOT RECOVERED |\n| AEREL | AE Relationship | RELATED, NOT RELATED |",
           "level": 3
         },
         {
@@ -1189,12 +1189,12 @@
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Keep Updated**: Use latest CDISC controlled terminology 2. **Document Deviations**: Note when using non-standard terms 3. **Validate Early**: Check values during data entry 4. **Use Standard Labels**: Prefer CDISC labels when possible",
+          "content": "1. **Keep Updated**: Use latest CDISC controlled terminology\n2. **Document Deviations**: Note when using non-standard terms\n3. **Validate Early**: Check values during data entry\n4. **Use Standard Labels**: Prefer CDISC labels when possible",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Excel Parser - Approval Workflow - Factory 2 Overview",
+          "content": "- Excel Parser\n- Approval Workflow\n- Factory 2 Overview",
           "level": 2
         }
       ],
@@ -1260,47 +1260,47 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Provide transparency about answer reliability",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Provide transparency about answer reliability",
           "level": 2
         },
         {
           "heading": "Why Confidence Scoring?",
-          "content": "Clinical data queries need reliability indicators: - Users need to know when to trust results - Auditors need traceability - Low confidence triggers review",
+          "content": "Clinical data queries need reliability indicators:\n\n- Users need to know when to trust results\n- Auditors need traceability\n- Low confidence triggers review",
           "level": 2
         },
         {
           "heading": "Score Components",
-          "content": "| Component | Weight | Measures | |-----------|--------|----------| | **Entity Resolution** | 40% | How well user terms matched data | | **Metadata Coverage** | 30% | How well columns are documented | | **Execution Success** | 20% | Query executed without errors | | **Result Sanity** | 10% | Results are reasonable |",
+          "content": "| Component | Weight | Measures |\n|-----------|--------|----------|\n| **Entity Resolution** | 40% | How well user terms matched data |\n| **Metadata Coverage** | 30% | How well columns are documented |\n| **Execution Success** | 20% | Query executed without errors |\n| **Result Sanity** | 10% | Results are reasonable |",
           "level": 2
         },
         {
           "heading": "Entity Resolution (40%)",
-          "content": "Measures how confidently we matched user terms to data: | Scenario | Score | |----------|-------| | Exact match | 100% | | High fuzzy match (>95%) | 95% | | Good fuzzy match (85-95%) | 85% | | Fair fuzzy match (70-85%) | 70% | | Low match (<70%) | 50% | | No match needed | 100% |",
+          "content": "Measures how confidently we matched user terms to data:\n\n| Scenario | Score |\n|----------|-------|\n| Exact match | 100% |\n| High fuzzy match (>95%) | 95% |\n| Good fuzzy match (85-95%) | 85% |\n| Fair fuzzy match (70-85%) | 70% |\n| Low match (<70%) | 50% |\n| No match needed | 100% |",
           "level": 3
         },
         {
           "heading": "Metadata Coverage (30%)",
-          "content": "Measures how well queried columns are documented: | Scenario | Score | |----------|-------| | All columns in Golden Metadata | 100% | | Most columns documented (>80%) | 90% | | Some columns documented (50-80%) | 70% | | Few columns documented (<50%) | 50% |",
+          "content": "Measures how well queried columns are documented:\n\n| Scenario | Score |\n|----------|-------|\n| All columns in Golden Metadata | 100% |\n| Most columns documented (>80%) | 90% |\n| Some columns documented (50-80%) | 70% |\n| Few columns documented (<50%) | 50% |",
           "level": 3
         },
         {
           "heading": "Execution Success (20%)",
-          "content": "Measures query execution: | Scenario | Score | |----------|-------| | Success with results | 100% | | Success with zero rows | 90% | | Timeout (recovered) | 70% | | Error (recovered) | 50% | | Complete failure | 0% |",
+          "content": "Measures query execution:\n\n| Scenario | Score |\n|----------|-------|\n| Success with results | 100% |\n| Success with zero rows | 90% |\n| Timeout (recovered) | 70% |\n| Error (recovered) | 50% |\n| Complete failure | 0% |",
           "level": 3
         },
         {
           "heading": "Result Sanity (10%)",
-          "content": "Checks if results make sense: | Scenario | Score | |----------|-------| | Count > 0 for existence query | 100% | | Percentage 0-100 | 100% | | Reasonable row count | 100% | | Zero results when expected | 70% | | Unexpected patterns | 50% |",
+          "content": "Checks if results make sense:\n\n| Scenario | Score |\n|----------|-------|\n| Count > 0 for existence query | 100% |\n| Percentage 0-100 | 100% |\n| Reasonable row count | 100% |\n| Zero results when expected | 70% |\n| Unexpected patterns | 50% |",
           "level": 3
         },
         {
           "heading": "Confidence Levels",
-          "content": "| Score Range | Level | Color | Meaning | |-------------|-------|-------|---------| | 90-100% | HIGH | GREEN | Reliable result | | 70-89% | MEDIUM | YELLOW | Verify assumptions | | 50-69% | LOW | ORANGE | Review methodology | | <50% | VERY_LOW | RED | Do not trust |",
+          "content": "| Score Range | Level | Color | Meaning |\n|-------------|-------|-------|---------|\n| 90-100% | HIGH | GREEN | Reliable result |\n| 70-89% | MEDIUM | YELLOW | Verify assumptions |\n| 50-69% | LOW | ORANGE | Review methodology |\n| <50% | VERY_LOW | RED | Do not trust |",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Explanation Generator - Pipeline Overview - User Guide: Confidence Scores",
+          "content": "- Explanation Generator\n- Pipeline Overview\n- User Guide: Confidence Scores",
           "level": 2
         }
       ],
@@ -1354,7 +1354,7 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Dependencies:** - - Database engine - - DataFrame handling",
+          "content": "**File:** \n\n**Class:** \n\n**Dependencies:**\n- - Database engine\n- - DataFrame handling",
           "level": 2
         },
         {
@@ -1369,7 +1369,7 @@
         },
         {
           "heading": "Type Mapping",
-          "content": "| Parquet Type | DuckDB Type | |--------------|-------------| | string | VARCHAR | | int32/int64 | BIGINT | | float/double | DOUBLE | | timestamp | TIMESTAMP | | date | DATE | | bool | BOOLEAN |",
+          "content": "| Parquet Type | DuckDB Type |\n|--------------|-------------|\n| string | VARCHAR |\n| int32/int64 | BIGINT |\n| float/double | DOUBLE |\n| timestamp | TIMESTAMP |\n| date | DATE |\n| bool | BOOLEAN |",
           "level": 3
         },
         {
@@ -1384,7 +1384,7 @@
         },
         {
           "heading": "Common Errors",
-          "content": "| Error | Cause | Solution | |-------|-------|----------| | | Table doesn't exist | Check table name | | | Column doesn't exist | Check column name | | | File access error | Check permissions |",
+          "content": "| Error | Cause | Solution |\n|-------|-------|----------|\n| | Table doesn't exist | Check table name |\n| | Column doesn't exist | Check column name |\n| | File access error | Check permissions |",
           "level": 3
         },
         {
@@ -1394,7 +1394,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- Schema Tracker - SAS Reader - Factory 1 Overview",
+          "content": "- Schema Tracker\n- SAS Reader\n- Factory 1 Overview",
           "level": 2
         }
       ],
@@ -1461,27 +1461,27 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Find and resolve clinical terms (AEs, meds, labs) in natural language",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Find and resolve clinical terms (AEs, meds, labs) in natural language",
           "level": 2
         },
         {
           "heading": "Match Types",
-          "content": "| Type | Source | Example | |------|--------|---------| | **medical_synonym** | Synonym dictionary | belly pain → ABDOMINAL PAIN | | **fuzzy** | Data values | headche → HEADACHE | | **meddra** | MedDRA hierarchy | cephalalgia → Headache (PT) | | **exact** | Data values | HEADACHE → HEADACHE |",
+          "content": "| Type | Source | Example |\n|------|--------|---------|\n| **medical_synonym** | Synonym dictionary | belly pain → ABDOMINAL PAIN |\n| **fuzzy** | Data values | headche → HEADACHE |\n| **meddra** | MedDRA hierarchy | cephalalgia → Headache (PT) |\n| **exact** | Data values | HEADACHE → HEADACHE |",
           "level": 2
         },
         {
           "heading": "Extraction Priority",
-          "content": "1. **Medical Synonyms** (highest priority) - UK/US spellings: anaemia → ANAEMIA, ANEMIA - Colloquial terms: belly pain → ABDOMINAL PAIN - Complex phrases: low blood cell count → WBC DECREASED 2. **MedDRA Lookup** - LLT to PT mapping - Synonym terms 3. **Fuzzy Matching** - Typo correction - Partial matches",
+          "content": "1. **Medical Synonyms** (highest priority)\n - UK/US spellings: anaemia → ANAEMIA, ANEMIA\n - Colloquial terms: belly pain → ABDOMINAL PAIN\n - Complex phrases: low blood cell count → WBC DECREASED\n\n2. **MedDRA Lookup**\n - LLT to PT mapping\n - Synonym terms\n\n3. **Fuzzy Matching**\n - Typo correction\n - Partial matches",
           "level": 2
         },
         {
           "heading": "Confidence Scoring",
-          "content": "| Match Quality | Confidence | |---------------|------------| | Exact match | 100% | | Medical synonym | 100% | | High fuzzy (>95%) | 95% | | Good fuzzy (85-95%) | 85% | | Fair fuzzy (70-85%) | 75% | | MedDRA match | 90% |",
+          "content": "| Match Quality | Confidence |\n|---------------|------------|\n| Exact match | 100% |\n| Medical synonym | 100% |\n| High fuzzy (>95%) | 95% |\n| Good fuzzy (85-95%) | 85% |\n| Fair fuzzy (70-85%) | 75% |\n| MedDRA match | 90% |",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Table Resolver - Medical Synonyms - Fuzzy Matching",
+          "content": "- Table Resolver\n- Medical Synonyms\n- Fuzzy Matching",
           "level": 2
         }
       ],
@@ -1540,27 +1540,27 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Parse SDTM/ADaM Excel specifications into structured metadata",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Parse SDTM/ADaM Excel specifications into structured metadata",
           "level": 2
         },
         {
           "heading": "SDTM Specification",
-          "content": "Expected sheets: | Sheet Name | Content | |------------|---------| | Domains | Domain list with descriptions | | Variables | Variable definitions by domain | | Codelists | Controlled terminology definitions | | Value Level | Value-level metadata |",
+          "content": "Expected sheets:\n\n| Sheet Name | Content |\n|------------|---------|\n| Domains | Domain list with descriptions |\n| Variables | Variable definitions by domain |\n| Codelists | Controlled terminology definitions |\n| Value Level | Value-level metadata |",
           "level": 3
         },
         {
           "heading": "ADaM Specification",
-          "content": "Expected sheets: | Sheet Name | Content | |------------|---------| | Datasets | Dataset list with descriptions | | Variables | Analysis variable definitions | | Results Metadata | Analysis results info |",
+          "content": "Expected sheets:\n\n| Sheet Name | Content |\n|------------|---------|\n| Datasets | Dataset list with descriptions |\n| Variables | Analysis variable definitions |\n| Results Metadata | Analysis results info |",
           "level": 3
         },
         {
           "heading": "Standard Column Names",
-          "content": "The parser recognizes these column headers: | Expected | Alternatives | |----------|-------------| | Variable Name | Name, Variable, Var | | Label | Variable Label, Description | | Type | Data Type, SAS Type | | Length | SAS Length, Size | | Codelist | Controlled Terms, CT | | Origin | Source, Derivation |",
+          "content": "The parser recognizes these column headers:\n\n| Expected | Alternatives |\n|----------|-------------|\n| Variable Name | Name, Variable, Var |\n| Label | Variable Label, Description |\n| Type | Data Type, SAS Type |\n| Length | SAS Length, Size |\n| Codelist | Controlled Terms, CT |\n| Origin | Source, Derivation |",
           "level": 3
         },
         {
           "heading": "Required Fields",
-          "content": "The parser validates these required fields: | Field | Validation | |-------|------------| | name | Non-empty, valid identifier | | label | Non-empty | | type | \"Char\" or \"Num\" | | length | Positive integer |",
+          "content": "The parser validates these required fields:\n\n| Field | Validation |\n|-------|------------|\n| name | Non-empty, valid identifier |\n| label | Non-empty |\n| type | \"Char\" or \"Num\" |\n| length | Positive integer |",
           "level": 3
         },
         {
@@ -1570,22 +1570,22 @@
         },
         {
           "heading": "Detection Rules",
-          "content": "| Contains Sheet | Detected Type | |----------------|---------------| | \"Domains\" | SDTM | | \"Datasets\" + \"Analysis\" | ADaM | | \"Variables\" only | Custom |",
+          "content": "| Contains Sheet | Detected Type |\n|----------------|---------------|\n| \"Domains\" | SDTM |\n| \"Datasets\" + \"Analysis\" | ADaM |\n| \"Variables\" only | Custom |",
           "level": 3
         },
         {
           "heading": "Common Errors",
-          "content": "| Error | Cause | Solution | |-------|-------|----------| | | File missing | Check path | | | Required sheet missing | Check Excel structure | | | Required column missing | Add column or map | | | Invalid data | Fix specification |",
+          "content": "| Error | Cause | Solution |\n|-------|-------|----------|\n| | File missing | Check path |\n| | Required sheet missing | Check Excel structure |\n| | Required column missing | Add column or map |\n| | Invalid data | Fix specification |",
           "level": 3
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Consistent Naming**: Use standard CDISC column names 2. **Complete Data**: Fill all required fields 3. **Valid Values**: Use controlled terminology 4. **Clean Data**: Remove empty rows/columns 5. **UTF-8**: Save files with UTF-8 encoding",
+          "content": "1. **Consistent Naming**: Use standard CDISC column names\n2. **Complete Data**: Fill all required fields\n3. **Valid Values**: Use controlled terminology\n4. **Clean Data**: Remove empty rows/columns\n5. **UTF-8**: Save files with UTF-8 encoding",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- CDISC Integration - Approval Workflow - Factory 2 Overview",
+          "content": "- CDISC Integration\n- Approval Workflow\n- Factory 2 Overview",
           "level": 2
         }
       ],
@@ -1636,7 +1636,7 @@
       "sections": [
         {
           "heading": "Next Steps",
-          "content": "- Factory 1 Overview - Factory 2 Documentation",
+          "content": "- Factory 1 Overview\n- Factory 2 Documentation",
           "level": 2
         }
       ],
@@ -1683,32 +1683,32 @@
       "sections": [
         {
           "heading": "Purpose",
-          "content": "The Data Foundry ingests SAS7BDAT files from clinical trials and: 1. Reads SAS format data 2. Converts to efficient Parquet format 3. Loads into DuckDB for fast querying",
+          "content": "The Data Foundry ingests SAS7BDAT files from clinical trials and:\n\n1. Reads SAS format data\n2. Converts to efficient Parquet format\n3. Loads into DuckDB for fast querying",
           "level": 2
         },
         {
           "heading": "Components",
-          "content": "| Component | File | Purpose | |-----------|------|---------| | **SASReader** | | Read SAS7BDAT files | | **DuckDBLoader** | | Load into DuckDB | | **SchemaTracker** | | Track schema versions |",
+          "content": "| Component | File | Purpose |\n|-----------|------|---------|\n| **SASReader** | | Read SAS7BDAT files |\n| **DuckDBLoader** | | Load into DuckDB |\n| **SchemaTracker** | | Track schema versions |",
           "level": 2
         },
         {
           "heading": "SDTM Domains",
-          "content": "| Domain | Description | |--------|-------------| | DM | Demographics | | AE | Adverse Events | | CM | Concomitant Medications | | LB | Laboratory | | VS | Vital Signs | | EX | Exposure | | MH | Medical History |",
+          "content": "| Domain | Description |\n|--------|-------------|\n| DM | Demographics |\n| AE | Adverse Events |\n| CM | Concomitant Medications |\n| LB | Laboratory |\n| VS | Vital Signs |\n| EX | Exposure |\n| MH | Medical History |",
           "level": 3
         },
         {
           "heading": "ADaM Datasets",
-          "content": "| Dataset | Description | |---------|-------------| | ADSL | Subject Level | | ADAE | Adverse Events Analysis | | ADLB | Laboratory Analysis | | ADTTE | Time-to-Event | | ADEFF | Efficacy |",
+          "content": "| Dataset | Description |\n|---------|-------------|\n| ADSL | Subject Level |\n| ADAE | Adverse Events Analysis |\n| ADLB | Laboratory Analysis |\n| ADTTE | Time-to-Event |\n| ADEFF | Efficacy |",
           "level": 3
         },
         {
           "heading": "Automatic Conversions",
-          "content": "| SAS Type | Python Type | DuckDB Type | |----------|-------------|-------------| | Character | str | VARCHAR | | Numeric | float64 | DOUBLE | | Date | datetime | DATE | | DateTime | datetime | TIMESTAMP |",
+          "content": "| SAS Type | Python Type | DuckDB Type |\n|----------|-------------|-------------|\n| Character | str | VARCHAR |\n| Numeric | float64 | DOUBLE |\n| Date | datetime | DATE |\n| DateTime | datetime | TIMESTAMP |",
           "level": 3
         },
         {
           "heading": "Special Cases",
-          "content": "**Missing Values:** - SAS → Python → DuckDB **Date Handling:** - SAS dates (days since 1960-01-01) → Python datetime - SAS datetime → Python datetime with time component",
+          "content": "**Missing Values:**\n- SAS → Python → DuckDB \n\n**Date Handling:**\n- SAS dates (days since 1960-01-01) → Python datetime\n- SAS datetime → Python datetime with time component",
           "level": 3
         },
         {
@@ -1718,17 +1718,17 @@
         },
         {
           "heading": "Common Errors",
-          "content": "| Error | Cause | Solution | |-------|-------|----------| | | SAS file missing | Check file path | | | Corrupt SAS file | Re-export from SAS | | | Schema mismatch | Check column names |",
+          "content": "| Error | Cause | Solution |\n|-------|-------|----------|\n| | SAS file missing | Check file path |\n| | Corrupt SAS file | Re-export from SAS |\n| | Schema mismatch | Check column names |",
           "level": 3
         },
         {
           "heading": "Best Practices",
-          "content": "1. **File Naming**: Use uppercase table names (ADSL.sas7bdat) 2. **Incremental Loads**: Re-run Factory 1 after data updates 3. **Backup**: Keep original SAS files in version control 4. **Validation**: Verify row counts match source",
+          "content": "1. **File Naming**: Use uppercase table names (ADSL.sas7bdat)\n2. **Incremental Loads**: Re-run Factory 1 after data updates\n3. **Backup**: Keep original SAS files in version control\n4. **Validation**: Verify row counts match source",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- SAS Reader Details - DuckDB Loader Details - Schema Tracker Details - API Reference",
+          "content": "- SAS Reader Details\n- DuckDB Loader Details\n- Schema Tracker Details\n- API Reference",
           "level": 2
         }
       ],
@@ -1795,7 +1795,7 @@
       "sections": [
         {
           "heading": "Next Steps",
-          "content": "- Factory 2 Overview - Factory 3 Documentation",
+          "content": "- Factory 2 Overview\n- Factory 3 Documentation",
           "level": 2
         }
       ],
@@ -1843,27 +1843,27 @@
       "sections": [
         {
           "heading": "Purpose",
-          "content": "The Metadata Refinery processes clinical trial specifications and: 1. Parses Excel specification files 2. Enriches with CDISC Controlled Terminology 3. Requires human approval for each mapping 4. Produces Golden Metadata JSON",
+          "content": "The Metadata Refinery processes clinical trial specifications and:\n\n1. Parses Excel specification files\n2. Enriches with CDISC Controlled Terminology\n3. Requires human approval for each mapping\n4. Produces Golden Metadata JSON",
           "level": 2
         },
         {
           "heading": "Human-in-the-Loop",
-          "content": "!!! important \"Approval Required\" All metadata mappings require human approval before use. This ensures: - Accuracy of variable definitions - Correct interpretation of specifications - Audit compliance for GxP systems",
+          "content": "!!! important \"Approval Required\"\n All metadata mappings require human approval before use. This ensures:\n\n - Accuracy of variable definitions\n - Correct interpretation of specifications\n - Audit compliance for GxP systems",
           "level": 2
         },
         {
           "heading": "Components",
-          "content": "| Component | File | Purpose | |-----------|------|---------| | **ExcelParser** | | Parse specification files | | **CDISCLibrary** | | CDISC terminology lookup | | **MetadataStore** | | Store approved metadata | | **ApprovalWorkflow** | | Manage human approvals |",
+          "content": "| Component | File | Purpose |\n|-----------|------|---------|\n| **ExcelParser** | | Parse specification files |\n| **CDISCLibrary** | | CDISC terminology lookup |\n| **MetadataStore** | | Store approved metadata |\n| **ApprovalWorkflow** | | Manage human approvals |",
           "level": 2
         },
         {
           "heading": "SDTM Specifications",
-          "content": "| Sheet | Content | |-------|---------| | Domains | Domain list and descriptions | | Variables | Variable definitions | | Codelists | Controlled terminology | | Value Level | Conditional definitions |",
+          "content": "| Sheet | Content |\n|-------|---------|\n| Domains | Domain list and descriptions |\n| Variables | Variable definitions |\n| Codelists | Controlled terminology |\n| Value Level | Conditional definitions |",
           "level": 3
         },
         {
           "heading": "ADaM Specifications",
-          "content": "| Sheet | Content | |-------|---------| | Datasets | Dataset list | | Variables | Variable definitions | | Analysis Results | Results metadata |",
+          "content": "| Sheet | Content |\n|-------|---------|\n| Datasets | Dataset list |\n| Variables | Variable definitions |\n| Analysis Results | Results metadata |",
           "level": 3
         },
         {
@@ -1873,22 +1873,22 @@
         },
         {
           "heading": "Approval Workflow States",
-          "content": "| State | Description | |-------|-------------| | **Pending** | Awaiting reviewer assignment | | **Under Review** | Reviewer examining | | **Approved** | Ready for use | | **Rejected** | Needs revision |",
+          "content": "| State | Description |\n|-------|-------------|\n| **Pending** | Awaiting reviewer assignment |\n| **Under Review** | Reviewer examining |\n| **Approved** | Ready for use |\n| **Rejected** | Needs revision |",
           "level": 2
         },
         {
           "heading": "Common Errors",
-          "content": "| Error | Cause | Solution | |-------|-------|----------| | | Invalid Excel format | Check file structure | | | Term not in CDISC | Use custom definition | | | Missing required fields | Complete specification |",
+          "content": "| Error | Cause | Solution |\n|-------|-------|----------|\n| | Invalid Excel format | Check file structure |\n| | Term not in CDISC | Use custom definition |\n| | Missing required fields | Complete specification |",
           "level": 3
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Complete Specifications**: Ensure all variables are defined 2. **Standard Formats**: Follow CDISC naming conventions 3. **Review Carefully**: Incorrect metadata affects query accuracy 4. **Version Control**: Keep Excel files in version control 5. **Audit Trail**: Document all approval decisions",
+          "content": "1. **Complete Specifications**: Ensure all variables are defined\n2. **Standard Formats**: Follow CDISC naming conventions\n3. **Review Carefully**: Incorrect metadata affects query accuracy\n4. **Version Control**: Keep Excel files in version control\n5. **Audit Trail**: Document all approval decisions",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Excel Parser Details - CDISC Integration - Approval Workflow - API Reference",
+          "content": "- Excel Parser Details\n- CDISC Integration\n- Approval Workflow\n- API Reference",
           "level": 2
         }
       ],
@@ -1946,7 +1946,7 @@
       "sections": [
         {
           "heading": "Next Steps",
-          "content": "- Factory 3 Overview - Factory 3.5 MedDRA",
+          "content": "- Factory 3 Overview\n- Factory 3.5 MedDRA",
           "level": 2
         }
       ],
@@ -2005,7 +2005,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- Factory 3.5 Overview - MedDRA Hierarchy - Factory 4 Integration",
+          "content": "- Factory 3.5 Overview\n- MedDRA Hierarchy\n- Factory 4 Integration",
           "level": 2
         }
       ],
@@ -2065,32 +2065,32 @@
       "sections": [
         {
           "heading": "Purpose",
-          "content": "MedDRA is the standard medical terminology for adverse event reporting: 1. Standardized terminology hierarchy 2. Term-to-code mapping 3. Hierarchy navigation (SOC → PT → LLT)",
+          "content": "MedDRA is the standard medical terminology for adverse event reporting:\n\n1. Standardized terminology hierarchy\n2. Term-to-code mapping\n3. Hierarchy navigation (SOC → PT → LLT)",
           "level": 2
         },
         {
           "heading": "Levels",
-          "content": "| Level | Abbreviation | Count | Example | |-------|--------------|-------|---------| | System Organ Class | SOC | ~27 | Nervous system disorders | | High Level Group Term | HLGT | ~337 | Headaches | | High Level Term | HLT | ~1,737 | Headaches NEC | | Preferred Term | PT | ~24,000 | Headache | | Lowest Level Term | LLT | ~82,000 | Throbbing headache |",
+          "content": "| Level | Abbreviation | Count | Example |\n|-------|--------------|-------|---------|\n| System Organ Class | SOC | ~27 | Nervous system disorders |\n| High Level Group Term | HLGT | ~337 | Headaches |\n| High Level Term | HLT | ~1,737 | Headaches NEC |\n| Preferred Term | PT | ~24,000 | Headache |\n| Lowest Level Term | LLT | ~82,000 | Throbbing headache |",
           "level": 3
         },
         {
           "heading": "Components",
-          "content": "| Component | File | Purpose | |-----------|------|---------| | **MedDRALoader** | | Load MedDRA files | | **MedDRALookup** | | Query terminology |",
+          "content": "| Component | File | Purpose |\n|-----------|------|---------|\n| **MedDRALoader** | | Load MedDRA files |\n| **MedDRALookup** | | Query terminology |",
           "level": 2
         },
         {
           "heading": "MedDRA File Format",
-          "content": "MedDRA is distributed as ASCII files: | File | Content | |------|---------| | llt.asc | Lowest Level Terms | | pt.asc | Preferred Terms | | hlt.asc | High Level Terms | | hlgt.asc | High Level Group Terms | | soc.asc | System Organ Classes | | hlt_pt.asc | HLT to PT relationships |",
+          "content": "MedDRA is distributed as ASCII files:\n\n| File | Content |\n|------|---------|\n| llt.asc | Lowest Level Terms |\n| pt.asc | Preferred Terms |\n| hlt.asc | High Level Terms |\n| hlgt.asc | High Level Group Terms |\n| soc.asc | System Organ Classes |\n| hlt_pt.asc | HLT to PT relationships |",
           "level": 3
         },
         {
           "heading": "Query Times",
-          "content": "| Operation | Time | |-----------|------| | Lookup by name | <1ms | | Get hierarchy | <2ms | | Search by prefix | <10ms |",
+          "content": "| Operation | Time |\n|-----------|------|\n| Lookup by name | <1ms |\n| Get hierarchy | <2ms |\n| Search by prefix | <10ms |",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- Hierarchy Details - API Reference - Factory 4 Integration",
+          "content": "- Hierarchy Details\n- API Reference\n- Factory 4 Integration",
           "level": 2
         }
       ],
@@ -2150,12 +2150,12 @@
       "sections": [
         {
           "heading": "Purpose",
-          "content": "The Dictionary Plant creates search indexes that enable: 1. Typo correction: → 2. Synonym resolution: → 3. Fuzzy matching: → (93% match)",
+          "content": "The Dictionary Plant creates search indexes that enable:\n\n1. Typo correction: → \n2. Synonym resolution: → \n3. Fuzzy matching: → (93% match)",
           "level": 2
         },
         {
           "heading": "Components",
-          "content": "| Component | File | Purpose | |-----------|------|---------| | **FuzzyMatcher** | | RapidFuzz-based matching | | **ValueScanner** | | Extract unique values | | **SchemaMapper** | | Map columns to concepts |",
+          "content": "| Component | File | Purpose |\n|-----------|------|---------|\n| **FuzzyMatcher** | | RapidFuzz-based matching |\n| **ValueScanner** | | Extract unique values |\n| **SchemaMapper** | | Map columns to concepts |",
           "level": 2
         },
         {
@@ -2175,7 +2175,7 @@
         },
         {
           "heading": "Default Columns",
-          "content": "| Table | Column | Purpose | |-------|--------|---------| | ADAE | AEDECOD | AE preferred terms | | ADAE | AETERM | AE verbatim terms | | ADCM | CMDECOD | Medication names | | ADLB | LBTESTCD | Lab test codes | | ADLB | LBTEST | Lab test names |",
+          "content": "| Table | Column | Purpose |\n|-------|--------|---------|\n| ADAE | AEDECOD | AE preferred terms |\n| ADAE | AETERM | AE verbatim terms |\n| ADCM | CMDECOD | Medication names |\n| ADLB | LBTESTCD | Lab test codes |\n| ADLB | LBTEST | Lab test names |",
           "level": 3
         },
         {
@@ -2190,7 +2190,7 @@
         },
         {
           "heading": "Match Thresholds",
-          "content": "| Score | Quality | Action | |-------|---------|--------| | 95-100 | Excellent | Use directly | | 85-94 | Good | Use with note | | 70-84 | Fair | Show alternatives | | <70 | Poor | Request clarification |",
+          "content": "| Score | Quality | Action |\n|-------|---------|--------|\n| 95-100 | Excellent | Use directly |\n| 85-94 | Good | Use with note |\n| 70-84 | Fair | Show alternatives |\n| <70 | Poor | Request clarification |",
           "level": 3
         },
         {
@@ -2200,17 +2200,17 @@
         },
         {
           "heading": "Index Size",
-          "content": "| Records | Index Size | Build Time | |---------|------------|------------| | 1,000 | 50 KB | 0.1s | | 10,000 | 500 KB | 1s | | 100,000 | 5 MB | 10s |",
+          "content": "| Records | Index Size | Build Time |\n|---------|------------|------------|\n| 1,000 | 50 KB | 0.1s |\n| 10,000 | 500 KB | 1s |\n| 100,000 | 5 MB | 10s |",
           "level": 3
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Rebuild After Data Load**: Run Factory 3 after Factory 1 2. **Include All Terms**: Index all searchable columns 3. **Set Appropriate Thresholds**: Balance accuracy vs flexibility 4. **Monitor Index Size**: Large indexes use more memory",
+          "content": "1. **Rebuild After Data Load**: Run Factory 3 after Factory 1\n2. **Include All Terms**: Index all searchable columns\n3. **Set Appropriate Thresholds**: Balance accuracy vs flexibility\n4. **Monitor Index Size**: Large indexes use more memory",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Fuzzy Matching Details - Value Scanning - API Reference",
+          "content": "- Fuzzy Matching Details\n- Value Scanning\n- API Reference",
           "level": 2
         }
       ],
@@ -2277,7 +2277,7 @@
       "sections": [
         {
           "heading": "Next Steps",
-          "content": "- Factory 4 Overview - Pipeline Steps",
+          "content": "- Factory 4 Overview\n- Pipeline Steps",
           "level": 2
         }
       ],
@@ -2332,32 +2332,32 @@
       "sections": [
         {
           "heading": "Purpose",
-          "content": "The Inference Engine processes user queries through a 9-step pipeline: 1. Sanitize input for security 2. Extract clinical entities 3. Resolve tables and populations 4. Build LLM context 5. Generate SQL 6. Validate SQL safety 7. Execute against DuckDB 8. Score confidence 9. Generate human explanation",
+          "content": "The Inference Engine processes user queries through a 9-step pipeline:\n\n1. Sanitize input for security\n2. Extract clinical entities\n3. Resolve tables and populations\n4. Build LLM context\n5. Generate SQL\n6. Validate SQL safety\n7. Execute against DuckDB\n8. Score confidence\n9. Generate human explanation",
           "level": 2
         },
         {
           "heading": "Components",
-          "content": "| Step | Component | File | Purpose | |------|-----------|------|---------| | 1 | InputSanitizer | | Security filtering | | 2 | EntityExtractor | | Term extraction | | 3 | TableResolver | | Table/population selection | | 4 | ContextBuilder | | LLM context preparation | | 5 | SQLGenerator | | SQL generation | | 6 | SQLValidator | | Safety validation | | 7 | Executor | | DuckDB execution | | 8 | ConfidenceScorer | | Reliability scoring | | 9 | ExplanationGenerator | | Response building |",
+          "content": "| Step | Component | File | Purpose |\n|------|-----------|------|---------|\n| 1 | InputSanitizer | | Security filtering |\n| 2 | EntityExtractor | | Term extraction |\n| 3 | TableResolver | | Table/population selection |\n| 4 | ContextBuilder | | LLM context preparation |\n| 5 | SQLGenerator | | SQL generation |\n| 6 | SQLValidator | | Safety validation |\n| 7 | Executor | | DuckDB execution |\n| 8 | ConfidenceScorer | | Reliability scoring |\n| 9 | ExplanationGenerator | | Response building |",
           "level": 2
         },
         {
           "heading": "Support Components",
-          "content": "| Component | File | Purpose | |-----------|------|---------| | SessionMemory | | Conversation context | | MedicalSynonyms | | Term normalization | | Pipeline | | Orchestration |",
+          "content": "| Component | File | Purpose |\n|-----------|------|---------|\n| SessionMemory | | Conversation context |\n| MedicalSynonyms | | Term normalization |\n| Pipeline | | Orchestration |",
           "level": 3
         },
         {
           "heading": "Step 1: Input Sanitization",
-          "content": "**Checks:** - PHI/PII patterns (SSN, names, emails) - SQL injection attempts - Prompt injection attempts",
+          "content": "**Checks:**\n- PHI/PII patterns (SSN, names, emails)\n- SQL injection attempts\n- Prompt injection attempts",
           "level": 3
         },
         {
           "heading": "Step 2: Entity Extraction",
-          "content": "**Uses:** - Fuzzy matching (Factory 3) - MedDRA lookup (Factory 3.5) - Medical synonyms",
+          "content": "**Uses:**\n- Fuzzy matching (Factory 3)\n- MedDRA lookup (Factory 3.5)\n- Medical synonyms",
           "level": 3
         },
         {
           "heading": "Step 3: Table Resolution",
-          "content": "**Clinical Rules:** - ADaM preferred over SDTM - Default populations by query type - Column preference rules",
+          "content": "**Clinical Rules:**\n- ADaM preferred over SDTM\n- Default populations by query type\n- Column preference rules",
           "level": 3
         },
         {
@@ -2367,12 +2367,12 @@
         },
         {
           "heading": "Step 6: SQL Validation",
-          "content": "**Checks:** - SQL syntax - Table/column existence - Dangerous operations",
+          "content": "**Checks:**\n- SQL syntax\n- Table/column existence\n- Dangerous operations",
           "level": 3
         },
         {
           "heading": "Step 8: Confidence Scoring",
-          "content": "**Components:** - Entity resolution quality (40%) - Metadata coverage (30%) - Execution success (20%) - Result sanity (10%)",
+          "content": "**Components:**\n- Entity resolution quality (40%)\n- Metadata coverage (30%)\n- Execution success (20%)\n- Result sanity (10%)",
           "level": 3
         },
         {
@@ -2387,7 +2387,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- Pipeline Steps Detail - Input Sanitizer - Entity Extractor - SQL Generator - Confidence Scorer",
+          "content": "- Pipeline Steps Detail\n- Input Sanitizer\n- Entity Extractor\n- SQL Generator\n- Confidence Scorer",
           "level": 2
         }
       ],
@@ -2454,12 +2454,12 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Library:** RapidFuzz (C++ optimized)",
+          "content": "**File:** \n\n**Class:** \n\n**Library:** RapidFuzz (C++ optimized)",
           "level": 2
         },
         {
           "heading": "Why Fuzzy Matching?",
-          "content": "Users may enter terms with: - **Typos**: → - **Case differences**: → - **Partial terms**: → - **Spelling variations**: /",
+          "content": "Users may enter terms with:\n\n- **Typos**: → \n- **Case differences**: → \n- **Partial terms**: → \n- **Spelling variations**: /",
           "level": 2
         },
         {
@@ -2469,7 +2469,7 @@
         },
         {
           "heading": "Score Interpretation",
-          "content": "| Score | Meaning | Example | |-------|---------|---------| | 100 | Exact match | headache → HEADACHE | | 95-99 | Near exact | headache → HEADACHES | | 85-94 | Good match | headche → HEADACHE | | 70-84 | Fair match | head → HEADACHE | | <70 | Poor match | xyz → HEADACHE |",
+          "content": "| Score | Meaning | Example |\n|-------|---------|---------|\n| 100 | Exact match | headache → HEADACHE |\n| 95-99 | Near exact | headache → HEADACHES |\n| 85-94 | Good match | headche → HEADACHE |\n| 70-84 | Fair match | head → HEADACHE |\n| <70 | Poor match | xyz → HEADACHE |",
           "level": 3
         },
         {
@@ -2484,7 +2484,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- Value Scanning - Factory 3 Overview - API Reference",
+          "content": "- Value Scanning\n- Factory 3 Overview\n- API Reference",
           "level": 2
         }
       ],
@@ -2533,27 +2533,27 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Protect system from PHI, SQL injection, and prompt injection",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Protect system from PHI, SQL injection, and prompt injection",
           "level": 2
         },
         {
           "heading": "Protected Patterns",
-          "content": "| Pattern | Example | Regex | |---------|---------|-------| | SSN | 123-45-6789 | | | Phone | 555-123-4567 | | | Email | name@example.com | | | Date of Birth | DOB: 01/15/1980 | Context-aware | | Names | John Smith | Context-aware |",
+          "content": "| Pattern | Example | Regex |\n|---------|---------|-------|\n| SSN | 123-45-6789 | |\n| Phone | 555-123-4567 | |\n| Email | name@example.com | |\n| Date of Birth | DOB: 01/15/1980 | Context-aware |\n| Names | John Smith | Context-aware |",
           "level": 3
         },
         {
           "heading": "Warnings vs Blocks",
-          "content": "| Severity | Action | Example | |----------|--------|---------| | **Block** | Query rejected | SSN, DROP TABLE | | **Warning** | Query proceeds with note | Date patterns, names in quotes |",
+          "content": "| Severity | Action | Example |\n|----------|--------|---------|\n| **Block** | Query rejected | SSN, DROP TABLE |\n| **Warning** | Query proceeds with note | Date patterns, names in quotes |",
           "level": 2
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Always sanitize first**: Run before any other processing 2. **Log blocked queries**: For security audit 3. **Update patterns**: Keep patterns current with threats 4. **Test regularly**: Ensure patterns work as expected",
+          "content": "1. **Always sanitize first**: Run before any other processing\n2. **Log blocked queries**: For security audit\n3. **Update patterns**: Keep patterns current with threats\n4. **Test regularly**: Ensure patterns work as expected",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Entity Extractor - SQL Validator - Security Model",
+          "content": "- Entity Extractor\n- SQL Validator\n- Security Model",
           "level": 2
         }
       ],
@@ -2619,27 +2619,27 @@
         },
         {
           "heading": "System Organ Class (SOC)",
-          "content": "The highest level, grouping by body system or etiology: | SOC | Description | |-----|-------------| | Cardiac disorders | Heart conditions | | Gastrointestinal disorders | Digestive system | | Nervous system disorders | Brain and nerves | | Skin and subcutaneous tissue disorders | Skin conditions | | Infections and infestations | Infectious diseases | **Total: ~27 SOCs**",
+          "content": "The highest level, grouping by body system or etiology:\n\n| SOC | Description |\n|-----|-------------|\n| Cardiac disorders | Heart conditions |\n| Gastrointestinal disorders | Digestive system |\n| Nervous system disorders | Brain and nerves |\n| Skin and subcutaneous tissue disorders | Skin conditions |\n| Infections and infestations | Infectious diseases |\n\n**Total: ~27 SOCs**",
           "level": 3
         },
         {
           "heading": "High Level Group Term (HLGT)",
-          "content": "Groups related High Level Terms: **Total: ~337 HLGTs**",
+          "content": "Groups related High Level Terms:\n\n**Total: ~337 HLGTs**",
           "level": 3
         },
         {
           "heading": "High Level Term (HLT)",
-          "content": "Groups related Preferred Terms: **Total: ~1,737 HLTs**",
+          "content": "Groups related Preferred Terms:\n\n**Total: ~1,737 HLTs**",
           "level": 3
         },
         {
           "heading": "Preferred Term (PT)",
-          "content": "The standard term for coding adverse events: **Total: ~24,000 PTs**",
+          "content": "The standard term for coding adverse events:\n\n**Total: ~24,000 PTs**",
           "level": 3
         },
         {
           "heading": "Lowest Level Term (LLT)",
-          "content": "Synonyms and entry terms that map to PTs: **Total: ~82,000 LLTs**",
+          "content": "Synonyms and entry terms that map to PTs:\n\n**Total: ~82,000 LLTs**",
           "level": 3
         },
         {
@@ -2649,22 +2649,22 @@
         },
         {
           "heading": "Primary vs Secondary",
-          "content": "- **Primary SOC**: Main classification (used for primary coding) - **Secondary SOC**: Additional classification (for alternative grouping)",
+          "content": "- **Primary SOC**: Main classification (used for primary coding)\n- **Secondary SOC**: Additional classification (for alternative grouping)",
           "level": 3
         },
         {
           "heading": "Coding Adverse Events",
-          "content": "1. User reports: \"My head hurts\" 2. Match to LLT: \"Head pain\" (10019196) 3. Map to PT: \"Headache\" (10019211) 4. Store PT code in AEDECOD",
+          "content": "1. User reports: \"My head hurts\"\n2. Match to LLT: \"Head pain\" (10019196)\n3. Map to PT: \"Headache\" (10019211)\n4. Store PT code in AEDECOD",
           "level": 3
         },
         {
           "heading": "Updating MedDRA",
-          "content": "MedDRA is updated twice yearly. Changes may include: - New PTs and LLTs - Deprecated terms (moved to new hierarchy) - Modified relationships",
+          "content": "MedDRA is updated twice yearly. Changes may include:\n\n- New PTs and LLTs\n- Deprecated terms (moved to new hierarchy)\n- Modified relationships",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- API Reference - Factory 3.5 Overview - Entity Extraction",
+          "content": "- API Reference\n- Factory 3.5 Overview\n- Entity Extraction",
           "level": 2
         }
       ],
@@ -2730,7 +2730,7 @@
         },
         {
           "heading": "Purpose",
-          "content": "Protect the system from malicious input: - Block PHI/PII (patient data) - Prevent SQL injection - Stop prompt injection",
+          "content": "Protect the system from malicious input:\n\n- Block PHI/PII (patient data)\n- Prevent SQL injection\n- Stop prompt injection",
           "level": 3
         },
         {
@@ -2745,12 +2745,12 @@
         },
         {
           "heading": "Purpose",
-          "content": "Identify clinical terms in the query: - Adverse event terms - Medication names - Lab tests - Populations",
+          "content": "Identify clinical terms in the query:\n\n- Adverse event terms\n- Medication names\n- Lab tests\n- Populations",
           "level": 3
         },
         {
           "heading": "Processing",
-          "content": "1. Tokenize query 2. Check medical synonyms dictionary 3. Fuzzy match against data values 4. Lookup MedDRA terms 5. Return entity list with confidence",
+          "content": "1. Tokenize query\n2. Check medical synonyms dictionary\n3. Fuzzy match against data values\n4. Lookup MedDRA terms\n5. Return entity list with confidence",
           "level": 3
         },
         {
@@ -2765,12 +2765,12 @@
         },
         {
           "heading": "Purpose",
-          "content": "Determine which table and population to query: - Select appropriate table (ADaM vs SDTM) - Apply population filter - Map columns to concepts",
+          "content": "Determine which table and population to query:\n\n- Select appropriate table (ADaM vs SDTM)\n- Apply population filter\n- Map columns to concepts",
           "level": 3
         },
         {
           "heading": "Clinical Rules",
-          "content": "| Query Type | Table | Population | |------------|-------|------------| | Adverse events | ADAE | Safety (SAFFL) | | Demographics | ADSL | ITT (ITTFL) | | Laboratory | ADLB | Safety (SAFFL) |",
+          "content": "| Query Type | Table | Population |\n|------------|-------|------------|\n| Adverse events | ADAE | Safety (SAFFL) |\n| Demographics | ADSL | ITT (ITTFL) |\n| Laboratory | ADLB | Safety (SAFFL) |",
           "level": 3
         },
         {
@@ -2785,7 +2785,7 @@
         },
         {
           "heading": "Purpose",
-          "content": "Prepare the LLM context for SQL generation: - System prompt with rules - Schema information - Entity mappings - Clinical rules",
+          "content": "Prepare the LLM context for SQL generation:\n\n- System prompt with rules\n- Schema information\n- Entity mappings\n- Clinical rules",
           "level": 3
         },
         {
@@ -2805,7 +2805,7 @@
         },
         {
           "heading": "Purpose",
-          "content": "Generate DuckDB SQL from natural language: - Call Claude API - Parse SQL from response - Extract reasoning",
+          "content": "Generate DuckDB SQL from natural language:\n\n- Call Claude API\n- Parse SQL from response\n- Extract reasoning",
           "level": 3
         },
         {
@@ -2820,7 +2820,7 @@
         },
         {
           "heading": "Purpose",
-          "content": "Ensure SQL is safe to execute: - Parse SQL syntax - Verify tables exist - Verify columns exist - Block dangerous operations",
+          "content": "Ensure SQL is safe to execute:\n\n- Parse SQL syntax\n- Verify tables exist\n- Verify columns exist\n- Block dangerous operations",
           "level": 3
         }
       ],
@@ -2887,7 +2887,7 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Dependencies:** - - SAS file reading - - DataFrame handling",
+          "content": "**File:** \n\n**Class:** \n\n**Dependencies:**\n- - SAS file reading\n- - DataFrame handling",
           "level": 2
         },
         {
@@ -2902,17 +2902,17 @@
         },
         {
           "heading": "Automatic Detection",
-          "content": "Date columns are detected by: 1. SAS format (DATE9., DATETIME20., etc.) 2. Column name patterns (*DT, *DTC, *STDT) 3. Metadata labels containing \"date\"",
+          "content": "Date columns are detected by:\n\n1. SAS format (DATE9., DATETIME20., etc.)\n2. Column name patterns (*DT, *DTC, *STDT)\n3. Metadata labels containing \"date\"",
           "level": 3
         },
         {
           "heading": "Common Encodings",
-          "content": "| Region | Encoding | |--------|----------| | US/Europe | latin1, utf-8 | | Japan | shift_jis | | China | gbk |",
+          "content": "| Region | Encoding |\n|--------|----------|\n| US/Europe | latin1, utf-8 |\n| Japan | shift_jis |\n| China | gbk |",
           "level": 3
         },
         {
           "heading": "Common Errors",
-          "content": "| Error | Cause | Solution | |-------|-------|----------| | | File doesn't exist | Check path | | | Corrupt file | Re-export from SAS | | | Wrong encoding | Try different encoding |",
+          "content": "| Error | Cause | Solution |\n|-------|-------|----------|\n| | File doesn't exist | Check path |\n| | Corrupt file | Re-export from SAS |\n| | Wrong encoding | Try different encoding |",
           "level": 3
         },
         {
@@ -2922,7 +2922,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- DuckDB Loader - Schema Tracker - Factory 1 Overview",
+          "content": "- DuckDB Loader\n- Schema Tracker\n- Factory 1 Overview",
           "level": 2
         }
       ],
@@ -2963,17 +2963,17 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Generate safe, accurate SQL from prepared context",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Generate safe, accurate SQL from prepared context",
           "level": 2
         },
         {
           "heading": "Response Parsing",
-          "content": "sql\" in response: match = re.search(r'', response, re.DOTALL) if match: return match.group(1).strip() # Look for SELECT statement if \"SELECT\" in response.upper(): lines = response.split('\\n') sql_lines = [] in_sql = False for line in lines: if \"SELECT\" in line.upper(): in_sql = True if in_sql: sql_lines.append(line) if line.strip().endswith(';'): break return '\\n'.join(sql_lines) raise SQLParseError(\"Could not extract SQL from response\") ```",
+          "content": "sql\" in response:\n match = re.search(r'', response, re.DOTALL)\n if match:\n return match.group(1).strip()\n\n # Look for SELECT statement\n if \"SELECT\" in response.upper():\n lines = response.split('\\n')\n sql_lines = []\n in_sql = False\n for line in lines:\n if \"SELECT\" in line.upper():\n in_sql = True\n if in_sql:\n sql_lines.append(line)\n if line.strip().endswith(';'):\n break\n return '\\n'.join(sql_lines)\n\n raise SQLParseError(\"Could not extract SQL from response\")\n```",
           "level": 3
         },
         {
           "heading": "Typical Response Times",
-          "content": "| Model | Tokens | Time | |-------|--------|------| | claude-sonnet-4-20250514 | ~200 | 1-2s | | claude-opus-4-20250514 | ~200 | 2-4s |",
+          "content": "| Model | Tokens | Time |\n|-------|--------|------|\n| claude-sonnet-4-20250514 | ~200 | 1-2s |\n| claude-opus-4-20250514 | ~200 | 2-4s |",
           "level": 3
         },
         {
@@ -2983,12 +2983,12 @@
         },
         {
           "heading": "Best Practices",
-          "content": "1. **Deterministic Output**: Always use temperature=0 2. **Clear Context**: Provide complete schema information 3. **Entity Mappings**: Include resolved terms in prompt 4. **Error Handling**: Enable retry for robustness 5. **Token Efficiency**: Keep context under 1500 tokens",
+          "content": "1. **Deterministic Output**: Always use temperature=0\n2. **Clear Context**: Provide complete schema information\n3. **Entity Mappings**: Include resolved terms in prompt\n4. **Error Handling**: Enable retry for robustness\n5. **Token Efficiency**: Keep context under 1500 tokens",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- SQL Validator - Context Builder - Pipeline Overview",
+          "content": "- SQL Validator\n- Context Builder\n- Pipeline Overview",
           "level": 2
         }
       ],
@@ -3055,12 +3055,12 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Track schema changes for GAMP 5 compliance",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Track schema changes for GAMP 5 compliance",
           "level": 2
         },
         {
           "heading": "Why Track Schemas?",
-          "content": "Clinical data systems require: 1. **Audit Trail**: Know when data changed 2. **Version Control**: Track schema evolution 3. **Reproducibility**: Recreate historical states 4. **Compliance**: Meet regulatory requirements",
+          "content": "Clinical data systems require:\n\n1. **Audit Trail**: Know when data changed\n2. **Version Control**: Track schema evolution\n3. **Reproducibility**: Recreate historical states\n4. **Compliance**: Meet regulatory requirements",
           "level": 2
         },
         {
@@ -3070,7 +3070,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- SAS Reader - DuckDB Loader - Factory 1 Overview",
+          "content": "- SAS Reader\n- DuckDB Loader\n- Factory 1 Overview",
           "level": 2
         }
       ],
@@ -3130,12 +3130,12 @@
       "sections": [
         {
           "heading": "Overview",
-          "content": "**File:** **Class:** **Purpose:** Profile data and extract searchable values",
+          "content": "**File:** \n\n**Class:** \n\n**Purpose:** Profile data and extract searchable values",
           "level": 2
         },
         {
           "heading": "Next Steps",
-          "content": "- Fuzzy Matching - Factory 3 Overview - API Reference",
+          "content": "- Fuzzy Matching\n- Factory 3 Overview\n- API Reference",
           "level": 2
         }
       ],
@@ -3207,12 +3207,12 @@
         },
         {
           "heading": "Confidence Thresholds",
-          "content": "Control how answers are scored: | Score Range | Badge | Meaning | |-------------|-------|---------| | 90-100% | GREEN | High confidence - reliable result | | 70-89% | YELLOW | Medium confidence - verify assumptions | | 50-69% | ORANGE | Low confidence - review methodology | | <50% | RED | Cannot provide reliable answer |",
+          "content": "Control how answers are scored:\n\n| Score Range | Badge | Meaning |\n|-------------|-------|---------|\n| 90-100% | GREEN | High confidence - reliable result |\n| 70-89% | YELLOW | Medium confidence - verify assumptions |\n| 50-69% | ORANGE | Low confidence - review methodology |\n| <50% | RED | Cannot provide reliable answer |",
           "level": 3
         },
         {
           "heading": "Port Configuration",
-          "content": "Default ports used by SAGE services: | Service | Default Port | Environment Variable | |---------|-------------|---------------------| | Main UI | 80 | | | API | 8002 | | | Documentation | 8080 | | | Grafana | 3000 | | | Prometheus | 9090 | | To change ports, modify :",
+          "content": "Default ports used by SAGE services:\n\n| Service | Default Port | Environment Variable |\n|---------|-------------|---------------------|\n| Main UI | 80 | |\n| API | 8002 | |\n| Documentation | 8080 | |\n| Grafana | 3000 | |\n| Prometheus | 9090 | |\n\nTo change ports, modify :",
           "level": 2
         },
         {
@@ -3222,12 +3222,12 @@
         },
         {
           "heading": "LLM Configuration",
-          "content": "SAGE uses Claude API for natural language processing: !!! warning \"Temperature Setting\" Always use for deterministic SQL generation.",
+          "content": "SAGE uses Claude API for natural language processing:\n\n!!! warning \"Temperature Setting\"\n Always use for deterministic SQL generation.",
           "level": 2
         },
         {
           "heading": "Monitoring Configuration",
-          "content": "Prometheus and Grafana are pre-configured. Custom dashboards are in: Prometheus scrape config:",
+          "content": "Prometheus and Grafana are pre-configured. Custom dashboards are in:\n\nPrometheus scrape config:",
           "level": 2
         },
         {
@@ -3237,7 +3237,7 @@
         },
         {
           "heading": "Next Steps",
-          "content": "- Run your first query - Load clinical data - Configure users",
+          "content": "- Run your first query\n- Load clinical data\n- Configure users",
           "level": 2
         }
       ],
@@ -3304,42 +3304,42 @@
       "sections": [
         {
           "heading": "Hardware Requirements",
-          "content": "| Component | Minimum | Recommended | |-----------|---------|-------------| | CPU | 4 cores | 8+ cores | | RAM | 16 GB | 32+ GB | | Storage | 50 GB SSD | 200+ GB SSD | | GPU | Not required | Not required | !!! note \"GPU Not Required\" SAGE uses Claude API for language processing. No local GPU is needed.",
+          "content": "| Component | Minimum | Recommended |\n|-----------|---------|-------------|\n| CPU | 4 cores | 8+ cores |\n| RAM | 16 GB | 32+ GB |\n| Storage | 50 GB SSD | 200+ GB SSD |\n| GPU | Not required | Not required |\n\n!!! note \"GPU Not Required\"\n SAGE uses Claude API for language processing. No local GPU is needed.",
           "level": 3
         },
         {
           "heading": "Software Requirements",
-          "content": "| Software | Version | Notes | |----------|---------|-------| | Docker | 24.0+ | With Docker Compose v2 | | Python | 3.11+ | For running factory scripts | | Git | 2.30+ | For version control |",
+          "content": "| Software | Version | Notes |\n|----------|---------|-------|\n| Docker | 24.0+ | With Docker Compose v2 |\n| Python | 3.11+ | For running factory scripts |\n| Git | 2.30+ | For version control |",
           "level": 3
         },
         {
           "heading": "Step 2: Configure Environment Variables",
-          "content": "Copy the example environment file: Edit with your settings:",
+          "content": "Copy the example environment file:\n\nEdit with your settings:",
           "level": 3
         },
         {
           "heading": "Step 3: Start Services",
-          "content": "**Windows (PowerShell):** **Linux/Mac:** Or using Docker Compose directly:",
+          "content": "**Windows (PowerShell):**\n\n**Linux/Mac:**\n\nOr using Docker Compose directly:",
           "level": 3
         },
         {
           "heading": "Step 4: Verify Installation",
-          "content": "Check service status: Expected output:",
+          "content": "Check service status:\n\nExpected output:",
           "level": 3
         },
         {
           "heading": "Access Points",
-          "content": "After successful installation, access SAGE at: | Service | URL | Purpose | |---------|-----|---------| | **Main UI** | http://localhost | Chat interface | | **API** | http://localhost:8002 | REST API endpoints | | **Documentation** | http://localhost:8080 | This documentation | | **Grafana** | http://localhost:3000 | Monitoring dashboards |",
+          "content": "After successful installation, access SAGE at:\n\n| Service | URL | Purpose |\n|---------|-----|---------|\n| **Main UI** | http://localhost | Chat interface |\n| **API** | http://localhost:8002 | REST API endpoints |\n| **Documentation** | http://localhost:8080 | This documentation |\n| **Grafana** | http://localhost:3000 | Monitoring dashboards |",
           "level": 2
         },
         {
           "heading": "Load Clinical Data",
-          "content": "Before querying, you need to load clinical trial data: 1. Place SAS7BDAT files in 2. Run Factory 1 (Data Foundry):",
+          "content": "Before querying, you need to load clinical trial data:\n\n1. Place SAS7BDAT files in \n2. Run Factory 1 (Data Foundry):",
           "level": 3
         },
         {
           "heading": "Load Metadata Specifications",
-          "content": "1. Place Excel specification files in 2. Run Factory 2 (Metadata Refinery): 3. Approve metadata mappings in Admin UI",
+          "content": "1. Place Excel specification files in \n2. Run Factory 2 (Metadata Refinery):\n\n3. Approve metadata mappings in Admin UI",
           "level": 3
         },
         {
@@ -3349,12 +3349,12 @@
         },
         {
           "heading": "Common Issues",
-          "content": "**Docker containers won't start:** **API not responding:** **Database not found:** - Ensure Factory 1 has been run - Check for DuckDB files",
+          "content": "**Docker containers won't start:**\n\n**API not responding:**\n\n**Database not found:**\n- Ensure Factory 1 has been run\n- Check for DuckDB files",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- Configure environment settings - Run your first query - Load your clinical data",
+          "content": "- Configure environment settings\n- Run your first query\n- Load your clinical data",
           "level": 2
         }
       ],
@@ -3416,22 +3416,22 @@
       "sections": [
         {
           "heading": "Prerequisites",
-          "content": "Before starting, ensure: - [ ] SAGE services are running () - [ ] Clinical data has been loaded (Factory 1) - [ ] Metadata has been approved (Factory 2) - [ ] Dictionary indexes are built (Factory 3)",
+          "content": "Before starting, ensure:\n\n- [ ] SAGE services are running ()\n- [ ] Clinical data has been loaded (Factory 1)\n- [ ] Metadata has been approved (Factory 2)\n- [ ] Dictionary indexes are built (Factory 3)",
           "level": 2
         },
         {
           "heading": "Step 1: Access the Chat Interface",
-          "content": "Open your browser and navigate to: You'll see the SAGE chat interface.",
+          "content": "Open your browser and navigate to:\n\nYou'll see the SAGE chat interface.",
           "level": 2
         },
         {
           "heading": "Step 2: Authenticate",
-          "content": "1. Enter your credentials (default: / check with administrator) 2. Click **Login**",
+          "content": "1. Enter your credentials (default: / check with administrator)\n2. Click **Login**",
           "level": 2
         },
         {
           "heading": "Step 3: Ask a Simple Question",
-          "content": "Start with a straightforward query: **Expected Response:**",
+          "content": "Start with a straightforward query:\n\n**Expected Response:**",
           "level": 2
         },
         {
@@ -3446,12 +3446,12 @@
         },
         {
           "heading": "2. Confidence Score",
-          "content": "| Badge | Meaning | |-------|---------| | GREEN (90-100%) | High confidence - result is reliable | | YELLOW (70-89%) | Medium confidence - verify assumptions | | ORANGE (50-69%) | Low confidence - review the SQL | | RED (<50%) | Cannot provide reliable answer |",
+          "content": "| Badge | Meaning |\n|-------|---------|\n| GREEN (90-100%) | High confidence - result is reliable |\n| YELLOW (70-89%) | Medium confidence - verify assumptions |\n| ORANGE (50-69%) | Low confidence - review the SQL |\n| RED (<50%) | Cannot provide reliable answer |",
           "level": 3
         },
         {
           "heading": "3. Methodology",
-          "content": "Transparency about how the answer was derived: - **Table Used**: Which dataset was queried - **Population**: Which population filter was applied - **Columns**: Which columns were used - **Assumptions**: Any assumptions made",
+          "content": "Transparency about how the answer was derived:\n\n- **Table Used**: Which dataset was queried\n- **Population**: Which population filter was applied\n- **Columns**: Which columns were used\n- **Assumptions**: Any assumptions made",
           "level": 3
         },
         {
@@ -3461,12 +3461,12 @@
         },
         {
           "heading": "Be Specific",
-          "content": "Instead of: Try:",
+          "content": "Instead of:\n\nTry:",
           "level": 3
         },
         {
           "heading": "Use Clinical Terms",
-          "content": "SAGE understands: - Medical terms: (fever), (shortness of breath) - UK/US spellings: and - Common synonyms: →",
+          "content": "SAGE understands:\n\n- Medical terms: (fever), (shortness of breath)\n- UK/US spellings: and \n- Common synonyms: →",
           "level": 3
         },
         {
@@ -3476,22 +3476,22 @@
         },
         {
           "heading": "Low Confidence Score",
-          "content": "If you see a YELLOW or ORANGE confidence: 1. Review the SQL query 2. Check if the correct table was used 3. Verify entity matching was correct",
+          "content": "If you see a YELLOW or ORANGE confidence:\n\n1. Review the SQL query\n2. Check if the correct table was used\n3. Verify entity matching was correct",
           "level": 3
         },
         {
           "heading": "No Results",
-          "content": "If SAGE can't answer: 1. Rephrase the question 2. Be more specific about what you're asking 3. Check if the data exists in the loaded datasets",
+          "content": "If SAGE can't answer:\n\n1. Rephrase the question\n2. Be more specific about what you're asking\n3. Check if the data exists in the loaded datasets",
           "level": 3
         },
         {
           "heading": "Term Not Found",
-          "content": "If a medical term isn't recognized: 1. Try the standard MedDRA preferred term 2. Try both UK and US spellings 3. Use quotation marks for exact matches",
+          "content": "If a medical term isn't recognized:\n\n1. Try the standard MedDRA preferred term\n2. Try both UK and US spellings\n3. Use quotation marks for exact matches",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- Learn effective question techniques - Understand confidence scoring - Explore example queries",
+          "content": "- Learn effective question techniques\n- Understand confidence scoring\n- Explore example queries",
           "level": 2
         }
       ],
@@ -3557,7 +3557,7 @@
       "sections": [
         {
           "heading": "Accessing the Chat",
-          "content": "1. Open your browser to 2. Log in with your credentials 3. You'll see the chat interface",
+          "content": "1. Open your browser to \n2. Log in with your credentials\n3. You'll see the chat interface",
           "level": 3
         },
         {
@@ -3582,7 +3582,7 @@
         },
         {
           "heading": "Confidence Badge",
-          "content": "Shows how reliable the answer is: | Badge | Meaning | |-------|---------| | GREEN (90-100%) | High confidence - trust this result | | YELLOW (70-89%) | Medium confidence - verify assumptions | | ORANGE (50-69%) | Low confidence - review methodology | | RED (<50%) | Cannot provide reliable answer |",
+          "content": "Shows how reliable the answer is:\n\n| Badge | Meaning |\n|-------|---------|\n| GREEN (90-100%) | High confidence - trust this result |\n| YELLOW (70-89%) | Medium confidence - verify assumptions |\n| ORANGE (50-69%) | Low confidence - review methodology |\n| RED (<50%) | Cannot provide reliable answer |",
           "level": 3
         },
         {
@@ -3592,17 +3592,17 @@
         },
         {
           "heading": "View Methodology",
-          "content": "See how the answer was derived: - **Table Used**: ADAE - **Population**: Safety (SAFFL='Y') - **Entity Resolution**: headache → HEADACHE (100% match) - **Assumptions**: Using safety population by default",
+          "content": "See how the answer was derived:\n\n- **Table Used**: ADAE\n- **Population**: Safety (SAFFL='Y')\n- **Entity Resolution**: headache → HEADACHE (100% match)\n- **Assumptions**: Using safety population by default",
           "level": 3
         },
         {
           "heading": "Keyboard Shortcuts",
-          "content": "| Shortcut | Action | |----------|--------| | | Send message | | | New line | | | Show help | | | Clear input |",
+          "content": "| Shortcut | Action |\n|----------|--------|\n| | Send message |\n| | New line |\n| | Show help |\n| | Clear input |",
           "level": 2
         },
         {
           "heading": "Export Results",
-          "content": "Click the export icon to download: - CSV format for data tables - PDF format for reports",
+          "content": "Click the export icon to download:\n\n- CSV format for data tables\n- PDF format for reports",
           "level": 3
         },
         {
@@ -3627,22 +3627,22 @@
         },
         {
           "heading": "Low Confidence Score",
-          "content": "If you see YELLOW or ORANGE: 1. Check the methodology for assumptions 2. Review the SQL query 3. Rephrase with more specific terms",
+          "content": "If you see YELLOW or ORANGE:\n\n1. Check the methodology for assumptions\n2. Review the SQL query\n3. Rephrase with more specific terms",
           "level": 3
         },
         {
           "heading": "Term Not Found",
-          "content": "If a term isn't recognized: 1. Try the standard MedDRA preferred term 2. Check spelling (UK vs US) 3. Use quotation marks for exact match",
+          "content": "If a term isn't recognized:\n\n1. Try the standard MedDRA preferred term\n2. Check spelling (UK vs US)\n3. Use quotation marks for exact match",
           "level": 3
         },
         {
           "heading": "No Results",
-          "content": "If the count is zero: 1. Verify the term exists in the data 2. Check population filter 3. Try broader criteria",
+          "content": "If the count is zero:\n\n1. Verify the term exists in the data\n2. Check population filter\n3. Try broader criteria",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- Asking Questions Effectively - Understanding Confidence Scores - Example Queries",
+          "content": "- Asking Questions Effectively\n- Understanding Confidence Scores\n- Example Queries",
           "level": 2
         }
       ],
@@ -3699,47 +3699,47 @@
       "sections": [
         {
           "heading": "What is a Confidence Score?",
-          "content": "The confidence score (0-100%) indicates how reliable an answer is based on: - How well terms were matched - Whether columns are documented - If the query executed successfully - If results make sense",
+          "content": "The confidence score (0-100%) indicates how reliable an answer is based on:\n\n- How well terms were matched\n- Whether columns are documented\n- If the query executed successfully\n- If results make sense",
           "level": 2
         },
         {
           "heading": "HIGH (90-100%) - GREEN",
-          "content": "**What it means:** - All terms matched exactly or with high confidence - All columns are well documented - Query executed without issues - Results are reasonable **What to do:** - Trust this result for reports and analysis - Safe to cite in documentation",
+          "content": "**What it means:**\n- All terms matched exactly or with high confidence\n- All columns are well documented\n- Query executed without issues\n- Results are reasonable\n\n**What to do:**\n- Trust this result for reports and analysis\n- Safe to cite in documentation",
           "level": 3
         },
         {
           "heading": "MEDIUM (70-89%) - YELLOW",
-          "content": "**What it means:** - Some terms had fuzzy matches - Minor assumptions were made - May need verification **What to do:** - Review the methodology - Verify assumptions make sense - Consider rephrasing for higher confidence",
+          "content": "**What it means:**\n- Some terms had fuzzy matches\n- Minor assumptions were made\n- May need verification\n\n**What to do:**\n- Review the methodology\n- Verify assumptions make sense\n- Consider rephrasing for higher confidence",
           "level": 3
         },
         {
           "heading": "LOW (50-69%) - ORANGE",
-          "content": "**What it means:** - Terms had low-quality matches - Significant assumptions were made - Results may not be accurate **What to do:** - Carefully review the SQL query - Check term resolution - Rephrase your question - Consult with data team",
+          "content": "**What it means:**\n- Terms had low-quality matches\n- Significant assumptions were made\n- Results may not be accurate\n\n**What to do:**\n- Carefully review the SQL query\n- Check term resolution\n- Rephrase your question\n- Consult with data team",
           "level": 3
         },
         {
           "heading": "VERY LOW (<50%) - RED",
-          "content": "**What it means:** - Could not reliably answer the question - Terms were not found - Query may have failed **What to do:** - Do not use this result - Rephrase completely - Check if data exists - Contact support",
+          "content": "**What it means:**\n- Could not reliably answer the question\n- Terms were not found\n- Query may have failed\n\n**What to do:**\n- Do not use this result\n- Rephrase completely\n- Check if data exists\n- Contact support",
           "level": 3
         },
         {
           "heading": "Entity Resolution (40%)",
-          "content": "How well your terms matched the data: | Scenario | Score | |----------|-------| | \"headache\" matched exactly | 100% | | \"headche\" fuzzy matched (95%) | 95% | | \"belly pain\" → ABDOMINAL PAIN | 100% | | Term not found | 0% |",
+          "content": "How well your terms matched the data:\n\n| Scenario | Score |\n|----------|-------|\n| \"headache\" matched exactly | 100% |\n| \"headche\" fuzzy matched (95%) | 95% |\n| \"belly pain\" → ABDOMINAL PAIN | 100% |\n| Term not found | 0% |",
           "level": 3
         },
         {
           "heading": "Metadata Coverage (30%)",
-          "content": "How well the queried columns are documented: | Scenario | Score | |----------|-------| | All columns in Golden Metadata | 100% | | Most columns documented | 90% | | Some documentation gaps | 70% |",
+          "content": "How well the queried columns are documented:\n\n| Scenario | Score |\n|----------|-------|\n| All columns in Golden Metadata | 100% |\n| Most columns documented | 90% |\n| Some documentation gaps | 70% |",
           "level": 3
         },
         {
           "heading": "Execution Success (20%)",
-          "content": "Whether the query ran properly: | Scenario | Score | |----------|-------| | Query succeeded with results | 100% | | Query succeeded, zero rows | 90% | | Timeout but recovered | 70% | | Query failed | 0% |",
+          "content": "Whether the query ran properly:\n\n| Scenario | Score |\n|----------|-------|\n| Query succeeded with results | 100% |\n| Query succeeded, zero rows | 90% |\n| Timeout but recovered | 70% |\n| Query failed | 0% |",
           "level": 3
         },
         {
           "heading": "Result Sanity (10%)",
-          "content": "Whether results make sense: | Scenario | Score | |----------|-------| | Count is positive for existence query | 100% | | Percentage is 0-100% | 100% | | Zero results when unexpected | 70% |",
+          "content": "Whether results make sense:\n\n| Scenario | Score |\n|----------|-------|\n| Count is positive for existence query | 100% |\n| Percentage is 0-100% | 100% |\n| Zero results when unexpected | 70% |",
           "level": 3
         },
         {
@@ -3749,27 +3749,27 @@
         },
         {
           "heading": "When to Trust Results",
-          "content": "| Confidence | Use For | |------------|---------| | HIGH (90%+) | Reports, regulatory submissions | | MEDIUM (70-89%) | Internal analysis, verification needed | | LOW (50-69%) | Exploratory only, not for decisions | | VERY LOW (<50%) | Do not use |",
+          "content": "| Confidence | Use For |\n|------------|---------|\n| HIGH (90%+) | Reports, regulatory submissions |\n| MEDIUM (70-89%) | Internal analysis, verification needed |\n| LOW (50-69%) | Exploratory only, not for decisions |\n| VERY LOW (<50%) | Do not use |",
           "level": 2
         },
         {
           "heading": "Why is my confidence low?",
-          "content": "Common reasons: - Term not found in data - Typo in query - Using informal language - Data doesn't exist",
+          "content": "Common reasons:\n- Term not found in data\n- Typo in query\n- Using informal language\n- Data doesn't exist",
           "level": 3
         },
         {
           "heading": "Can I still use a MEDIUM result?",
-          "content": "Yes, but: 1. Review the methodology 2. Verify assumptions 3. Document any caveats",
+          "content": "Yes, but:\n1. Review the methodology\n2. Verify assumptions\n3. Document any caveats",
           "level": 3
         },
         {
           "heading": "What if confidence is always low?",
-          "content": "Contact your administrator to: - Check if data is loaded - Verify metadata is approved - Rebuild dictionary indexes",
+          "content": "Contact your administrator to:\n- Check if data is loaded\n- Verify metadata is approved\n- Rebuild dictionary indexes",
           "level": 3
         },
         {
           "heading": "Next Steps",
-          "content": "- Asking Questions Effectively - Example Queries - Chat Interface Guide",
+          "content": "- Asking Questions Effectively\n- Example Queries\n- Chat Interface Guide",
           "level": 2
         }
       ],
@@ -3824,22 +3824,22 @@
       "sections": [
         {
           "heading": "1. Answer Accuracy Issues",
-          "content": "- SQL might be syntactically correct but **semantically wrong** - No verification that the generated SQL actually answers the question - Entity resolution might match wrong terms (e.g., \"headache\" → \"sinus headache\") - No feedback loop to learn from mistakes",
+          "content": "- SQL might be syntactically correct but **semantically wrong**\n- No verification that the generated SQL actually answers the question\n- Entity resolution might match wrong terms (e.g., \"headache\" → \"sinus headache\")\n- No feedback loop to learn from mistakes",
           "level": 3
         },
         {
           "heading": "2. Query Coverage Limitations",
-          "content": "- System only handles queries it was \"designed\" for - No graceful handling of questions it can't answer - No clarification requests when ambiguous - No understanding of query variations",
+          "content": "- System only handles queries it was \"designed\" for\n- No graceful handling of questions it can't answer\n- No clarification requests when ambiguous\n- No understanding of query variations",
           "level": 3
         },
         {
           "heading": "3. Response Inconsistency",
-          "content": "- Confidence shown as: 95%, 0.95, \"high\", \"5/5 stars\" - all over the place - Different response structures from different code paths - No unified response contract",
+          "content": "- Confidence shown as: 95%, 0.95, \"high\", \"5/5 stars\" - all over the place\n- Different response structures from different code paths\n- No unified response contract",
           "level": 3
         },
         {
           "heading": "4. No Memory/Learning",
-          "content": "- Same question asked differently = different answers - No learning from corrections - No session context (multi-turn conversations)",
+          "content": "- Same question asked differently = different answers\n- No learning from corrections\n- No session context (multi-turn conversations)",
           "level": 3
         },
         {
@@ -3849,27 +3849,27 @@
         },
         {
           "heading": "Phase 1: Foundation (Week 1-2)",
-          "content": "1. **Unified Response Format** - Single response structure everywhere 2. **Confidence Standardization** - Integer 0-100, no variations 3. **Query Analysis Structure** - Decompose queries before SQL",
+          "content": "1. **Unified Response Format** - Single response structure everywhere\n2. **Confidence Standardization** - Integer 0-100, no variations\n3. **Query Analysis Structure** - Decompose queries before SQL",
           "level": 3
         },
         {
           "heading": "Phase 2: Accuracy (Week 3-4)",
-          "content": "4. **Answer Verification** - Verify before returning 5. **Clarification System** - Ask when uncertain 6. **Data-Driven Knowledge** - Learn from actual data",
+          "content": "4. **Answer Verification** - Verify before returning\n5. **Clarification System** - Ask when uncertain\n6. **Data-Driven Knowledge** - Learn from actual data",
           "level": 3
         },
         {
           "heading": "Phase 3: Intelligence (Week 5-6)",
-          "content": "7. **Session Memory** - Remember conversation context 8. **Template Generation** - Data-driven query templates 9. **Learning from Corrections** - Improve over time",
+          "content": "7. **Session Memory** - Remember conversation context\n8. **Template Generation** - Data-driven query templates\n9. **Learning from Corrections** - Improve over time",
           "level": 3
         },
         {
           "heading": "10. Success Metrics",
-          "content": "| Metric | Current | Target | |--------|---------|--------| | Answer Accuracy | Unknown (~70%?) | > 95% | | Query Coverage | Limited patterns | Any clinical question | | Response Consistency | Multiple formats | 100% unified | | Clarification Rate | 0% (guesses) | 10-15% (asks when unsure) | | False Confidence | Common | Rare (<5%) |",
+          "content": "| Metric | Current | Target |\n|--------|---------|--------|\n| Answer Accuracy | Unknown (~70%?) | > 95% |\n| Query Coverage | Limited patterns | Any clinical question |\n| Response Consistency | Multiple formats | 100% unified |\n| Clarification Rate | 0% (guesses) | 10-15% (asks when unsure) |\n| False Confidence | Common | Rare (<5%) |",
           "level": 2
         },
         {
           "heading": "Key Principles",
-          "content": "1. **Understand before acting** - Parse query structure before generating SQL 2. **Ask when unsure** - Clarification > wrong answer 3. **Verify before responding** - Cross-check results 4. **One format always** - Consistent response structure 5. **Learn from data** - Don't hardcode, discover 6. **Remember context** - Use conversation history 7. **Be transparent** - Show how answer was derived",
+          "content": "1. **Understand before acting** - Parse query structure before generating SQL\n2. **Ask when unsure** - Clarification > wrong answer\n3. **Verify before responding** - Cross-check results\n4. **One format always** - Consistent response structure\n5. **Learn from data** - Don't hardcode, discover\n6. **Remember context** - Use conversation history\n7. **Be transparent** - Show how answer was derived",
           "level": 2
         }
       ],
@@ -3936,42 +3936,42 @@
       "sections": [
         {
           "heading": "Current vs Target State",
-          "content": "| Aspect | Current | Target | Priority | |--------|---------|--------|----------| | Retry Logic | None | 3x with exponential backoff | **CRITICAL** | | Circuit Breaker | None | Per-provider with auto-recovery | **CRITICAL** | | Request Tracing | None | UUID propagated through all steps | **CRITICAL** | | Error Recovery | Fail-fast | Graceful degradation | **HIGH** | | Observability | Basic logging | Structured logs + metrics | **HIGH** | | Rate Limiting | None | Token bucket per user/endpoint | **HIGH** | | Connection Pool | None | DuckDB connection pool | **MEDIUM** | | Config Management | Hardcoded | Externalized YAML + hot reload | **MEDIUM** | | Health Checks | Basic | Deep health with dependencies | **MEDIUM** |",
+          "content": "| Aspect | Current | Target | Priority |\n|--------|---------|--------|----------|\n| Retry Logic | None | 3x with exponential backoff | **CRITICAL** |\n| Circuit Breaker | None | Per-provider with auto-recovery | **CRITICAL** |\n| Request Tracing | None | UUID propagated through all steps | **CRITICAL** |\n| Error Recovery | Fail-fast | Graceful degradation | **HIGH** |\n| Observability | Basic logging | Structured logs + metrics | **HIGH** |\n| Rate Limiting | None | Token bucket per user/endpoint | **HIGH** |\n| Connection Pool | None | DuckDB connection pool | **MEDIUM** |\n| Config Management | Hardcoded | Externalized YAML + hot reload | **MEDIUM** |\n| Health Checks | Basic | Deep health with dependencies | **MEDIUM** |",
           "level": 2
         },
         {
           "heading": "Phase 1: Critical (Week 1-2)",
-          "content": "1. **Request Context & Tracing** - Foundation for all observability 2. **Retry Logic for LLM** - Most common failure point 3. **Circuit Breaker** - Prevent cascading failures 4. **Structured Logging** - Debug production issues",
+          "content": "1. **Request Context & Tracing** - Foundation for all observability\n2. **Retry Logic for LLM** - Most common failure point\n3. **Circuit Breaker** - Prevent cascading failures\n4. **Structured Logging** - Debug production issues",
           "level": 3
         },
         {
           "heading": "Phase 2: High (Week 3-4)",
-          "content": "5. **Metrics Collection** - Operational visibility 6. **Graceful Degradation** - Partial results vs. failures 7. **Rate Limiting** - Protect from abuse 8. **Health Checks** - Deployment readiness",
+          "content": "5. **Metrics Collection** - Operational visibility\n6. **Graceful Degradation** - Partial results vs. failures\n7. **Rate Limiting** - Protect from abuse\n8. **Health Checks** - Deployment readiness",
           "level": 3
         },
         {
           "heading": "Phase 3: Medium (Week 5-6)",
-          "content": "9. **Configuration Externalization** - Clinical rules to YAML 10. **Connection Pooling** - DuckDB performance 11. **Cache Improvements** - Fuzzy matching, repair 12. **Hot Reload** - Config changes without restart",
+          "content": "9. **Configuration Externalization** - Clinical rules to YAML\n10. **Connection Pooling** - DuckDB performance\n11. **Cache Improvements** - Fuzzy matching, repair\n12. **Hot Reload** - Config changes without restart",
           "level": 3
         },
         {
           "heading": "8. Success Metrics",
-          "content": "| Metric | Current | Target | |--------|---------|--------| | Request Success Rate | ~90% | 99.5% | | P50 Latency | 5-10s | 3-5s | | P99 Latency | 60s+ | 15s | | Mean Time to Recovery | Manual | 40% |",
+          "content": "| Metric | Current | Target |\n|--------|---------|--------|\n| Request Success Rate | ~90% | 99.5% |\n| P50 Latency | 5-10s | 3-5s |\n| P99 Latency | 60s+ | 15s |\n| Mean Time to Recovery | Manual | 40% |",
           "level": 2
         },
         {
           "heading": "Chaos Testing",
-          "content": "- Kill LLM provider mid-request - Inject network latency - Corrupt cache entries - Exhaust database connections",
+          "content": "- Kill LLM provider mid-request\n- Inject network latency\n- Corrupt cache entries\n- Exhaust database connections",
           "level": 3
         },
         {
           "heading": "Load Testing",
-          "content": "- Sustained 100 QPS for 1 hour - Burst to 500 QPS for 5 minutes - Concurrent users: 50+",
+          "content": "- Sustained 100 QPS for 1 hour\n- Burst to 500 QPS for 5 minutes\n- Concurrent users: 50+",
           "level": 3
         },
         {
           "heading": "Failure Injection",
-          "content": "- LLM returns garbage SQL - Database locks - Cache corruption - Config file missing",
+          "content": "- LLM returns garbage SQL\n- Database locks\n- Cache corruption\n- Config file missing",
           "level": 3
         }
       ],
@@ -4038,32 +4038,32 @@
       "sections": [
         {
           "heading": "What is SAGE?",
-          "content": "SAGE (Study Analytics Generative Engine) is an enterprise-grade platform designed for the pharmaceutical industry. It allows clinical data scientists, biostatisticians, and medical writers to query clinical trial data using plain English. **Core Principle**: The AI acts as a **TRANSLATOR**, not an **EXPERT**. Mathematical calculations are performed by generated code, not by probabilistic AI inference.",
+          "content": "SAGE (Study Analytics Generative Engine) is an enterprise-grade platform designed for the pharmaceutical industry. It allows clinical data scientists, biostatisticians, and medical writers to query clinical trial data using plain English.\n\n**Core Principle**: The AI acts as a **TRANSLATOR**, not an **EXPERT**. Mathematical calculations are performed by generated code, not by probabilistic AI inference.",
           "level": 2
         },
         {
           "heading": "Key Features",
-          "content": "| Feature | Description | |---------|-------------| | **Natural Language Queries** | Ask questions in plain English, get SQL-backed results | | **100% On-Premise** | All processing happens locally - no cloud dependency | | **GAMP 5 Compliant** | Category 4 validation with full audit trail | | **Confidence Scoring** | Every answer includes reliability indicators | | **Medical Terminology** | Built-in MedDRA and synonym support | | **Fuzzy Matching** | Handles typos and spelling variations |",
+          "content": "| Feature | Description |\n|---------|-------------|\n| **Natural Language Queries** | Ask questions in plain English, get SQL-backed results |\n| **100% On-Premise** | All processing happens locally - no cloud dependency |\n| **GAMP 5 Compliant** | Category 4 validation with full audit trail |\n| **Confidence Scoring** | Every answer includes reliability indicators |\n| **Medical Terminology** | Built-in MedDRA and synonym support |\n| **Fuzzy Matching** | Handles typos and spelling variations |",
           "level": 2
         },
         {
           "heading": "Quick Links",
-          "content": "- :material-rocket-launch: **Getting Started** --- Install SAGE and run your first query :octicons-arrow-right-24: Installation Guide - :material-account: **User Guide** --- Learn how to ask questions effectively :octicons-arrow-right-24: User Guide - :material-cog: **Admin Guide** --- Configure and manage the platform :octicons-arrow-right-24: Admin Guide - :material-factory: **Architecture** --- Understand the Four Factories model :octicons-arrow-right-24: Architecture - :material-shield-check: **Compliance** --- GAMP 5 validation documentation :octicons-arrow-right-24: Compliance - :material-api: **API Reference** --- REST API documentation :octicons-arrow-right-24: API Reference",
+          "content": "- :material-rocket-launch: **Getting Started**\n\n ---\n\n Install SAGE and run your first query\n\n :octicons-arrow-right-24: Installation Guide\n\n- :material-account: **User Guide**\n\n ---\n\n Learn how to ask questions effectively\n\n :octicons-arrow-right-24: User Guide\n\n- :material-cog: **Admin Guide**\n\n ---\n\n Configure and manage the platform\n\n :octicons-arrow-right-24: Admin Guide\n\n- :material-factory: **Architecture**\n\n ---\n\n Understand the Four Factories model\n\n :octicons-arrow-right-24: Architecture\n\n- :material-shield-check: **Compliance**\n\n ---\n\n GAMP 5 validation documentation\n\n :octicons-arrow-right-24: Compliance\n\n- :material-api: **API Reference**\n\n ---\n\n REST API documentation\n\n :octicons-arrow-right-24: API Reference",
           "level": 2
         },
         {
           "heading": "Architecture Overview",
-          "content": "SAGE uses a **Four Factories Model**: | Factory | Purpose | Input | Output | |---------|---------|-------|--------| | **Factory 1** - Data Foundry | Data ingestion | SAS7BDAT files | DuckDB database | | **Factory 2** - Metadata Refinery | Spec processing | Excel specifications | Golden Metadata JSON | | **Factory 3** - Dictionary Plant | Index building | Live data | Fuzzy matching indexes | | **Factory 4** - Inference Engine | Query processing | Natural language | SQL results | Learn more about the architecture :octicons-arrow-right-24:",
+          "content": "SAGE uses a **Four Factories Model**:\n\n| Factory | Purpose | Input | Output |\n|---------|---------|-------|--------|\n| **Factory 1** - Data Foundry | Data ingestion | SAS7BDAT files | DuckDB database |\n| **Factory 2** - Metadata Refinery | Spec processing | Excel specifications | Golden Metadata JSON |\n| **Factory 3** - Dictionary Plant | Index building | Live data | Fuzzy matching indexes |\n| **Factory 4** - Inference Engine | Query processing | Natural language | SQL results |\n\nLearn more about the architecture :octicons-arrow-right-24:",
           "level": 2
         },
         {
           "heading": "Technology Stack",
-          "content": "| Component | Technology | |-----------|------------| | AI/LLM | Claude API | | Database | DuckDB | | Fuzzy Matching | RapidFuzz | | Medical Terms | MedDRA integration | | API | FastAPI | | UI | React + TypeScript | | Documentation | MkDocs Material | | Containerization | Docker Compose |",
+          "content": "| Component | Technology |\n|-----------|------------|\n| AI/LLM | Claude API |\n| Database | DuckDB |\n| Fuzzy Matching | RapidFuzz |\n| Medical Terms | MedDRA integration |\n| API | FastAPI |\n| UI | React + TypeScript |\n| Documentation | MkDocs Material |\n| Containerization | Docker Compose |",
           "level": 2
         },
         {
           "heading": "Support",
-          "content": "- **Documentation Issues**: Check the troubleshooting guide - **System Questions**: Use \"Ask the System\" feature in the chat interface - **Technical Support**: Contact your system administrator *SAGE - Making clinical data accessible through natural language*",
+          "content": "- **Documentation Issues**: Check the troubleshooting guide\n- **System Questions**: Use \"Ask the System\" feature in the chat interface\n- **Technical Support**: Contact your system administrator\n\n*SAGE - Making clinical data accessible through natural language*",
           "level": 2
         }
       ],
@@ -4130,27 +4130,27 @@
       "sections": [
         {
           "heading": "Goal",
-          "content": "Transform SAGE into a **self-documenting Enterprise Platform** that: 1. Satisfies auditors/validators with complete code traceability 2. Empowers users with a searchable knowledge base 3. Provides an \"Ask the System\" chat feature for discovering platform internals",
+          "content": "Transform SAGE into a **self-documenting Enterprise Platform** that:\n\n1. Satisfies auditors/validators with complete code traceability\n2. Empowers users with a searchable knowledge base\n3. Provides an \"Ask the System\" chat feature for discovering platform internals",
           "level": 2
         },
         {
           "heading": "User Decisions",
-          "content": "- **Ask the System:** Option A - Static Knowledge (JSON index, keyword matching) - **Priority:** Static documentation first, then Ask feature - **Compliance:** Full GAMP 5 coverage (security, data integrity, accuracy, performance, usability)",
+          "content": "- **Ask the System:** Option A - Static Knowledge (JSON index, keyword matching)\n- **Priority:** Static documentation first, then Ask feature\n- **Compliance:** Full GAMP 5 coverage (security, data integrity, accuracy, performance, usability)",
           "level": 2
         },
         {
           "heading": "Platform Analysis Summary",
-          "content": "Based on comprehensive codebase exploration: | Component | Files | Key Classes | Purpose | |-----------|-------|-------------|---------| | Factory 1 (Data) | 6 modules | SASReader, DuckDBLoader, SchemaTracker | SAS→DuckDB pipeline | | Factory 2 (Metadata) | 7 modules | ExcelParser, MetadataStore, CDISCLibrary | Excel specs→Golden Metadata | | Factory 3 (Dictionary) | 4 modules | FuzzyMatcher, ValueScanner, SchemaMapper | Fuzzy matching indexes | | Factory 3.5 (MedDRA) | 2 modules | MedDRALoader, MedDRALookup | Medical terminology | | Factory 4 (Engine) | 20+ modules | InferencePipeline (9-step), All components | Query processing | | Admin | 2 modules | AuthProvider, AuditTracker | Authentication, audit | | Docker/API | 9 routers | FastAPI endpoints | REST API | | React UI | 13 pages | Admin dashboard, Chat | User interface | **Total: 60+ Python modules, 13+ React pages, 9 API routers**",
+          "content": "Based on comprehensive codebase exploration:\n\n| Component | Files | Key Classes | Purpose |\n|-----------|-------|-------------|---------|\n| Factory 1 (Data) | 6 modules | SASReader, DuckDBLoader, SchemaTracker | SAS→DuckDB pipeline |\n| Factory 2 (Metadata) | 7 modules | ExcelParser, MetadataStore, CDISCLibrary | Excel specs→Golden Metadata |\n| Factory 3 (Dictionary) | 4 modules | FuzzyMatcher, ValueScanner, SchemaMapper | Fuzzy matching indexes |\n| Factory 3.5 (MedDRA) | 2 modules | MedDRALoader, MedDRALookup | Medical terminology |\n| Factory 4 (Engine) | 20+ modules | InferencePipeline (9-step), All components | Query processing |\n| Admin | 2 modules | AuthProvider, AuditTracker | Authentication, audit |\n| Docker/API | 9 routers | FastAPI endpoints | REST API |\n| React UI | 13 pages | Admin dashboard, Chat | User interface |\n\n**Total: 60+ Python modules, 13+ React pages, 9 API routers**",
           "level": 2
         },
         {
           "heading": "Phase 1: Documentation Infrastructure (MkDocs Enhancement)",
-          "content": "**Location:** (source) → (server) **New Directory Structure:** **Files to Create/Modify:** - - Update navigation with new structure - 50+ new Markdown files with comprehensive content",
+          "content": "**Location:** (source) → (server)\n\n**New Directory Structure:**\n\n**Files to Create/Modify:**\n\n- - Update navigation with new structure\n- 50+ new Markdown files with comprehensive content",
           "level": 3
         },
         {
           "heading": "Phase 2: Code Analysis Script",
-          "content": "**Purpose:** Auto-generate documentation from code docstrings and structure **New Script:** **Functionality:** 1. Scan all Python files in and 2. Extract: - Module docstrings - Class definitions with docstrings - Method signatures with docstrings - Type hints - Dependencies (imports) 3. Generate Markdown files in 4. Create cross-reference index **Output Format (per module):** ```markdown # core.engine.pipeline",
+          "content": "**Purpose:** Auto-generate documentation from code docstrings and structure\n\n**New Script:** \n\n**Functionality:**\n\n1. Scan all Python files in and \n2. Extract:\n - Module docstrings\n - Class definitions with docstrings\n - Method signatures with docstrings\n - Type hints\n - Dependencies (imports)\n3. Generate Markdown files in \n4. Create cross-reference index\n\n**Output Format (per module):**\n\n```markdown\n# core.engine.pipeline",
           "level": 3
         },
         {
@@ -4160,72 +4160,72 @@
         },
         {
           "heading": "InferencePipeline",
-          "content": "**File:** Main pipeline class that orchestrates query processing. **Constructor:** def __init__(self, config: PipelineConfig) **Key Methods:** | Method | Description | Returns | |--------|-------------|---------| | | Main entry point | | | | With conversation context | | | | Check component health | | **Dependencies:** - - Step 1 - - Step 2 - - Step 3 ```",
+          "content": "**File:** \n\nMain pipeline class that orchestrates query processing.\n\n**Constructor:**\ndef __init__(self, config: PipelineConfig)\n\n**Key Methods:**\n| Method | Description | Returns |\n|--------|-------------|---------|\n| | Main entry point | |\n| | With conversation context | |\n| | Check component health | |\n\n**Dependencies:**\n- - Step 1\n- - Step 2\n- - Step 3\n```",
           "level": 3
         },
         {
           "heading": "Phase 3: Knowledge Base for \"Ask the System\"",
-          "content": "**Purpose:** Enable users to query about platform internals via chat **Implementation Approach:** #### Implementation: Static Knowledge Ingestion 1. Generate from: - All Markdown documentation - Code docstrings (via generate_code_docs.py) - CLAUDE.md content - Configuration files 2. Create class (similar to existing ) - Stores documentation chunks with keywords - Provides keyword/phrase-based search - Returns relevant documentation sections 3. Add \"meta-query\" detection in pipeline: - Detect questions like \"How does SAGE handle...?\" - Route to SystemKnowledge instead of clinical data - Return documentation-based answer **New Files:** - - System documentation store - - Indexed documentation - - Documentation indexer **Pipeline Integration:** **Example Meta-Queries:** - \"How does SAGE handle SQL injection?\" - \"What columns are used for serious adverse events?\" - \"How does the confidence scoring work?\" - \"What is the difference between AESER and AESEV?\"",
+          "content": "**Purpose:** Enable users to query about platform internals via chat\n\n**Implementation Approach:**\n\n#### Implementation: Static Knowledge Ingestion\n\n1. Generate from:\n - All Markdown documentation\n - Code docstrings (via generate_code_docs.py)\n - CLAUDE.md content\n - Configuration files\n\n2. Create class (similar to existing )\n - Stores documentation chunks with keywords\n - Provides keyword/phrase-based search\n - Returns relevant documentation sections\n\n3. Add \"meta-query\" detection in pipeline:\n - Detect questions like \"How does SAGE handle...?\"\n - Route to SystemKnowledge instead of clinical data\n - Return documentation-based answer\n\n**New Files:**\n\n- - System documentation store\n- - Indexed documentation\n- - Documentation indexer\n\n**Pipeline Integration:**\n\n**Example Meta-Queries:**\n\n- \"How does SAGE handle SQL injection?\"\n- \"What columns are used for serious adverse events?\"\n- \"How does the confidence scoring work?\"\n- \"What is the difference between AESER and AESEV?\"",
           "level": 3
         },
         {
           "heading": "Phase 4: Traceability Matrix",
-          "content": "**Purpose:** Map Requirements → Code → Tests for compliance **New File:** **GAMP 5 Requirement Categories:** | Category | Prefix | Example Requirements | |----------|--------|---------------------| | Security | SEC-* | PHI blocking, SQL injection, auth, audit | | Data Integrity | DAT-* | Deterministic processing, schema validation, data lineage | | Accuracy | ACC-* | Confidence scoring, entity resolution, SQL validation | | Performance | PRF-* | Response time, caching, timeout handling | | Usability | USE-* | Error messages, help system, documentation | **Sample Traceability Matrix:** | Req ID | Requirement | Implementation | Test Coverage | |--------|-------------|----------------|---------------| | SEC-001 | Block PHI/PII in queries | | | | SEC-002 | Block SQL injection | | | | SEC-003 | JWT authentication | | | | SEC-004 | Query audit logging | | | | DAT-001 | SAS file ingestion | | | | DAT-002 | Schema version tracking | | | | DAT-003 | Deterministic SQL execution | | | | ACC-001 |",
+          "content": "**Purpose:** Map Requirements → Code → Tests for compliance\n\n**New File:** \n\n**GAMP 5 Requirement Categories:**\n\n| Category | Prefix | Example Requirements |\n|----------|--------|---------------------|\n| Security | SEC-* | PHI blocking, SQL injection, auth, audit |\n| Data Integrity | DAT-* | Deterministic processing, schema validation, data lineage |\n| Accuracy | ACC-* | Confidence scoring, entity resolution, SQL validation |\n| Performance | PRF-* | Response time, caching, timeout handling |\n| Usability | USE-* | Error messages, help system, documentation |\n\n**Sample Traceability Matrix:**\n\n| Req ID | Requirement | Implementation | Test Coverage |\n|--------|-------------|----------------|---------------|\n| SEC-001 | Block PHI/PII in queries | | |\n| SEC-002 | Block SQL injection | | |\n| SEC-003 | JWT authentication | | |\n| SEC-004 | Query audit logging | | |\n| DAT-001 | SAS file ingestion | | |\n| DAT-002 | Schema version tracking | | |\n| DAT-003 | Deterministic SQL execution | | |\n| ACC",
           "level": 3
         },
         {
           "heading": "Phase 5: Interactive Documentation Features",
-          "content": "**Enhancements to MkDocs:** 1. **Search Enhancement** - Full-text search across all docs - Code snippet search - API endpoint search 2. **Mermaid Diagrams** - Pipeline flow diagram - Authentication flow - Data flow between factories - Class hierarchy diagrams 3. **Code Tabs** - Show Python implementation alongside documentation - Syntax highlighting 4. **Admonitions** - Warning boxes for security-critical sections - Info boxes for best practices - Note boxes for auditor-relevant information",
+          "content": "**Enhancements to MkDocs:**\n\n1. **Search Enhancement**\n - Full-text search across all docs\n - Code snippet search\n - API endpoint search\n\n2. **Mermaid Diagrams**\n - Pipeline flow diagram\n - Authentication flow\n - Data flow between factories\n - Class hierarchy diagrams\n\n3. **Code Tabs**\n - Show Python implementation alongside documentation\n - Syntax highlighting\n\n4. **Admonitions**\n - Warning boxes for security-critical sections\n - Info boxes for best practices\n - Note boxes for auditor-relevant information",
           "level": 3
         },
         {
           "heading": "PART A: Static Documentation (Priority 1)",
-          "content": "#### Step 1: Create Documentation Structure - [ ] Create all directory folders under - [ ] Create placeholder files for each section - [ ] Update with full navigation #### Step 2: Write Architecture Documentation - [ ] - Four Factories model - [ ] - 9-step pipeline with Mermaid diagram - [ ] - Complete security documentation - [ ] - All technologies used #### Step 3: Document Each Factory - [ ] Factory 1: 5 documentation files - [ ] Factory 2: 5 documentation files - [ ] Factory 3: 4 documentation files - [ ] Factory 3.5: 3 documentation files - [ ] Factory 4: 13 documentation files #### Step 4: Create Code Analysis Script - [ ] - [ ] Run to generate #### Step 5: Create API Reference - [ ] Document all 9 FastAPI routers - [ ] Include request/response models - [ ] Add example curl commands #### Step 6: Create User & Admin Guides - [ ] User guide: 5 files (chat, queries, results, confidence, examples) - [ ] Admin guide: 6 files (users, data, metadata, dictionary, monitoring, troubleshoot",
+          "content": "#### Step 1: Create Documentation Structure\n\n- [ ] Create all directory folders under \n- [ ] Create placeholder files for each section\n- [ ] Update with full navigation\n\n#### Step 2: Write Architecture Documentation\n\n- [ ] - Four Factories model\n- [ ] - 9-step pipeline with Mermaid diagram\n- [ ] - Complete security documentation\n- [ ] - All technologies used\n\n#### Step 3: Document Each Factory\n\n- [ ] Factory 1: 5 documentation files\n- [ ] Factory 2: 5 documentation files\n- [ ] Factory 3: 4 documentation files\n- [ ] Factory 3.5: 3 documentation files\n- [ ] Factory 4: 13 documentation files\n\n#### Step 4: Create Code Analysis Script\n\n- [ ] \n- [ ] Run to generate \n\n#### Step 5: Create API Reference\n\n- [ ] Document all 9 FastAPI routers\n- [ ] Include request/response models\n- [ ] Add example curl commands\n\n#### Step 6: Create User & Admin Guides\n\n- [ ] User guide: 5 files (chat, queries, results, confidence, examples)\n- [ ] Admin guide: 6 files (users, data, metadata, dictionary, monitoring",
           "level": 3
         },
         {
           "heading": "PART B: \"Ask the System\" Feature (Priority 2)",
-          "content": "#### Step 9: Build System Knowledge Base - [ ] - Index all documentation - [ ] - Structured doc index - [ ] Keyword extraction and categorization #### Step 10: Create SystemKnowledge Class - [ ] - [ ] Load from - [ ] Implement keyword-based search - [ ] Return relevant documentation sections #### Step 11: Add Meta-Query Detection to Pipeline - [ ] Detect meta-queries: \"How does SAGE...\", \"What is...\", \"Explain...\" - [ ] Add flag to QueryAnalysis - [ ] Route to SystemKnowledge instead of clinical data - [ ] Format documentation-based response #### Step 12: Test \"Ask the System\" - [ ] Test: \"How does SAGE handle SQL injection?\" - [ ] Test: \"What is the confidence scoring formula?\" - [ ] Test: \"Explain the difference between AESER and AESEV\" - [ ] Test: \"How does fuzzy matching work?\" - [ ] Verify responses are accurate and helpful",
+          "content": "#### Step 9: Build System Knowledge Base\n\n- [ ] - Index all documentation\n- [ ] - Structured doc index\n- [ ] Keyword extraction and categorization\n\n#### Step 10: Create SystemKnowledge Class\n\n- [ ] \n- [ ] Load from \n- [ ] Implement keyword-based search\n- [ ] Return relevant documentation sections\n\n#### Step 11: Add Meta-Query Detection to Pipeline\n\n- [ ] Detect meta-queries: \"How does SAGE...\", \"What is...\", \"Explain...\"\n- [ ] Add flag to QueryAnalysis\n- [ ] Route to SystemKnowledge instead of clinical data\n- [ ] Format documentation-based response\n\n#### Step 12: Test \"Ask the System\"\n\n- [ ] Test: \"How does SAGE handle SQL injection?\"\n- [ ] Test: \"What is the confidence scoring formula?\"\n- [ ] Test: \"Explain the difference between AESER and AESEV\"\n- [ ] Test: \"How does fuzzy matching work?\"\n- [ ] Verify responses are accurate and helpful",
           "level": 3
         },
         {
           "heading": "Utility Scripts (Optional - Can Be Removed After Use)",
-          "content": "| File | Purpose | Removable? | |------|---------|------------| | | Auto-generate API reference from docstrings | Yes - run once, delete after | | | Index docs for \"Ask the System\" feature | Yes - run once, delete after | | | Generate compliance traceability matrix | Yes - run once, delete after | **Note:** These are one-time utility scripts for documentation generation. They: - Do NOT modify any core platform code - Can be run once and deleted - Are NOT required for SAGE to function - Only regenerate static Markdown/JSON files",
+          "content": "| File | Purpose | Removable? |\n|------|---------|------------|\n| | Auto-generate API reference from docstrings | Yes - run once, delete after |\n| | Index docs for \"Ask the System\" feature | Yes - run once, delete after |\n| | Generate compliance traceability matrix | Yes - run once, delete after |\n\n**Note:** These are one-time utility scripts for documentation generation. They:\n\n- Do NOT modify any core platform code\n- Can be run once and deleted\n- Are NOT required for SAGE to function\n- Only regenerate static Markdown/JSON files",
           "level": 3
         },
         {
           "heading": "New Core Modules",
-          "content": "| File | Purpose | |------|---------| | | System documentation store and retrieval |",
+          "content": "| File | Purpose |\n|------|---------|\n| | System documentation store and retrieval |",
           "level": 3
         },
         {
           "heading": "New Knowledge Files",
-          "content": "| File | Purpose | |------|---------| | | Indexed documentation for meta-queries |",
+          "content": "| File | Purpose |\n|------|---------|\n| | Indexed documentation for meta-queries |",
           "level": 3
         },
         {
           "heading": "Documentation Files",
-          "content": "| Location | Count | Purpose | |----------|-------|---------| | | 4 files | High-level system design | | | 30 files | Detailed factory documentation | | | 8 files | REST API documentation | | | 6 files | Administrator operations | | | 5 files | End-user documentation | | | 5 files | Audit/validation docs | | | 7 files | Auto-generated code docs | **Total: ~65 new documentation files**",
+          "content": "| Location | Count | Purpose |\n|----------|-------|---------|\n| | 4 files | High-level system design |\n| | 30 files | Detailed factory documentation |\n| | 8 files | REST API documentation |\n| | 6 files | Administrator operations |\n| | 5 files | End-user documentation |\n| | 5 files | Audit/validation docs |\n| | 7 files | Auto-generated code docs |\n\n**Total: ~65 new documentation files**",
           "level": 3
         },
         {
           "heading": "Success Criteria",
-          "content": "| Criterion | Validation Method | |-----------|-------------------| | Auditor can find any code explanation | Navigate docs → find module → see implementation details | | User can understand confidence scores | User guide explains GREEN/YELLOW/RED with examples | | \"Ask the System\" works | Query \"How does SAGE block SQL injection?\" returns accurate answer | | Traceability complete | Every security requirement maps to code and tests | | All APIs documented | Every endpoint has request/response examples | | Factory documentation complete | Each of 60+ modules has documentation page |",
+          "content": "| Criterion | Validation Method |\n|-----------|-------------------|\n| Auditor can find any code explanation | Navigate docs → find module → see implementation details |\n| User can understand confidence scores | User guide explains GREEN/YELLOW/RED with examples |\n| \"Ask the System\" works | Query \"How does SAGE block SQL injection?\" returns accurate answer |\n| Traceability complete | Every security requirement maps to code and tests |\n| All APIs documented | Every endpoint has request/response examples |\n| Factory documentation complete | Each of 60+ modules has documentation page |",
           "level": 2
         },
         {
           "heading": "Dependencies",
-          "content": "- MkDocs Material theme (already configured in docker/docs/) - Mermaid diagrams (already in mkdocs.yml) - Python AST module (for code analysis - built into Python) - Existing golden_metadata.json structure",
+          "content": "- MkDocs Material theme (already configured in docker/docs/)\n- Mermaid diagrams (already in mkdocs.yml)\n- Python AST module (for code analysis - built into Python)\n- Existing golden_metadata.json structure",
           "level": 2
         },
         {
           "heading": "Docker Changes Required",
-          "content": "**None** - The existing MkDocs container: - Already has all required plugins installed - Mounts directory as volume - Automatically serves new files when added - No Dockerfile or docker-compose changes needed We only edit: - files (content) - (navigation structure)",
+          "content": "**None** - The existing MkDocs container:\n\n- Already has all required plugins installed\n- Mounts directory as volume\n- Automatically serves new files when added\n- No Dockerfile or docker-compose changes needed\n\nWe only edit:\n\n- files (content)\n- (navigation structure)",
           "level": 2
         },
         {
           "heading": "Notes",
-          "content": "- **No code changes to core platform** - documentation only - **Read-only analysis** - scripts analyze but don't modify - **Incremental build** - can deploy documentation as sections complete - **Version controlled** - all docs in git with the codebase",
+          "content": "- **No code changes to core platform** - documentation only\n- **Read-only analysis** - scripts analyze but don't modify\n- **Incremental build** - can deploy documentation as sections complete\n- **Version controlled** - all docs in git with the codebase",
           "level": 2
         }
       ],
@@ -4292,12 +4292,12 @@
       "sections": [
         {
           "heading": "Single Source of Truth Documentation",
-          "content": "**Version:** 2.0 **Last Updated:** December 2024 **Status:** Active Development",
+          "content": "**Version:** 2.0\n**Last Updated:** December 2024\n**Status:** Active Development",
           "level": 2
         },
         {
           "heading": "Table of Contents",
-          "content": "1. Executive Summary 2. Platform Architecture 3. The Four Factories Model 4. Factory 1: Data Foundry 5. Factory 2: Metadata Refinery 6. Factory 3: Dictionary Plant 7. Factory 4: Inference Engine 8. End-to-End Integration 9. Admin UI & Infrastructure 10. Implementation Checklists 11. Project Status Summary",
+          "content": "1. Executive Summary\n2. Platform Architecture\n3. The Four Factories Model\n4. Factory 1: Data Foundry\n5. Factory 2: Metadata Refinery\n6. Factory 3: Dictionary Plant\n7. Factory 4: Inference Engine\n8. End-to-End Integration\n9. Admin UI & Infrastructure\n10. Implementation Checklists\n11. Project Status Summary",
           "level": 2
         },
         {
@@ -4312,17 +4312,17 @@
         },
         {
           "heading": "Key Features",
-          "content": "- 100% on-premise deployment (air-gapped capable) - Natural language to SQL translation - Confidence scoring with explanations - Human-in-the-loop metadata approval - Complete audit trail - GAMP 5 Category 4 validation approach",
+          "content": "- 100% on-premise deployment (air-gapped capable)\n- Natural language to SQL translation\n- Confidence scoring with explanations\n- Human-in-the-loop metadata approval\n- Complete audit trail\n- GAMP 5 Category 4 validation approach",
           "level": 3
         },
         {
           "heading": "Technology Stack",
-          "content": "| Component | Technology | Purpose | |-----------|------------|---------| | LLM Runtime | Ollama | Local LLM inference | | Primary Model | DeepSeek-R1 8B | SQL generation, analysis | | Embeddings | nomic-embed-text | Semantic search | | SQL Database | DuckDB | Clinical data queries | | Vector Database | ChromaDB | Fuzzy matching, RAG | | Backend API | FastAPI | REST API endpoints | | Frontend | React + TypeScript | Admin UI, Chat UI | | Containerization | Docker Compose | Service orchestration |",
+          "content": "| Component | Technology | Purpose |\n|-----------|------------|---------|\n| LLM Runtime | Ollama | Local LLM inference |\n| Primary Model | DeepSeek-R1 8B | SQL generation, analysis |\n| Embeddings | nomic-embed-text | Semantic search |\n| SQL Database | DuckDB | Clinical data queries |\n| Vector Database | ChromaDB | Fuzzy matching, RAG |\n| Backend API | FastAPI | REST API endpoints |\n| Frontend | React + TypeScript | Admin UI, Chat UI |\n| Containerization | Docker Compose | Service orchestration |",
           "level": 3
         },
         {
           "heading": "The Four Factories Model",
-          "content": "| Factory | Name | Input | Output | Status | |---------|------|-------|--------|--------| | **F1** | Data Foundry | SAS7BDAT, Parquet, CSV | clinical_data.duckdb | ✅ Complete (95%) | | **F2** | Metadata Refinery | Excel Specifications | golden_metadata.json | ✅ Complete | | **F2.5** | CDISC Standards | SDTM/ADaM IG Files | cdisc_library.db | ✅ Complete | | **F3** | Dictionary Plant | DuckDB + Metadata | fuzzy_index.pkl, schema_map.json | ✅ Complete | | **F3.5** | MedDRA Library | MedDRA ASCII Files | meddra_library.db | ✅ Complete | | **F4** | Inference Engine | Natural Language Query | SQL + Results + Explanation | 🔄 Basic Implementation |",
+          "content": "| Factory | Name | Input | Output | Status |\n|---------|------|-------|--------|--------|\n| **F1** | Data Foundry | SAS7BDAT, Parquet, CSV | clinical_data.duckdb | ✅ Complete (95%) |\n| **F2** | Metadata Refinery | Excel Specifications | golden_metadata.json | ✅ Complete |\n| **F2.5** | CDISC Standards | SDTM/ADaM IG Files | cdisc_library.db | ✅ Complete |\n| **F3** | Dictionary Plant | DuckDB + Metadata | fuzzy_index.pkl, schema_map.json | ✅ Complete |\n| **F3.5** | MedDRA Library | MedDRA ASCII Files | meddra_library.db | ✅ Complete |\n| **F4** | Inference Engine | Natural Language Query | SQL + Results + Explanation | 🔄 Basic Implementation |",
           "level": 2
         },
         {
@@ -4332,22 +4332,22 @@
         },
         {
           "heading": "Format Comparison",
-          "content": "| Format | Processing Speed | Features | Best For | |--------|-----------------|----------|----------| | | ⚡ Fastest | Direct load | Pre-processed data, large files | | | Medium | Date standardization, encoding detection | Original SAS datasets | | | Medium | Delimiter detection, type inference | Universal exchange | | | Slower | Legacy support | SAS transport files |",
+          "content": "| Format | Processing Speed | Features | Best For |\n|--------|-----------------|----------|----------|\n| | ⚡ Fastest | Direct load | Pre-processed data, large files |\n| | Medium | Date standardization, encoding detection | Original SAS datasets |\n| | Medium | Delimiter detection, type inference | Universal exchange |\n| | Slower | Legacy support | SAS transport files |",
           "level": 3
         },
         {
           "heading": "Schema Change Handling",
-          "content": "| Scenario | Handling | User Action | |----------|----------|-------------| | Same schema, new data | Direct replace | None - automatic | | New columns added | Replace + log change | Review new columns | | Columns removed | Replace + **WARNING** | Confirm removal | | Type change (compatible) | Replace + log (INT→DOUBLE) | Review change | | Type change (incompatible) | **BLOCK** + require confirmation | Must confirm | | Major schema change (>30%) | **BLOCK** + show diff | Must review & confirm |",
+          "content": "| Scenario | Handling | User Action |\n|----------|----------|-------------|\n| Same schema, new data | Direct replace | None - automatic |\n| New columns added | Replace + log change | Review new columns |\n| Columns removed | Replace + **WARNING** | Confirm removal |\n| Type change (compatible) | Replace + log (INT→DOUBLE) | Review change |\n| Type change (incompatible) | **BLOCK** + require confirmation | Must confirm |\n| Major schema change (>30%) | **BLOCK** + show diff | Must review & confirm |",
           "level": 3
         },
         {
           "heading": "Current Implementation Status",
-          "content": "| Component | File | Status | |-----------|------|--------| | SAS Reader | | ✅ Complete | | Date Handler | | ✅ Complete | | DuckDB Loader | | ✅ Complete | | Data Validator | | ✅ Complete | | CLI Pipeline | | ✅ Complete | | API Router | | 🔄 Needs Enhancement | | Frontend UI | | 🔄 Needs Enhancement |",
+          "content": "| Component | File | Status |\n|-----------|------|--------|\n| SAS Reader | | ✅ Complete |\n| Date Handler | | ✅ Complete |\n| DuckDB Loader | | ✅ Complete |\n| Data Validator | | ✅ Complete |\n| CLI Pipeline | | ✅ Complete |\n| API Router | | 🔄 Needs Enhancement |\n| Frontend UI | | 🔄 Needs Enhancement |",
           "level": 3
         },
         {
           "heading": "Files to Create/Modify",
-          "content": "| File | Purpose | Status | |------|---------|--------| | | Unified reader for all formats | ⬜ New | | | CSV with delimiter detection | ⬜ New | | | Schema versioning & diff | ⬜ New | | | Real processing with SSE | 🔄 Enhance | | | Complete UI rewrite | 🔄 Enhance |",
+          "content": "| File | Purpose | Status |\n|------|---------|--------|\n| | Unified reader for all formats | ⬜ New |\n| | CSV with delimiter detection | ⬜ New |\n| | Schema versioning & diff | ⬜ New |\n| | Real processing with SSE | 🔄 Enhance |\n| | Complete UI rewrite | 🔄 Enhance |",
           "level": 3
         },
         {
@@ -4357,37 +4357,37 @@
         },
         {
           "heading": "Admin UI Features (Complete)",
-          "content": "**Metadata Auditor** (): - 7 Tabs: Domains, Variables, Codelists, Issues, Upload, Compare, History - Status badges (Pending/Approved/Rejected) - Approve/Reject buttons per variable - \"Approve All\" bulk action per domain (single version entry) - Variable detail slide-out panel - Auto-Approve with CDISC matching - Version history with restore capability - Export (approved only or all) **CDISC Library Browser** (): - Overview tab: Stats cards, descriptions - SDTM IG tab: 63 domains with drill-down - ADaM IG tab: 3 datasets with drill-down - Search tab: Cross-standard lookup",
+          "content": "**Metadata Auditor** ():\n- 7 Tabs: Domains, Variables, Codelists, Issues, Upload, Compare, History\n- Status badges (Pending/Approved/Rejected)\n- Approve/Reject buttons per variable\n- \"Approve All\" bulk action per domain (single version entry)\n- Variable detail slide-out panel\n- Auto-Approve with CDISC matching\n- Version history with restore capability\n- Export (approved only or all)\n\n**CDISC Library Browser** ():\n- Overview tab: Stats cards, descriptions\n- SDTM IG tab: 63 domains with drill-down\n- ADaM IG tab: 3 datasets with drill-down\n- Search tab: Cross-standard lookup",
           "level": 3
         },
         {
           "heading": "Implementation Status: ✅ COMPLETE",
-          "content": "| Component | File | Lines | Status | |-----------|------|-------|--------| | Excel Parser | | 520 | ✅ | | Codelist Merger | | 335 | ✅ | | LLM Drafter | | 539 | ✅ | | Version Control | | 781 | ✅ | | Metadata Store | | 787 | ✅ | | CDISC Library | | ~500 | ✅ | | Auto Approval | | ~300 | ✅ | | API Router | | ~600 | ✅ | | UI Page | | ~2000 | ✅ |",
+          "content": "| Component | File | Lines | Status |\n|-----------|------|-------|--------|\n| Excel Parser | | 520 | ✅ |\n| Codelist Merger | | 335 | ✅ |\n| LLM Drafter | | 539 | ✅ |\n| Version Control | | 781 | ✅ |\n| Metadata Store | | 787 | ✅ |\n| CDISC Library | | ~500 | ✅ |\n| Auto Approval | | ~300 | ✅ |\n| API Router | | ~600 | ✅ |\n| UI Page | | ~2000 | ✅ |",
           "level": 3
         },
         {
           "heading": "Overview",
-          "content": "Factory 3 builds fuzzy matching indexes by scanning actual data values from DuckDB (Factory 1 output) and combining with metadata definitions (Factory 2). This enables typo correction and term resolution for query understanding in Factory 4. **Status:** ✅ Complete (December 2024) **Design Decision:** Semantic/embedding search has been intentionally excluded. Clinical data requires exact terminology matching using controlled vocabularies (MedDRA). Synonym matching is handled via the MedDRA hierarchy (Factory 3.5), not AI embeddings. **Critical Dependency:** Factory 4 (Inference Engine) uses Factory 3's fuzzy matching for entity extraction and typo correction.",
+          "content": "Factory 3 builds fuzzy matching indexes by scanning actual data values from DuckDB (Factory 1 output) and combining with metadata definitions (Factory 2). This enables typo correction and term resolution for query understanding in Factory 4.\n\n**Status:** ✅ Complete (December 2024)\n\n**Design Decision:** Semantic/embedding search has been intentionally excluded. Clinical data requires exact terminology matching using controlled vocabularies (MedDRA). Synonym matching is handled via the MedDRA hierarchy (Factory 3.5), not AI embeddings.\n\n**Critical Dependency:** Factory 4 (Inference Engine) uses Factory 3's fuzzy matching for entity extraction and typo correction.",
           "level": 3
         },
         {
           "heading": "Key Columns to Scan",
-          "content": "**Note:** Free-text columns (AETERM, MHTERM) and flag columns (Y/N values) are excluded to prevent false matches. | Domain | Columns | Purpose | Status | |--------|---------|---------|--------| | **AE** | AEDECOD, AEBODSYS, AESOC, AEHLT, AELLT | Controlled AE terms | ✅ | | **CM** | CMTRT, CMDECOD, CMCLAS, CMCAT, CMINDC | Drug names, classes | ✅ | | **LB** | LBTEST, LBTESTCD, LBCAT, LBSCAT, LBSPEC | Lab test names | ✅ | | **VS** | VSTEST, VSTESTCD, VSPOS, VSLOC | Vital signs | ✅ | | **DM** | SEX, RACE, ETHNIC, COUNTRY, ARM, ARMCD, ACTARM | Demographics | ✅ | | **MH** | MHDECOD, MHBODSYS, MHCAT | Medical history (controlled) | ✅ | | **ADSL** | SEX, RACE, ETHNIC, TRT01P, TRT01A, ARM, ACTARM, AGEGR1 | Analysis subjects | ✅ | | **ADAE** | AEDECOD, AEBODSYS, AESOC, AEHLT, AELLT, AEACN, AEOUT, AETOXGR | ADaM AE analysis | ✅ | | **ADLB** | PARAM, PARAMCD, PARCAT1, AVISIT, ANRIND, BNRIND | ADaM Lab analysis | ✅ | **Excluded Columns:** - , - Free text verbatim terms (not controlled vocabulary) -",
+          "content": "**Note:** Free-text columns (AETERM, MHTERM) and flag columns (Y/N values) are excluded to prevent false matches.\n\n| Domain | Columns | Purpose | Status |\n|--------|---------|---------|--------|\n| **AE** | AEDECOD, AEBODSYS, AESOC, AEHLT, AELLT | Controlled AE terms | ✅ |\n| **CM** | CMTRT, CMDECOD, CMCLAS, CMCAT, CMINDC | Drug names, classes | ✅ |\n| **LB** | LBTEST, LBTESTCD, LBCAT, LBSCAT, LBSPEC | Lab test names | ✅ |\n| **VS** | VSTEST, VSTESTCD, VSPOS, VSLOC | Vital signs | ✅ |\n| **DM** | SEX, RACE, ETHNIC, COUNTRY, ARM, ARMCD, ACTARM | Demographics | ✅ |\n| **MH** | MHDECOD, MHBODSYS, MHCAT | Medical history (controlled) | ✅ |\n| **ADSL** | SEX, RACE, ETHNIC, TRT01P, TRT01A, ARM, ACTARM, AGEGR1 | Analysis subjects | ✅ |\n| **ADAE** | AEDECOD, AEBODSYS, AESOC, AEHLT, AELLT, AEACN, AEOUT, AETOXGR | ADaM AE analysis | ✅ |\n| **ADLB** | PARAM, PARAMCD, PARCAT1, AVISIT, ANRIND, BNRIND | ADaM Lab analysis | ✅ |\n\n**Excluded Columns:**\n- , - Free text verbatim terms (not controlled vocabulary)",
           "level": 3
         },
         {
           "heading": "Fuzzy Matching Examples (Tested & Verified)",
-          "content": "| User Input | Matched Value | Table.Column | Score | Use Case | |------------|---------------|--------------|-------|----------| | \"headche\" | Headache | AE.AEDECOD | 79.6% | Typo correction | | \"hypertention\" | Hypertension | ADAE.AEDECOD | 83.7% | Spelling error | | \"nausea\" | Nausea | AE.AEDECOD | 100% | Exact match | | \"diabetis\" | Diabetes mellitus | MEDDRA_HIERARCHY | 70%+ | Medical term typo | | \"Myocardial infarction\" | Myocardial infarction | AE.AEDECOD | 100% | Exact match | **Smart Scoring Algorithm:** - Prevents false positives (e.g., \"Y\" no longer matches \"TYLENOL\") - Length ratio filtering: value must be 40-300% of query length - Weighted scoring: ratio (40%) + token_sort (30%) + token_set (20%) + partial (10%) - Length similarity bonus for better matches **MedDRA Integration (Factory 3.5):** - Synonym matching via MedDRA hierarchy (PT → HLT → HLGT → SOC) - \"fever\" → finds \"Pyrexia\" via MedDRA lookup, not fuzzy matching",
+          "content": "| User Input | Matched Value | Table.Column | Score | Use Case |\n|------------|---------------|--------------|-------|----------|\n| \"headche\" | Headache | AE.AEDECOD | 79.6% | Typo correction |\n| \"hypertention\" | Hypertension | ADAE.AEDECOD | 83.7% | Spelling error |\n| \"nausea\" | Nausea | AE.AEDECOD | 100% | Exact match |\n| \"diabetis\" | Diabetes mellitus | MEDDRA_HIERARCHY | 70%+ | Medical term typo |\n| \"Myocardial infarction\" | Myocardial infarction | AE.AEDECOD | 100% | Exact match |\n\n**Smart Scoring Algorithm:**\n- Prevents false positives (e.g., \"Y\" no longer matches \"TYLENOL\")\n- Length ratio filtering: value must be 40-300% of query length\n- Weighted scoring: ratio (40%) + token_sort (30%) + token_set (20%) + partial (10%)\n- Length similarity bonus for better matches\n\n**MedDRA Integration (Factory 3.5):**\n- Synonym matching via MedDRA hierarchy (PT → HLT → HLGT → SOC)\n- \"fever\" → finds \"Pyrexia\" via MedDRA lookup, not fuzzy matching",
           "level": 3
         },
         {
           "heading": "Module Architecture",
-          "content": "**Removed Modules (Design Decision):** - - Not needed; clinical data uses controlled vocabularies - - Not needed; MedDRA hierarchy handles synonyms - - Replaced by (fuzzy + MedDRA)",
+          "content": "**Removed Modules (Design Decision):**\n- - Not needed; clinical data uses controlled vocabularies\n- - Not needed; MedDRA hierarchy handles synonyms\n- - Replaced by (fuzzy + MedDRA)",
           "level": 3
         },
         {
           "heading": "Component Details",
-          "content": "#### 3.1 Value Scanner () **Purpose:** Scan DuckDB tables and extract unique values from key columns. **Output format:** #### 3.2 Embedding Generator () **Purpose:** Create vector embeddings using Ollama's nomic-embed-text model. **Embedding document format:** #### 3.3 ChromaDB Store () **Purpose:** Manage ChromaDB collections for semantic search. **Collections:** | Collection | Contents | Purpose | |------------|----------|---------| | | All unique data values | Primary search | | | Metadata descriptions | Concept mapping | | | Custom synonym pairs | User-defined mappings | #### 3.4 Fuzzy Matcher () **Purpose:** Fast string matching using RapidFuzz library. **Matching strategies:** 1. **Simple ratio** - Basic Levenshtein similarity 2. **Partial ratio** - Best substring match 3. **Token sort ratio** - Word order insensitive 4. **Token set ratio** - Handles extra/missing words #### 3.5 Hybrid Matcher () **Purpose:** Combine fuzzy and semantic matching for optimal results. #### 3.6 Schem",
+          "content": "#### 3.1 Value Scanner ()\n\n**Purpose:** Scan DuckDB tables and extract unique values from key columns.\n\n**Output format:**\n\n#### 3.2 Embedding Generator ()\n\n**Purpose:** Create vector embeddings using Ollama's nomic-embed-text model.\n\n**Embedding document format:**\n\n#### 3.3 ChromaDB Store ()\n\n**Purpose:** Manage ChromaDB collections for semantic search.\n\n**Collections:**\n| Collection | Contents | Purpose |\n|------------|----------|---------|\n| | All unique data values | Primary search |\n| | Metadata descriptions | Concept mapping |\n| | Custom synonym pairs | User-defined mappings |\n\n#### 3.4 Fuzzy Matcher ()\n\n**Purpose:** Fast string matching using RapidFuzz library.\n\n**Matching strategies:**\n1. **Simple ratio** - Basic Levenshtein similarity\n2. **Partial ratio** - Best substring match\n3. **Token sort ratio** - Word order insensitive\n4. **Token set ratio** - Handles extra/missing words\n\n#### 3.5 Hybrid Matcher ()\n\n**Purpose:** Combine fuzzy and semantic matching for optimal results.\n\n",
           "level": 3
         }
       ],
