@@ -68,12 +68,16 @@ Include the token in the Authorization header: `Bearer <token>`
 )
 
 # Add CORS middleware
+# Security: Default to localhost origins only; configure CORS_ORIGINS in .env for production
+_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost,http://localhost:8501,http://localhost:80").split(",")
+_cors_origins = [origin.strip() for origin in _cors_origins if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
+    allow_origins=_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
 )
 
 
