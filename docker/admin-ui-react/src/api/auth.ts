@@ -15,6 +15,23 @@ interface ApiLoginResponse {
   };
 }
 
+// User info response from /auth/me
+interface MeResponse {
+  success: boolean;
+  data: {
+    id?: string;
+    username: string;
+    email?: string;
+    roles: string[];
+    permissions: string[];
+    last_login: string | null;
+    must_change_password?: boolean;
+  };
+  meta: {
+    timestamp: string;
+  };
+}
+
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     const formData = new URLSearchParams();
@@ -27,37 +44,43 @@ export const authApi = {
       },
     });
 
-    // Transform API response to expected format
-    // Create user object from credentials (username) since API doesn't return full user
+    // Store token temporarily to fetch user data
+    const token = response.data.data.access_token;
+
+    // Fetch actual user data from /auth/me
+    const meResponse = await apiClient.get<MeResponse>("/auth/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const userData = meResponse.data.data;
     const user: User = {
-      username: credentials.username,
-      role: "admin", // Default role, should be fetched from /auth/me
-      permissions: ["*"], // Admin has all permissions
+      username: userData.username,
+      email: userData.email,
+      role: userData.roles.includes("admin") ? "admin" :
+            userData.roles.includes("user") ? "user" : "viewer",
+      permissions: userData.permissions || [],
     };
 
     return {
-      access_token: response.data.data.access_token,
+      access_token: token,
       token_type: response.data.data.token_type,
       user,
     };
   },
 
   getCurrentUser: async (): Promise<User> => {
-    interface MeResponse {
-      success: boolean;
-      data: {
-        username: string;
-        roles: string[];
-        last_login: string;
-      };
-    }
     const response = await apiClient.get<MeResponse>("/auth/me");
 
-    // Transform API response to User type
+    const userData = response.data.data;
+    // Transform API response to User type with actual permissions
     return {
-      username: response.data.data.username,
-      role: response.data.data.roles.includes("admin") ? "admin" : "user",
-      permissions: response.data.data.roles.includes("admin") ? ["*"] : [],
+      username: userData.username,
+      email: userData.email,
+      role: userData.roles.includes("admin") ? "admin" :
+            userData.roles.includes("user") ? "user" : "viewer",
+      permissions: userData.permissions || [],
     };
   },
 

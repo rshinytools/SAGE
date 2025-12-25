@@ -168,24 +168,39 @@ export interface UpdateUserRequest {
 
 // Audit Log Types
 export interface AuditLogEntry {
-  id: string;
+  id: number;
   timestamp: string;
-  user: string;
+  user_id: string;
+  username: string;
+  user?: string;  // Legacy alias for username
   action: string;
-  resource: string;
+  resource_type?: string;
+  resource?: string;  // Legacy alias for resource_type
   resource_id?: string;
-  details?: Record<string, unknown>;
+  status: "success" | "failure" | "error";
   ip_address?: string;
-  status: "success" | "failure";
+  user_agent?: string;
+  request_method?: string;
+  request_path?: string;
+  duration_ms?: number;
+  error_message?: string;
+  checksum?: string;
+  details?: Record<string, unknown>;
 }
 
 export interface AuditLogFilter {
-  user?: string;
+  userId?: string;
+  username?: string;
+  user?: string;  // Legacy
   action?: string;
-  resource?: string;
-  start_date?: string;
-  end_date?: string;
-  status?: "success" | "failure";
+  resourceType?: string;
+  resource?: string;  // Legacy
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  start_date?: string;  // API format
+  end_date?: string;    // API format
+  searchText?: string;
 }
 
 // Project Tracker Types

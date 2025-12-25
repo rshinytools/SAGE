@@ -34,3 +34,7 @@ pyarrow>=14.0.0
 # Factory 3: Dictionary Plant
 rapidfuzz>=3.0.0
 chromadb>=0.4.0
+
+# User Management
+bcrypt>=4.0.0
+email-validator>=2.0.0

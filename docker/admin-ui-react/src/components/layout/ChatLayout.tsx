@@ -2,15 +2,16 @@ import { useEffect, useRef } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
-import { Sun, Moon, LogOut, LayoutDashboard } from "lucide-react";
+import { Sun, Moon, LogOut, LayoutDashboard, Users, ScrollText } from "lucide-react";
 
 export function ChatLayout() {
   const { user, logout, hasPermission } = useAuth();
   const { effectiveTheme, toggleTheme } = useTheme();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Check if user has admin access
-  const hasAdminAccess = hasPermission("manage_users") || hasPermission("view_audit") || hasPermission("manage_settings");
+  // Check permissions for navigation
+  const isFullAdmin = hasPermission("*");
+  const isUserAdmin = hasPermission("user_admin");
 
   // Cmd+K to focus search
   useEffect(() => {
@@ -46,8 +47,9 @@ export function ChatLayout() {
 
         {/* Right side controls */}
         <div className="flex items-center gap-3">
-          {/* Admin Dashboard Link - only if user has admin access */}
-          {hasAdminAccess && (
+          {/* Navigation Links based on permissions */}
+          {isFullAdmin ? (
+            // Full Admin sees Admin Panel link
             <Link
               to="/dashboard"
               className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -55,7 +57,25 @@ export function ChatLayout() {
               <LayoutDashboard className="w-4 h-4" />
               <span>Admin Panel</span>
             </Link>
-          )}
+          ) : isUserAdmin ? (
+            // User Admin sees Users and Audit links
+            <div className="hidden sm:flex items-center gap-1">
+              <Link
+                to="/users"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <Users className="w-4 h-4" />
+                <span>Users</span>
+              </Link>
+              <Link
+                to="/audit"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <ScrollText className="w-4 h-4" />
+                <span>Audit</span>
+              </Link>
+            </div>
+          ) : null}
 
           {/* Theme Toggle */}
           <button

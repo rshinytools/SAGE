@@ -30,7 +30,28 @@ api_dir = Path(__file__).parent
 sys.path.insert(0, str(api_dir))
 
 # Import routers
-from routers import auth, data, metadata, tracker, system, chat, dictionary, meddra, golden_suite, docs
+from routers import auth, data, metadata, tracker, system, chat, dictionary, meddra, golden_suite, docs, audit, users
+
+# Import middleware
+try:
+    from middleware.audit import AuditMiddleware
+    AUDIT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    AUDIT_MIDDLEWARE_AVAILABLE = False
+
+# Import audit service for lifecycle logging
+try:
+    from core.audit import get_audit_service
+    AUDIT_SERVICE_AVAILABLE = True
+except ImportError:
+    AUDIT_SERVICE_AVAILABLE = False
+
+# Import user migration
+try:
+    from core.users import migrate_from_env_user
+    USERS_AVAILABLE = True
+except ImportError:
+    USERS_AVAILABLE = False
 
 
 @asynccontextmanager
@@ -38,9 +59,35 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     # Startup
     print("SAGE API starting up...")
+
+    # Migrate admin user from environment if needed
+    if USERS_AVAILABLE:
+        try:
+            if migrate_from_env_user():
+                print("Admin user migrated from environment variables")
+            else:
+                print("Users database already initialized")
+        except Exception as e:
+            print(f"Warning: User migration failed: {e}")
+
+    # Log startup to audit
+    if AUDIT_SERVICE_AVAILABLE:
+        try:
+            audit_service = get_audit_service()
+            audit_service.log_system_startup(version="1.0.0")
+        except Exception as e:
+            print(f"Warning: Could not log startup to audit: {e}")
+
     yield
+
     # Shutdown
     print("SAGE API shutting down...")
+    if AUDIT_SERVICE_AVAILABLE:
+        try:
+            audit_service = get_audit_service()
+            audit_service.log_system_shutdown(reason="normal")
+        except Exception as e:
+            print(f"Warning: Could not log shutdown to audit: {e}")
 
 
 # Create FastAPI app
@@ -79,6 +126,10 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
 )
+
+# Add audit middleware (logs all API requests)
+if AUDIT_MIDDLEWARE_AVAILABLE and os.getenv("AUDIT_LOG_API_REQUESTS", "true").lower() == "true":
+    app.add_middleware(AuditMiddleware)
 
 
 # ============================================
@@ -145,6 +196,18 @@ app.include_router(
     tags=["Documentation"]
 )
 
+app.include_router(
+    audit.router,
+    prefix="/api/v1/audit",
+    tags=["Audit Logs"]
+)
+
+app.include_router(
+    users.router,
+    prefix="/api/v1/users",
+    tags=["User Management"]
+)
+
 
 # ============================================
 # Root Endpoints
@@ -177,6 +240,7 @@ async def api_root():
         "version": "1.0.0",
         "endpoints": {
             "auth": "/api/v1/auth",
+            "audit": "/api/v1/audit",
             "chat": "/api/v1/chat",
             "data": "/api/v1/data",
             "metadata": "/api/v1/metadata",
@@ -185,7 +249,8 @@ async def api_root():
             "tracker": "/api/v1/tracker",
             "system": "/api/v1/system",
             "golden_suite": "/api/v1/golden-suite",
-            "docs": "/api/v1/docs"
+            "docs": "/api/v1/docs",
+            "users": "/api/v1/users"
         }
     }
 

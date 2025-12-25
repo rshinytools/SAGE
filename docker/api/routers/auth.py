@@ -3,11 +3,13 @@
 """Authentication endpoints for JWT-based auth."""
 
 import os
+import sys
 import hashlib
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Depends, status, Form
+from fastapi import APIRouter, HTTPException, Depends, status, Form, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
@@ -16,16 +18,88 @@ import json
 import base64
 import hmac
 
+# Add project root to path for imports
+project_root = Path(os.environ.get('APP_ROOT', '/app'))
+sys.path.insert(0, str(project_root))
+
+# Import audit service
+try:
+    from core.audit import get_audit_service
+    AUDIT_AVAILABLE = True
+except ImportError:
+    AUDIT_AVAILABLE = False
+
+# Import user service
+try:
+    from core.users import get_user_service
+    USERS_AVAILABLE = True
+except ImportError:
+    USERS_AVAILABLE = False
+
 router = APIRouter()
 security = HTTPBearer(auto_error=False)
+
+
+def _get_client_ip(request: Request) -> str:
+    """Extract client IP from request."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip
+    if request.client:
+        return request.client.host
+    return "unknown"
+
+
+def _log_auth_event(
+    username: str,
+    success: bool,
+    request: Request,
+    failure_reason: str = None,
+    action: str = "login"
+):
+    """Log authentication event to audit trail."""
+    if not AUDIT_AVAILABLE:
+        return
+    try:
+        audit_service = get_audit_service()
+        ip_address = _get_client_ip(request)
+        user_agent = request.headers.get("user-agent")
+
+        if action == "login":
+            audit_service.log_login(
+                user_id=username,
+                username=username,
+                ip_address=ip_address,
+                user_agent=user_agent,
+                success=success,
+                failure_reason=failure_reason,
+            )
+        elif action == "logout":
+            audit_service.log_logout(
+                user_id=username,
+                username=username,
+                ip_address=ip_address,
+            )
+        elif action == "token_refresh":
+            audit_service.log_token_refresh(
+                user_id=username,
+                username=username,
+                ip_address=ip_address,
+            )
+    except Exception as e:
+        # Don't let audit failures break auth
+        print(f"Warning: Failed to log auth event: {e}")
 
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET", "sage-development-secret-key-change-in-production")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
-# Simple user store (replace with database in production)
-USERS = {
+# Fallback user store (used only if database is not available)
+FALLBACK_USERS = {
     os.getenv("ADMIN_USERNAME", "admin"): {
         "password_hash": hashlib.sha256(
             os.getenv("ADMIN_PASSWORD", "sage2024").encode()
@@ -34,8 +108,58 @@ USERS = {
     }
 }
 
-# Token blacklist (in-memory, use Redis in production)
+# Token blacklist (in-memory fallback, database used when available)
 TOKEN_BLACKLIST = set()
+
+
+def _get_user_from_db(username: str):
+    """Get user from database, returns None if not found or DB unavailable."""
+    if not USERS_AVAILABLE:
+        return None
+    try:
+        user_service = get_user_service()
+        return user_service.get_user_by_username(username)
+    except Exception:
+        return None
+
+
+def _authenticate_user(username: str, password: str):
+    """
+    Authenticate user against database or fallback.
+    Returns (user_dict, error_message) tuple.
+    """
+    if USERS_AVAILABLE:
+        try:
+            user_service = get_user_service()
+            user, error = user_service.authenticate(username, password)
+            if user:
+                return {
+                    "username": user.username,
+                    "roles": [user.role] if user.role == "admin" else [user.role],
+                    "permissions": user.permissions,
+                    "must_change_password": user.must_change_password,
+                    "id": user.id,
+                }, None
+            return None, error
+        except Exception as e:
+            # Fall back to hardcoded user on DB error
+            print(f"Warning: User DB error, using fallback: {e}")
+
+    # Fallback to hardcoded user
+    user = FALLBACK_USERS.get(username)
+    if not user:
+        return None, "Invalid username or password"
+
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    if not hmac.compare_digest(user["password_hash"], password_hash):
+        return None, "Invalid username or password"
+
+    return {
+        "username": username,
+        "roles": user["roles"],
+        "permissions": ["*"],
+        "must_change_password": False,
+    }, None
 
 
 def create_token(data: dict, expires_delta: timedelta) -> str:
@@ -131,30 +255,30 @@ async def get_optional_user(
 # ============================================
 
 @router.post("/token")
-async def token(username: str = Form(...), password: str = Form(...)):
+async def token(request: Request, username: str = Form(...), password: str = Form(...)):
     """
     OAuth2-compatible token endpoint (form-urlencoded).
 
     This is the primary endpoint for the React frontend.
     Accepts form data with username and password fields.
     """
-    user = USERS.get(username)
-    if not user:
+    user_data, error = _authenticate_user(username, password)
+
+    if not user_data:
+        _log_auth_event(username, False, request, error)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "AUTH_INVALID", "message": "Invalid username or password"}
+            detail={"code": "AUTH_INVALID", "message": error or "Invalid username or password"}
         )
 
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-    if not hmac.compare_digest(user["password_hash"], password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "AUTH_INVALID", "message": "Invalid username or password"}
-        )
-
-    # Create tokens
+    # Create tokens (include permissions for access control)
     access_token = create_token(
-        {"sub": username, "roles": user["roles"], "type": "access"},
+        {
+            "sub": username,
+            "roles": user_data["roles"],
+            "permissions": user_data.get("permissions", []),
+            "type": "access"
+        },
         timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
@@ -163,20 +287,38 @@ async def token(username: str = Form(...), password: str = Form(...)):
         timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
 
+    # Create session in database if available
+    if USERS_AVAILABLE and user_data.get("id"):
+        try:
+            user_service = get_user_service()
+            user_service.create_session(
+                user_id=user_data["id"],
+                token=access_token,
+                expires_in_minutes=ACCESS_TOKEN_EXPIRE_MINUTES,
+                ip_address=_get_client_ip(request),
+                user_agent=request.headers.get("user-agent"),
+            )
+        except Exception as e:
+            print(f"Warning: Failed to create session: {e}")
+
+    # Log successful login
+    _log_auth_event(username, True, request)
+
     return {
         "success": True,
         "data": {
             "access_token": access_token,
             "token_type": "bearer",
             "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            "refresh_token": refresh_token
+            "refresh_token": refresh_token,
+            "must_change_password": user_data.get("must_change_password", False)
         },
         "meta": {"timestamp": datetime.now().isoformat()}
     }
 
 
 @router.post("/login")
-async def login(username: str, password: str):
+async def login(request: Request, username: str, password: str):
     """
     Authenticate and get access token (query parameters).
 
@@ -187,23 +329,23 @@ async def login(username: str, password: str):
 
     Note: For form-urlencoded requests, use /token endpoint instead.
     """
-    user = USERS.get(username)
-    if not user:
+    user_data, error = _authenticate_user(username, password)
+
+    if not user_data:
+        _log_auth_event(username, False, request, error)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "AUTH_INVALID", "message": "Invalid username or password"}
+            detail={"code": "AUTH_INVALID", "message": error or "Invalid username or password"}
         )
 
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-    if not hmac.compare_digest(user["password_hash"], password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "AUTH_INVALID", "message": "Invalid username or password"}
-        )
-
-    # Create tokens
+    # Create tokens (include permissions for access control)
     access_token = create_token(
-        {"sub": username, "roles": user["roles"], "type": "access"},
+        {
+            "sub": username,
+            "roles": user_data["roles"],
+            "permissions": user_data.get("permissions", []),
+            "type": "access"
+        },
         timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
@@ -212,23 +354,46 @@ async def login(username: str, password: str):
         timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
 
+    # Create session in database if available
+    if USERS_AVAILABLE and user_data.get("id"):
+        try:
+            user_service = get_user_service()
+            user_service.create_session(
+                user_id=user_data["id"],
+                token=access_token,
+                expires_in_minutes=ACCESS_TOKEN_EXPIRE_MINUTES,
+                ip_address=_get_client_ip(request),
+                user_agent=request.headers.get("user-agent"),
+            )
+        except Exception as e:
+            print(f"Warning: Failed to create session: {e}")
+
+    # Log successful login
+    _log_auth_event(username, True, request)
+
     return {
         "success": True,
         "data": {
             "access_token": access_token,
             "token_type": "bearer",
             "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            "refresh_token": refresh_token
+            "refresh_token": refresh_token,
+            "must_change_password": user_data.get("must_change_password", False)
         },
         "meta": {"timestamp": datetime.now().isoformat()}
     }
 
 
 @router.post("/logout")
-async def logout(current_user: dict = Depends(get_current_user)):
+async def logout(request: Request, current_user: dict = Depends(get_current_user)):
     """
     Logout and invalidate current token.
     """
+    username = current_user.get("sub", "unknown")
+
+    # Log logout event
+    _log_auth_event(username, True, request, action="logout")
+
     # In a real implementation, we'd add the token to a blacklist
     return {
         "success": True,
@@ -243,13 +408,31 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     Get current user information.
     """
     username = current_user.get("sub")
-    user = USERS.get(username, {})
 
+    # Try to get from database first
+    db_user = _get_user_from_db(username)
+    if db_user:
+        return {
+            "success": True,
+            "data": {
+                "id": db_user.id,
+                "username": db_user.username,
+                "email": db_user.email,
+                "roles": [db_user.role],
+                "permissions": db_user.permissions,
+                "last_login": db_user.last_login.isoformat() if db_user.last_login else None,
+                "must_change_password": db_user.must_change_password,
+            },
+            "meta": {"timestamp": datetime.now().isoformat()}
+        }
+
+    # Fallback to token data
     return {
         "success": True,
         "data": {
             "username": username,
-            "roles": user.get("roles", []),
+            "roles": current_user.get("roles", []),
+            "permissions": ["*"],
             "last_login": datetime.now().isoformat()
         },
         "meta": {"timestamp": datetime.now().isoformat()}
@@ -257,7 +440,7 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/refresh")
-async def refresh_token(refresh_token: str):
+async def refresh_token_endpoint(request: Request, refresh_token: str):
     """
     Refresh access token using refresh token.
     """
@@ -269,18 +452,58 @@ async def refresh_token(refresh_token: str):
         )
 
     username = payload.get("sub")
-    user = USERS.get(username)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "AUTH_INVALID", "message": "User not found"}
-        )
 
-    # Create new access token
+    # Try to get user from database first
+    db_user = _get_user_from_db(username)
+    if db_user:
+        roles = [db_user.role]
+        permissions = db_user.permissions
+        user_id = db_user.id
+        # Check if user is still active
+        if not db_user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail={"code": "AUTH_INVALID", "message": "User account is inactive"}
+            )
+    else:
+        # Fallback to hardcoded user
+        user = FALLBACK_USERS.get(username)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail={"code": "AUTH_INVALID", "message": "User not found"}
+            )
+        roles = user["roles"]
+        permissions = ["*"]
+        user_id = None
+
+    # Create new access token (include permissions for access control)
     access_token = create_token(
-        {"sub": username, "roles": user["roles"], "type": "access"},
+        {
+            "sub": username,
+            "roles": roles,
+            "permissions": permissions,
+            "type": "access"
+        },
         timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
+
+    # Create session in database if available
+    if USERS_AVAILABLE and user_id:
+        try:
+            user_service = get_user_service()
+            user_service.create_session(
+                user_id=user_id,
+                token=access_token,
+                expires_in_minutes=ACCESS_TOKEN_EXPIRE_MINUTES,
+                ip_address=_get_client_ip(request),
+                user_agent=request.headers.get("user-agent"),
+            )
+        except Exception as e:
+            print(f"Warning: Failed to create session: {e}")
+
+    # Log token refresh
+    _log_auth_event(username, True, request, action="token_refresh")
 
     return {
         "success": True,
@@ -303,8 +526,33 @@ async def change_password(
     Change user password.
     """
     username = current_user.get("sub")
-    user = USERS.get(username)
 
+    # Try database first
+    if USERS_AVAILABLE:
+        try:
+            user_service = get_user_service()
+            db_user = user_service.get_user_by_username(username)
+            if db_user:
+                success, error = user_service.change_password(
+                    db_user.id, old_password, new_password
+                )
+                if not success:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail={"code": "PASSWORD_CHANGE_FAILED", "message": error}
+                    )
+                return {
+                    "success": True,
+                    "data": {"message": "Password changed successfully"},
+                    "meta": {"timestamp": datetime.now().isoformat()}
+                }
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Warning: User DB error in password change: {e}")
+
+    # Fallback to hardcoded user
+    user = FALLBACK_USERS.get(username)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -319,7 +567,7 @@ async def change_password(
             detail={"code": "AUTH_INVALID", "message": "Current password is incorrect"}
         )
 
-    # Update password
+    # Update password (in memory only for fallback)
     user["password_hash"] = hashlib.sha256(new_password.encode()).hexdigest()
 
     return {

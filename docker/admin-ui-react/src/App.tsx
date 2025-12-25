@@ -34,16 +34,22 @@ const queryClient = new QueryClient({
   },
 });
 
-// Component to handle root redirect based on user role
+// Component to handle root redirect based on user permissions
 function RootRedirect() {
-  const { isAdmin, isAuthenticated } = useAuthStore();
+  const { hasPermission, isAuthenticated } = useAuthStore();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Admin users go to dashboard, regular users go to chat
-  return <Navigate to={isAdmin() ? "/dashboard" : "/chat"} replace />;
+  // Admins go to dashboard, user_admin goes to users page, others go to chat
+  if (hasPermission("*")) {
+    return <Navigate to="/dashboard" replace />;
+  } else if (hasPermission("user_admin")) {
+    return <Navigate to="/users" replace />;
+  } else {
+    return <Navigate to="/chat" replace />;
+  }
 }
 
 export default function App() {
@@ -68,57 +74,36 @@ export default function App() {
             <Route path="/chat" element={<ChatPage />} />
           </Route>
 
-          {/* Documentation Route - Available to ALL authenticated users */}
+          {/* User Admin Routes - For user_admin permission (User Management + Audit) */}
           <Route
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredPermission="user_admin">
                 <MainLayout />
               </ProtectedRoute>
             }
           >
-            <Route path="/documentation" element={<DocumentationPage />} />
+            <Route path="/users" element={<UserManagementPage />} />
+            <Route path="/audit" element={<AuditLogsPage />} />
           </Route>
 
-          {/* Admin Routes - Only for admin users */}
+          {/* Full Admin Routes - Only for users with * permission */}
           <Route
             element={
-              <ProtectedRoute requiredPermission="admin_access">
+              <ProtectedRoute requiredPermission="*">
                 <MainLayout />
               </ProtectedRoute>
             }
           >
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/documentation" element={<DocumentationPage />} />
             <Route path="/data-foundry" element={<DataFoundryPage />} />
             <Route path="/metadata" element={<MetadataAuditorPage />} />
             <Route path="/cdisc-library" element={<CDISCLibraryPage />} />
             <Route path="/dictionary" element={<DictionaryManagerPage />} />
             <Route path="/meddra" element={<MedDRALibraryPage />} />
-            <Route
-              path="/users"
-              element={
-                <ProtectedRoute requiredPermission="manage_users">
-                  <UserManagementPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/audit"
-              element={
-                <ProtectedRoute requiredPermission="view_audit">
-                  <AuditLogsPage />
-                </ProtectedRoute>
-              }
-            />
             <Route path="/tracker" element={<ProjectTrackerPage />} />
             <Route path="/golden-suite" element={<GoldenSuitePage />} />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute requiredPermission="manage_settings">
-                  <SettingsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
 
           {/* Root redirect based on role */}

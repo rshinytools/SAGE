@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredPermission }: ProtectedRouteProps) {
   const location = useLocation();
-  const { isAuthenticated, isLoading, hasPermission, isAdmin } = useAuthStore();
+  const { isAuthenticated, isLoading, hasPermission } = useAuthStore();
 
   if (isLoading) {
     return (
@@ -22,15 +22,11 @@ export function ProtectedRoute({ children, requiredPermission }: ProtectedRouteP
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Special handling for admin_access - requires admin role
-  if (requiredPermission === "admin_access" && !isAdmin()) {
-    // Non-admin users trying to access admin pages get redirected to chat
+  // Check if user has the required permission
+  // hasPermission will return true if user has "*" (superuser) or the specific permission
+  if (requiredPermission && !hasPermission(requiredPermission)) {
+    // Users without required permission get redirected to chat
     return <Navigate to="/chat" replace />;
-  }
-
-  // Regular permission check
-  if (requiredPermission && requiredPermission !== "admin_access" && !hasPermission(requiredPermission)) {
-    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

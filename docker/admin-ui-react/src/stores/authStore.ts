@@ -57,7 +57,9 @@ export const useAuthStore = create<AuthState>()(
       hasPermission: (permission: string) => {
         const { user } = get();
         if (!user) return false;
-        if (user.role === "admin") return true;
+        // Check for wildcard permission (superuser)
+        if (user.permissions.includes("*")) return true;
+        // Check for specific permission
         return user.permissions.includes(permission);
       },
 

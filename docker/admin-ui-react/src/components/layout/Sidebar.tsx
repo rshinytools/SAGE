@@ -32,20 +32,24 @@ type NavItem = {
   subItems?: { path: string; label: string }[];
 };
 
+// Menu items with simplified permission model:
+// - No permission = All authenticated users (Chat)
+// - "user_admin" = User Management + Audit access
+// - "*" = Full admin access (everything)
 const menuItems: NavItem[] = [
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "*" },
   { path: "/chat", label: "AI Chat", icon: MessageSquare },
-  { path: "/documentation", label: "Documentation", icon: HelpCircle },
-  { path: "/data-foundry", label: "Data Foundry", icon: Factory },
-  { path: "/metadata", label: "Metadata Auditor", icon: FileSearch },
-  { path: "/cdisc-library", label: "CDISC Library", icon: Library },
-  { path: "/dictionary", label: "Dictionary", icon: BookOpen },
-  { path: "/meddra", label: "MedDRA Library", icon: Pill },
-  { path: "/golden-suite", label: "Golden Test Suite", icon: FlaskConical },
-  { path: "/users", label: "Users", icon: Users, permission: "manage_users" },
-  { path: "/audit", label: "Audit Logs", icon: ScrollText, permission: "view_audit" },
-  { path: "/tracker", label: "Project Tracker", icon: ClipboardList },
-  { path: "/settings", label: "Settings", icon: Settings, permission: "manage_settings" },
+  { path: "/documentation", label: "Documentation", icon: HelpCircle, permission: "*" },
+  { path: "/data-foundry", label: "Data Foundry", icon: Factory, permission: "*" },
+  { path: "/metadata", label: "Metadata Auditor", icon: FileSearch, permission: "*" },
+  { path: "/cdisc-library", label: "CDISC Library", icon: Library, permission: "*" },
+  { path: "/dictionary", label: "Dictionary", icon: BookOpen, permission: "*" },
+  { path: "/meddra", label: "MedDRA Library", icon: Pill, permission: "*" },
+  { path: "/golden-suite", label: "Golden Test Suite", icon: FlaskConical, permission: "*" },
+  { path: "/users", label: "Users", icon: Users, permission: "user_admin" },
+  { path: "/audit", label: "Audit Logs", icon: ScrollText, permission: "user_admin" },
+  { path: "/tracker", label: "Project Tracker", icon: ClipboardList, permission: "*" },
+  { path: "/settings", label: "Settings", icon: Settings, permission: "*" },
 ];
 
 interface SidebarProps {

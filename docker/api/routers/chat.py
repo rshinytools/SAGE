@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -40,6 +40,14 @@ try:
 except ImportError as e:
     PIPELINE_AVAILABLE = False
     logging.warning(f"Inference pipeline not available: {e}")
+
+# Import audit service for persistent logging
+try:
+    from core.audit import get_audit_service, QueryAuditDetails
+    AUDIT_AVAILABLE = True
+except ImportError:
+    AUDIT_AVAILABLE = False
+    logging.warning("Audit module not available")
 
 logger = logging.getLogger(__name__)
 
@@ -228,14 +236,39 @@ def get_pipeline() -> Optional[InferencePipeline]:
     return _pipeline_instance
 
 
+def get_client_ip(request: Request) -> str:
+    """Extract client IP address from request."""
+    # Check for forwarded headers (behind proxy)
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip
+
+    # Fall back to client host
+    if request.client:
+        return request.client.host
+
+    return "unknown"
+
+
 def log_audit_event(
     event_type: str,
     query: str,
     user_id: str,
     result: Optional[Dict] = None,
-    error: Optional[str] = None
-):
-    """Log an audit event for compliance."""
+    error: Optional[str] = None,
+    ip_address: Optional[str] = None,
+    pipeline_result: Optional[Any] = None,
+    resource_id: Optional[str] = None
+) -> Optional[int]:
+    """
+    Log an audit event for compliance.
+
+    Returns the audit log ID from the persistent store if available.
+    """
     event = {
         "id": str(uuid.uuid4()),
         "timestamp": datetime.now().isoformat(),
@@ -243,7 +276,8 @@ def log_audit_event(
         "user_id": user_id,
         "query": query,
         "result": result,
-        "error": error
+        "error": error,
+        "resource_id": resource_id
     }
     audit_log.append(event)
 
@@ -259,6 +293,116 @@ def log_audit_event(
                 f.write(json.dumps(event) + "\n")
         except Exception as e:
             logger.error(f"Failed to write audit log: {e}")
+
+    # Log to persistent audit service
+    audit_id = None
+    if AUDIT_AVAILABLE:
+        try:
+            audit_service = get_audit_service()
+
+            # Extract execution time from pipeline result if available
+            duration_ms = None
+            if pipeline_result and hasattr(pipeline_result, 'total_time_ms'):
+                duration_ms = int(pipeline_result.total_time_ms)
+            elif result and isinstance(result, dict):
+                duration_ms = result.get("execution_time_ms")
+
+            # Log query to persistent store
+            audit_id = audit_service.log_query(
+                user_id=user_id,
+                username=user_id,
+                question=query,
+                success=error is None,
+                error_message=error,
+                duration_ms=duration_ms,
+                ip_address=ip_address,
+                resource_id=resource_id
+            )
+
+            # If we have a pipeline result, log the detailed query information
+            if audit_id and pipeline_result is not None:
+                log_query_details_to_audit(audit_id, query, pipeline_result)
+
+        except Exception as e:
+            logger.warning(f"Failed to log to persistent audit: {e}")
+
+    return audit_id
+
+
+def log_query_details_to_audit(
+    audit_id: int,
+    original_question: str,
+    pipeline_result: Any
+) -> None:
+    """Log detailed query/LLM information to the persistent audit store."""
+    if not AUDIT_AVAILABLE:
+        return
+
+    try:
+        audit_service = get_audit_service()
+
+        # Extract details from pipeline result
+        details = QueryAuditDetails(
+            original_question=original_question,
+            sanitized_question=original_question,  # Pipeline may have sanitized version
+            generated_sql=pipeline_result.sql if hasattr(pipeline_result, 'sql') else None,
+            confidence_score=pipeline_result.confidence.get("score") if hasattr(pipeline_result, 'confidence') and pipeline_result.confidence else None,
+            execution_time_ms=int(pipeline_result.total_time_ms) if hasattr(pipeline_result, 'total_time_ms') else None,
+            result_row_count=pipeline_result.row_count if hasattr(pipeline_result, 'row_count') else None
+        )
+
+        # Extract from pipeline_stages for detailed traceability
+        if hasattr(pipeline_result, 'pipeline_stages') and pipeline_result.pipeline_stages:
+            stages = pipeline_result.pipeline_stages
+
+            # Intent classification from query_analysis stage
+            if 'query_analysis' in stages:
+                query_analysis = stages['query_analysis']
+                if isinstance(query_analysis, dict):
+                    details.intent_classification = query_analysis.get('intent', 'UNKNOWN')
+
+            # LLM model from sql_generation stage
+            if 'sql_generation' in stages:
+                sql_gen = stages['sql_generation']
+                if isinstance(sql_gen, dict):
+                    details.llm_model = sql_gen.get('model')
+
+            # Token estimate from context_building stage
+            if 'context_building' in stages:
+                ctx = stages['context_building']
+                if isinstance(ctx, dict) and ctx.get('token_estimate'):
+                    details.llm_tokens_used = ctx.get('token_estimate')
+
+            # Table from table_resolution stage
+            if 'table_resolution' in stages:
+                table_res = stages['table_resolution']
+                if isinstance(table_res, dict) and table_res.get('table'):
+                    details.tables_accessed = [table_res.get('table')]
+
+        # Extract methodology info if available (fallback for older data)
+        if hasattr(pipeline_result, 'methodology') and pipeline_result.methodology:
+            methodology = pipeline_result.methodology
+            if isinstance(methodology, dict):
+                # Only set if not already set from pipeline_stages
+                if not details.intent_classification:
+                    details.intent_classification = methodology.get("intent", methodology.get("query_type"))
+                if not details.tables_accessed:
+                    details.tables_accessed = [methodology.get("table_used")] if methodology.get("table_used") else None
+
+                # Extract matched entities if present
+                if methodology.get("entities_extracted"):
+                    details.matched_entities = json.dumps(methodology.get("entities_extracted"))
+
+        # Extract confidence breakdown if available
+        if hasattr(pipeline_result, 'confidence') and pipeline_result.confidence:
+            conf = pipeline_result.confidence
+            if isinstance(conf, dict) and "breakdown" in conf:
+                details.confidence_breakdown = json.dumps(conf["breakdown"])
+
+        audit_service.log_query_details(audit_id, details)
+
+    except Exception as e:
+        logger.warning(f"Failed to log query details to audit: {e}")
 
 
 def format_pipeline_response(result: PipelineResult) -> Dict[str, Any]:
@@ -340,7 +484,7 @@ def get_confidence_color_name(level: str) -> str:
 @router.get("/conversations", response_model=List[Conversation])
 async def get_conversations(current_user: dict = Depends(get_current_user)):
     """Get all conversations for the current user."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
     user_convos = []
 
     for conv_id, conv in conversations_db.items():
@@ -364,7 +508,7 @@ async def create_conversation(
     current_user: dict = Depends(get_current_user)
 ):
     """Create a new conversation."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
     conv_id = str(uuid.uuid4())
     now = datetime.now().isoformat()
 
@@ -391,7 +535,7 @@ async def get_conversation(
     current_user: dict = Depends(get_current_user)
 ):
     """Get a specific conversation with messages."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
 
     if conversation_id not in conversations_db:
         raise HTTPException(status_code=404, detail="Conversation not found")
@@ -419,7 +563,7 @@ async def update_conversation(
     current_user: dict = Depends(get_current_user)
 ):
     """Update a conversation title."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
 
     if conversation_id not in conversations_db:
         raise HTTPException(status_code=404, detail="Conversation not found")
@@ -446,7 +590,7 @@ async def delete_conversation(
     current_user: dict = Depends(get_current_user)
 ):
     """Delete a conversation."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
 
     if conversation_id not in conversations_db:
         raise HTTPException(status_code=404, detail="Conversation not found")
@@ -467,7 +611,7 @@ async def delete_all_conversations(
     current_user: dict = Depends(get_current_user)
 ):
     """Delete all conversations for the current user."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
 
     # Find all conversations belonging to this user
     conv_ids_to_delete = [
@@ -489,6 +633,7 @@ async def delete_all_conversations(
 @router.post("/message")
 async def send_message(
     data: SendMessageRequest,
+    request: Request,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -501,7 +646,8 @@ async def send_message(
     - Formats responses in clinical-friendly language
     - Provides confidence scores and methodology
     """
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
+    client_ip = get_client_ip(request)
 
     # Create or get conversation
     if data.conversation_id:
@@ -538,13 +684,16 @@ async def send_message(
             # Pass conversation ID for session context (enables follow-up questions)
             result = pipeline.process_with_session(data.message, session_id=conv_id)
 
-            # Log audit event
+            # Log audit event with full pipeline details
             log_audit_event(
                 event_type="query",
                 query=data.message,
                 user_id=user_id,
                 result=result.to_dict() if result.success else None,
-                error=result.error if not result.success else None
+                error=result.error if not result.success else None,
+                pipeline_result=result,
+                ip_address=client_ip,
+                resource_id=conv_id
             )
 
             # Format response
@@ -618,6 +767,7 @@ async def send_message(
 @router.post("/message/stream")
 async def send_message_stream(
     data: SendMessageRequest,
+    request: Request,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -626,7 +776,8 @@ async def send_message_stream(
     Uses InferencePipeline for clinical data queries, then streams
     the formatted response back to the client.
     """
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
+    client_ip = get_client_ip(request)
 
     # Create or get conversation
     if data.conversation_id:
@@ -672,13 +823,16 @@ async def send_message_stream(
                 # Pass conversation ID for session context (enables follow-up questions)
                 result = pipeline.process_with_session(data.message, session_id=conv_id)
 
-                # Log audit event
+                # Log audit event with full pipeline details
                 log_audit_event(
                     event_type="query",
                     query=data.message,
                     user_id=user_id,
                     result=result.to_dict() if result.success else None,
-                    error=result.error if not result.success else None
+                    error=result.error if not result.success else None,
+                    pipeline_result=result,
+                    ip_address=client_ip,
+                    resource_id=conv_id
                 )
 
                 full_response = result.answer
@@ -781,7 +935,7 @@ async def get_conversation_messages(
     current_user: dict = Depends(get_current_user)
 ):
     """Get messages for a specific conversation."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
 
     if conversation_id not in conversations_db:
         raise HTTPException(status_code=404, detail="Conversation not found")
@@ -825,6 +979,7 @@ class QueryResponse(BaseModel):
 @router.post("/query", response_model=QueryResponse)
 async def execute_query(
     request: QueryRequest,
+    http_request: Request,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -849,16 +1004,10 @@ async def execute_query(
     - Confidence score with explanation
     - Methodology transparency
     """
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
+    client_ip = get_client_ip(http_request)
 
-    # Log query start
-    log_audit_event(
-        event_type="query_start",
-        query=request.query,
-        user_id=user_id
-    )
-
-    # Get or create conversation
+    # Get or create conversation (moved up to have conv_id for audit)
     if request.conversation_id:
         conv_id = request.conversation_id
         if conv_id not in conversations_db:
@@ -873,6 +1022,15 @@ async def execute_query(
             "updated_at": now
         }
         messages_db[conv_id] = []
+
+    # Log query start
+    log_audit_event(
+        event_type="query_start",
+        query=request.query,
+        user_id=user_id,
+        ip_address=client_ip,
+        resource_id=conv_id
+    )
 
     # Add user message
     user_msg = {
@@ -909,7 +1067,9 @@ async def execute_query(
             event_type="query_complete_fallback",
             query=request.query,
             user_id=user_id,
-            result={"answer": response_content[:500]}
+            result={"answer": response_content[:500]},
+            ip_address=client_ip,
+            resource_id=conv_id
         )
 
         return QueryResponse(
@@ -944,7 +1104,7 @@ async def execute_query(
         messages_db[conv_id].append(assistant_msg)
         conversations_db[conv_id]["updated_at"] = datetime.now().isoformat()
 
-        # Log success
+        # Log success with full pipeline details
         log_audit_event(
             event_type="query_complete",
             query=request.query,
@@ -955,7 +1115,10 @@ async def execute_query(
                 "sql": result.sql,
                 "row_count": result.row_count,
                 "execution_time_ms": result.total_time_ms
-            }
+            },
+            pipeline_result=result,
+            ip_address=client_ip,
+            resource_id=conv_id
         )
 
         return QueryResponse(
@@ -982,7 +1145,9 @@ async def execute_query(
             event_type="query_error",
             query=request.query,
             user_id=user_id,
-            error=str(e)
+            error=str(e),
+            ip_address=client_ip,
+            resource_id=conv_id
         )
 
         raise HTTPException(
@@ -994,6 +1159,7 @@ async def execute_query(
 @router.post("/query/stream")
 async def execute_query_stream(
     request: QueryRequest,
+    http_request: Request,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -1004,7 +1170,8 @@ async def execute_query_stream(
     - content: Streaming response content
     - result: Final result with all metadata
     """
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
+    client_ip = get_client_ip(http_request)
 
     # Get or create conversation
     if request.conversation_id:
@@ -1107,12 +1274,15 @@ async def execute_query_stream(
             messages_db[conv_id].append(assistant_msg)
             conversations_db[conv_id]["updated_at"] = datetime.now().isoformat()
 
-            # Log audit
+            # Log audit with full pipeline details
             log_audit_event(
                 event_type="query_complete_stream",
                 query=request.query,
                 user_id=user_id,
-                result={"success": result.success, "confidence": result.confidence}
+                result={"success": result.success, "confidence": result.confidence},
+                pipeline_result=result,
+                ip_address=client_ip,
+                resource_id=conv_id
             )
 
             yield f"data: {json.dumps({'type': 'done', 'conversation_id': conv_id, 'message_id': message_id})}\n\n"
@@ -1123,7 +1293,9 @@ async def execute_query_stream(
                 event_type="query_error_stream",
                 query=request.query,
                 user_id=user_id,
-                error=str(e)
+                error=str(e),
+                ip_address=client_ip,
+                resource_id=conv_id
             )
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
 
@@ -1183,7 +1355,7 @@ async def export_query_results(
     current_user: dict = Depends(get_current_user)
 ):
     """Export query results from a conversation."""
-    user_id = current_user.get("username", "anonymous")
+    user_id = current_user.get("sub", "anonymous")
 
     if conversation_id not in conversations_db:
         raise HTTPException(status_code=404, detail="Conversation not found")

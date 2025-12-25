@@ -42,6 +42,16 @@ try:
 except ImportError:
     CACHE_AVAILABLE = False
 
+# Import audit service for persistent logging
+try:
+    from core.audit import get_audit_service
+    AUDIT_AVAILABLE = True
+except ImportError:
+    AUDIT_AVAILABLE = False
+
+import logging
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 # Configuration
@@ -309,6 +319,22 @@ async def upload_file(
                 except Exception as e:
                     result["schema_check_error"] = str(e)
 
+    # Log data upload to audit
+    if AUDIT_AVAILABLE:
+        try:
+            audit_service = get_audit_service()
+            audit_service.log_data_upload(
+                user_id=current_user.get("sub", "anonymous"),
+                username=current_user.get("sub", "anonymous"),
+                filename=file.filename,
+                file_size=len(content),
+                row_count=None,  # Will be populated after processing
+                success=not result.get("blocked", False),
+                error_message=result.get("block_reason")
+            )
+        except Exception as e:
+            logger.warning(f"Failed to log data upload to audit: {e}")
+
     return {
         "success": True,
         "data": result,
@@ -520,6 +546,21 @@ async def process_file_stream(filepath: Path, file_store: 'FileStore',
                 cache.clear()
             except Exception:
                 pass  # Cache clearing is best-effort
+
+        # Log successful data load to audit
+        if AUDIT_AVAILABLE:
+            try:
+                audit_service = get_audit_service()
+                audit_service.log_data_upload(
+                    user_id="system",
+                    username="system",
+                    filename=filepath.name,
+                    file_size=filepath.stat().st_size if filepath.exists() else 0,
+                    row_count=len(df),
+                    success=True
+                )
+            except Exception as audit_error:
+                logger.warning(f"Failed to log data processing to audit: {audit_error}")
 
         yield send_event("complete", {
             "table": table_name,
@@ -751,6 +792,32 @@ async def process_files(
 
     completed = len([r for r in results if r.get("status") == "completed"])
     failed = len([r for r in results if r.get("status") in ["error", "blocked"]])
+
+    # Log batch processing results to audit
+    if AUDIT_AVAILABLE:
+        try:
+            audit_service = get_audit_service()
+            for result in results:
+                if result.get("status") == "completed":
+                    audit_service.log_data_upload(
+                        user_id=current_user.get("sub", "anonymous"),
+                        username=current_user.get("sub", "anonymous"),
+                        filename=result.get("filename"),
+                        file_size=0,  # Size not tracked in batch results
+                        row_count=result.get("rows"),
+                        success=True
+                    )
+                else:
+                    audit_service.log_data_upload(
+                        user_id=current_user.get("sub", "anonymous"),
+                        username=current_user.get("sub", "anonymous"),
+                        filename=result.get("filename"),
+                        file_size=0,
+                        success=False,
+                        error_message=result.get("error") or result.get("reason")
+                    )
+        except Exception as e:
+            logger.warning(f"Failed to log batch processing to audit: {e}")
 
     # Clear query cache if any files were successfully loaded
     cache_cleared = 0
