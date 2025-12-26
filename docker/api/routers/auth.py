@@ -36,6 +36,31 @@ try:
 except ImportError:
     USERS_AVAILABLE = False
 
+# Import settings service for maintenance mode check
+try:
+    from core.settings import get_settings_service
+    SETTINGS_AVAILABLE = True
+except ImportError:
+    SETTINGS_AVAILABLE = False
+
+
+def _is_maintenance_mode() -> bool:
+    """Check if maintenance mode is enabled."""
+    if not SETTINGS_AVAILABLE:
+        return False
+    try:
+        settings_service = get_settings_service()
+        return settings_service.get("general", "maintenance_mode") is True
+    except Exception:
+        return False
+
+
+def _user_has_admin_permission(user_data: dict) -> bool:
+    """Check if user has full admin permission."""
+    permissions = user_data.get("permissions", [])
+    return "*" in permissions
+
+
 router = APIRouter()
 security = HTTPBearer(auto_error=False)
 
@@ -237,6 +262,18 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"}
         )
 
+    # Check maintenance mode for existing sessions - block non-admins
+    if _is_maintenance_mode():
+        user_permissions = payload.get("permissions", [])
+        if "*" not in user_permissions:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "code": "MAINTENANCE_MODE",
+                    "message": "The system is currently in maintenance mode. Only administrators can access the platform."
+                }
+            )
+
     return payload
 
 
@@ -326,6 +363,17 @@ async def token(request: Request, username: str = Form(...), password: str = For
             detail={"code": "AUTH_INVALID", "message": error or "Invalid username or password"}
         )
 
+    # Check maintenance mode - only allow admins during maintenance
+    if _is_maintenance_mode() and not _user_has_admin_permission(user_data):
+        _log_auth_event(username, False, request, "Maintenance mode - non-admin access denied")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "MAINTENANCE_MODE",
+                "message": "The system is currently in maintenance mode. Only administrators can access the platform."
+            }
+        )
+
     # Create tokens (include permissions for access control)
     access_token = create_token(
         {
@@ -391,6 +439,17 @@ async def login(request: Request, username: str, password: str):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={"code": "AUTH_INVALID", "message": error or "Invalid username or password"}
+        )
+
+    # Check maintenance mode - only allow admins during maintenance
+    if _is_maintenance_mode() and not _user_has_admin_permission(user_data):
+        _log_auth_event(username, False, request, "Maintenance mode - non-admin access denied")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "MAINTENANCE_MODE",
+                "message": "The system is currently in maintenance mode. Only administrators can access the platform."
+            }
         )
 
     # Create tokens (include permissions for access control)

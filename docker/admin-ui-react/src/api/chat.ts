@@ -66,6 +66,31 @@ export const chatApi = {
     })
       .then(async (response) => {
         if (!response.ok) {
+          // Handle maintenance mode - redirect to login
+          if (response.status === 503) {
+            try {
+              const errorData = await response.json();
+              if (errorData?.detail?.code === "MAINTENANCE_MODE") {
+                // Clear auth and redirect to login
+                localStorage.removeItem("auth_token");
+                localStorage.removeItem("sage-auth");
+                sessionStorage.setItem("maintenance_mode", "true");
+                window.location.href = "/login";
+                return;
+              }
+            } catch {
+              // If we can't parse JSON, continue with normal error handling
+            }
+          }
+
+          // Handle 401 - redirect to login
+          if (response.status === 401) {
+            localStorage.removeItem("auth_token");
+            localStorage.removeItem("sage-auth");
+            window.location.href = "/login";
+            return;
+          }
+
           const error = await response.text();
           onError(error || "Failed to send message");
           return;

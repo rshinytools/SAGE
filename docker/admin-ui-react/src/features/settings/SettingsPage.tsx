@@ -22,6 +22,8 @@ import {
 import { settingsApi, type SettingValue } from "@/api/settings";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useToast } from "@/components/common/Toast";
+import { useThemeStore } from "@/stores/themeStore";
+import { useDateFormat } from "@/hooks/useDateFormat";
 
 // Icon mapping for categories
 const categoryIcons: Record<string, React.ElementType> = {
@@ -349,6 +351,18 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
   const [showPassword, setShowPassword] = useState(false);
   const currentValue = pendingValue ?? setting.value;
   const hasChanged = pendingValue !== undefined;
+  const setTheme = useThemeStore((state) => state.setTheme);
+  const { formatDateTime } = useDateFormat();
+
+  // Handle special settings that need immediate effects
+  const handleChange = (value: unknown) => {
+    onChange(value);
+
+    // Apply theme change immediately
+    if (setting.key === "default_theme" && typeof value === "string") {
+      setTheme(value as "light" | "dark" | "system");
+    }
+  };
 
   const renderInput = () => {
     switch (setting.value_type) {
@@ -357,8 +371,8 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
           <input
             type="text"
             value={currentValue as string}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full max-w-md"
+            onChange={(e) => handleChange(e.target.value)}
+            className="input w-full max-w-md"
           />
         );
 
@@ -368,9 +382,9 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
             <input
               type={showPassword ? "text" : "password"}
               value={currentValue as string}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => handleChange(e.target.value)}
               placeholder={setting.is_sensitive ? "Leave empty to keep current" : ""}
-              className="flex-1"
+              className="input flex-1"
             />
             <button
               type="button"
@@ -387,11 +401,11 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
           <input
             type="number"
             value={currentValue as number}
-            onChange={(e) => onChange(Number(e.target.value))}
+            onChange={(e) => handleChange(Number(e.target.value))}
             min={setting.min_value}
             max={setting.max_value}
             step={setting.max_value && setting.max_value <= 1 ? 0.1 : 1}
-            className="w-32"
+            className="input w-32"
           />
         );
 
@@ -401,7 +415,7 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
             <input
               type="checkbox"
               checked={currentValue as boolean}
-              onChange={(e) => onChange(e.target.checked)}
+              onChange={(e) => handleChange(e.target.checked)}
               className="sr-only peer"
             />
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -412,12 +426,29 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
         );
 
       case "enum":
+        // For settings with many options, use a select dropdown
+        if (setting.options && setting.options.length > 4) {
+          return (
+            <select
+              value={currentValue as string}
+              onChange={(e) => handleChange(e.target.value)}
+              className="input w-full max-w-md"
+            >
+              {setting.options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          );
+        }
+        // For few options, use button group
         return (
           <div className="flex flex-wrap gap-2">
             {setting.options?.map((option) => (
               <button
                 key={option}
-                onClick={() => onChange(option)}
+                onClick={() => handleChange(option)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   currentValue === option
                     ? "bg-blue-600 text-white"
@@ -442,7 +473,7 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
                 >
                   {item}
                   <button
-                    onClick={() => onChange(arrayValue.filter((_, i) => i !== index))}
+                    onClick={() => handleChange(arrayValue.filter((_, i) => i !== index))}
                     className="hover:text-blue-600"
                   >
                     &times;
@@ -453,11 +484,11 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
             <input
               type="text"
               placeholder="Type and press Enter to add"
-              className="w-full"
+              className="input w-full"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.target as HTMLInputElement).value) {
                   e.preventDefault();
-                  onChange([...arrayValue, (e.target as HTMLInputElement).value]);
+                  handleChange([...arrayValue, (e.target as HTMLInputElement).value]);
                   (e.target as HTMLInputElement).value = "";
                 }
               }}
@@ -504,7 +535,7 @@ function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: Set
       )}
       {setting.updated_at && (
         <p className="text-xs text-gray-400 mt-1">
-          Last updated: {new Date(setting.updated_at).toLocaleString()}
+          Last updated: {formatDateTime(setting.updated_at)}
           {setting.updated_by && ` by ${setting.updated_by}`}
         </p>
       )}
@@ -518,6 +549,7 @@ function HistoryPanel({ onClose }: { onClose: () => void }) {
     queryKey: ["settingsHistory"],
     queryFn: () => settingsApi.getAuditHistory(undefined, undefined, 50),
   });
+  const { formatDateTime } = useDateFormat();
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -537,7 +569,7 @@ function HistoryPanel({ onClose }: { onClose: () => void }) {
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
                   {entry.changed_by && <span>{entry.changed_by} - </span>}
-                  {new Date(entry.changed_at).toLocaleString()}
+                  {formatDateTime(entry.changed_at)}
                 </div>
                 <div className="text-xs mt-1">
                   <span className="text-red-500 line-through">

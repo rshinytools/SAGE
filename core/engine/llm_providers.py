@@ -33,7 +33,8 @@ logger = logging.getLogger(__name__)
 
 class LLMProvider(str, Enum):
     """Supported LLM providers."""
-    CLAUDE = "claude"  # Primary - Cloud LLM via Anthropic API
+    CLAUDE = "claude"  # Cloud LLM via Anthropic API
+    GEMINI = "gemini"  # Cloud LLM via Google Generative AI API
     MOCK = "mock"      # For testing
 
 
@@ -48,6 +49,10 @@ class LLMConfig:
     # Claude/Anthropic settings
     anthropic_api_key: Optional[str] = None
     claude_model: str = "claude-sonnet-4-20250514"
+
+    # Gemini/Google settings
+    gemini_api_key: Optional[str] = None
+    gemini_model: str = "gemini-2.0-flash"
 
     # Safety settings
     enable_safety_audit: bool = True
@@ -72,6 +77,9 @@ class LLMConfig:
             # Claude
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
             claude_model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514"),
+            # Gemini
+            gemini_api_key=os.getenv("GEMINI_API_KEY"),
+            gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
             # Safety
             enable_safety_audit=os.getenv("LLM_SAFETY_AUDIT", "true").lower() == "true",
             audit_log_path=os.getenv("LLM_AUDIT_LOG_PATH"),
@@ -454,6 +462,117 @@ class ClaudeProvider(BaseLLMProvider):
 
 
 # =============================================================================
+# GEMINI PROVIDER
+# =============================================================================
+
+class GeminiProvider(BaseLLMProvider):
+    """Gemini LLM provider using Google Generative AI API."""
+
+    def __init__(self, config: LLMConfig):
+        super().__init__(config)
+        self.api_key = config.gemini_api_key
+        self.model = config.gemini_model
+        self._client = None
+
+    def get_provider_name(self) -> str:
+        return "gemini"
+
+    def get_model_name(self) -> str:
+        return self.model
+
+    def _get_client(self):
+        """Get or create Google Generative AI client."""
+        if self._client is None:
+            if not self.api_key:
+                raise ValueError(
+                    "GEMINI_API_KEY not set. "
+                    "Please set the environment variable or configure in settings."
+                )
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=self.api_key)
+                self._client = genai.GenerativeModel(self.model)
+            except ImportError:
+                raise ImportError(
+                    "google-generativeai package not installed. "
+                    "Install with: pip install google-generativeai"
+                )
+        return self._client
+
+    def is_available(self) -> bool:
+        """Check if Gemini API is available."""
+        if not self.api_key:
+            return False
+        try:
+            self._get_client()
+            return True
+        except Exception:
+            return False
+
+    def generate(self, request: LLMRequest) -> LLMResponse:
+        """Generate response using Gemini API."""
+        # CRITICAL: Safety audit before external API call
+        if self.config.enable_safety_audit:
+            audit_record = self._check_safety(request)
+            logger.info(
+                f"Gemini API call approved: schema_only={audit_record.contains_schema_only}, "
+                f"prompt_hash={audit_record.prompt_hash}"
+            )
+
+        start_time = time.time()
+        client = self._get_client()
+
+        # Build prompt with system instructions
+        full_prompt = request.prompt
+        if request.system_prompt:
+            full_prompt = f"{request.system_prompt}\n\n{request.prompt}"
+
+        try:
+            # Configure generation parameters
+            generation_config = {
+                "temperature": request.temperature,
+                "max_output_tokens": request.max_tokens,
+            }
+
+            response = client.generate_content(
+                full_prompt,
+                generation_config=generation_config
+            )
+
+            # Extract content
+            content = ""
+            if response.text:
+                content = response.text
+
+            generation_time = (time.time() - start_time) * 1000
+
+            # Get token count if available
+            tokens_used = None
+            if hasattr(response, 'usage_metadata'):
+                usage = response.usage_metadata
+                if hasattr(usage, 'prompt_token_count') and hasattr(usage, 'candidates_token_count'):
+                    tokens_used = usage.prompt_token_count + usage.candidates_token_count
+
+            return LLMResponse(
+                content=content,
+                model=self.model,
+                provider="gemini",
+                generation_time_ms=generation_time,
+                tokens_used=tokens_used,
+                raw_response=response
+            )
+
+        except Exception as e:
+            error_msg = str(e)
+            if "api key" in error_msg.lower() or "authentication" in error_msg.lower():
+                raise ValueError(f"Gemini API authentication failed: {error_msg}")
+            elif "quota" in error_msg.lower() or "rate" in error_msg.lower():
+                raise RuntimeError(f"Gemini API rate limited: {error_msg}")
+            else:
+                raise RuntimeError(f"Gemini API error: {error_msg}")
+
+
+# =============================================================================
 # MOCK PROVIDER (for testing)
 # =============================================================================
 
@@ -506,7 +625,7 @@ def create_llm_provider(config: Optional[LLMConfig] = None) -> BaseLLMProvider:
         config: LLM configuration (uses env vars if not provided)
 
     Returns:
-        Configured LLM provider (Claude or Mock)
+        Configured LLM provider (Claude, Gemini, or Mock)
     """
     if config is None:
         config = LLMConfig.from_env()
@@ -515,6 +634,16 @@ def create_llm_provider(config: Optional[LLMConfig] = None) -> BaseLLMProvider:
 
     if config.provider == LLMProvider.MOCK:
         return MockProvider(config)
+
+    if config.provider == LLMProvider.GEMINI:
+        provider = GeminiProvider(config)
+        if not provider.is_available():
+            logger.error("Gemini API not available - check GEMINI_API_KEY")
+            raise ValueError(
+                "Gemini API key not configured. "
+                "Please set GEMINI_API_KEY in your environment."
+            )
+        return provider
 
     # Default to Claude
     provider = ClaudeProvider(config)
@@ -538,6 +667,7 @@ def get_available_providers() -> Dict[str, bool]:
 
     return {
         "claude": ClaudeProvider(config).is_available() if config.anthropic_api_key else False,
+        "gemini": GeminiProvider(config).is_available() if config.gemini_api_key else False,
         "mock": True
     }
 

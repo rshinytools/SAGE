@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { useTheme } from "@/hooks/useTheme";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Menu, X, Search, Sun, Moon, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,10 +30,12 @@ function AppHeader({
   isMobileOpen,
   onToggleSidebar,
   onToggleMobileSidebar,
+  siteName,
 }: {
   isMobileOpen: boolean;
   onToggleSidebar: () => void;
   onToggleMobileSidebar: () => void;
+  siteName: string;
 }) {
   const { effectiveTheme, toggleTheme } = useTheme();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,9 +84,9 @@ function AppHeader({
           {/* Mobile Logo */}
           <Link to="/" className="xl:hidden flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center">
-              <span className="text-white font-bold text-sm">S</span>
+              <span className="text-white font-bold text-sm">{siteName.charAt(0).toUpperCase()}</span>
             </div>
-            <span className="font-semibold text-gray-900 dark:text-white">SAGE</span>
+            <span className="font-semibold text-gray-900 dark:text-white">{siteName}</span>
           </Link>
 
           {/* Spacer for mobile */}
@@ -140,6 +143,9 @@ export function MainLayout() {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Get site settings (this also sets document.title)
+  const { siteName } = useSiteSettings();
+
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -181,6 +187,7 @@ export function MainLayout() {
           isMobileOpen={isMobileOpen}
           onToggleSidebar={toggleSidebar}
           onToggleMobileSidebar={toggleMobileSidebar}
+          siteName={siteName}
         />
         <main className="p-4 mx-auto max-w-[1536px] md:p-6">
           <Outlet />

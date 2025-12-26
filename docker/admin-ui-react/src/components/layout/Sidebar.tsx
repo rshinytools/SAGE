@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -67,6 +68,7 @@ export function Sidebar({
 }: SidebarProps) {
   const { user, logout, hasPermission } = useAuth();
   const { effectiveTheme, toggleTheme } = useTheme();
+  const { siteName, siteDescription } = useSiteSettings();
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
@@ -133,20 +135,20 @@ export function Sidebar({
           {showLabels ? (
             <>
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
+                <span className="text-white font-bold text-lg">{siteName.charAt(0).toUpperCase()}</span>
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  SAGE
+                  {siteName}
                 </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Study Analytics
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[180px]">
+                  {siteDescription}
                 </p>
               </div>
             </>
           ) : (
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-600)] flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+              <span className="text-white font-bold text-lg">{siteName.charAt(0).toUpperCase()}</span>
             </div>
           )}
         </NavLink>
