@@ -250,6 +250,61 @@ async def get_optional_user(
     return decode_token(credentials.credentials)
 
 
+def require_permission(permission: str):
+    """
+    Dependency factory that requires a specific permission.
+
+    Usage:
+        @router.get("/admin-only")
+        async def admin_endpoint(user: dict = Depends(require_permission("*"))):
+            ...
+
+    Args:
+        permission: Required permission. "*" means full admin access.
+                   Other values like "user_admin" require that specific permission.
+    """
+    async def check_permission(
+        credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+    ) -> dict:
+        # First authenticate the user
+        if not credentials:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail={"code": "AUTH_REQUIRED", "message": "Authentication required"},
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        payload = decode_token(credentials.credentials)
+        if not payload:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail={"code": "AUTH_INVALID", "message": "Invalid or expired token"},
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        # Check permission
+        user_permissions = payload.get("permissions", [])
+
+        # "*" in user permissions means full access
+        if "*" in user_permissions:
+            return payload
+
+        # Check if user has the required permission
+        if permission != "*" and permission in user_permissions:
+            return payload
+
+        # Permission denied
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "code": "PERMISSION_DENIED",
+                "message": f"Permission denied. Required: {permission}"
+            }
+        )
+
+    return check_permission
+
+
 # ============================================
 # Endpoints
 # ============================================
