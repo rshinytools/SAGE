@@ -30,7 +30,7 @@ api_dir = Path(__file__).parent
 sys.path.insert(0, str(api_dir))
 
 # Import routers
-from routers import auth, data, metadata, tracker, system, chat, dictionary, meddra, golden_suite, docs, audit, users
+from routers import auth, data, metadata, tracker, system, chat, dictionary, meddra, golden_suite, docs, audit, users, dashboard
 
 # Import middleware
 try:
@@ -208,6 +208,12 @@ app.include_router(
     tags=["User Management"]
 )
 
+app.include_router(
+    dashboard.router,
+    prefix="/api/v1/dashboard",
+    tags=["Dashboard"]
+)
+
 
 # ============================================
 # Root Endpoints
@@ -250,7 +256,8 @@ async def api_root():
             "system": "/api/v1/system",
             "golden_suite": "/api/v1/golden-suite",
             "docs": "/api/v1/docs",
-            "users": "/api/v1/users"
+            "users": "/api/v1/users",
+            "dashboard": "/api/v1/dashboard"
         }
     }
 

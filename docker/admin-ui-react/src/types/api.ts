@@ -284,3 +284,126 @@ export interface ApiError {
   detail: string;
   status_code: number;
 }
+
+// Dashboard Types
+export interface DashboardStats {
+  queries: QueryStats;
+  users: UserStats;
+  data: DataStats;
+  metadata: MetadataStats;
+  cache: CacheStats;
+  llm: LLMStats;
+  services: DashboardServiceHealth[];
+  resources: ResourceStats;
+}
+
+export interface QueryStats {
+  today: number;
+  total: number;
+  avg_confidence: number;
+  avg_execution_time_ms: number;
+  confidence_distribution: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+  top_tables: TableQueryCount[];
+}
+
+export interface TableQueryCount {
+  table: string;
+  count: number;
+}
+
+export interface UserStats {
+  total: number;
+  active_24h: number;
+  by_access_level: {
+    admin: number;
+    user_admin: number;
+    chat_only: number;
+  };
+  recent_logins: RecentLogin[];
+}
+
+export interface RecentLogin {
+  username: string;
+  timestamp: string;
+  relative: string;
+}
+
+export interface DataStats {
+  total_tables: number;
+  total_rows: number;
+  total_columns: number;
+  tables: TableInfo[];
+}
+
+export interface TableInfo {
+  name: string;
+  rows: number;
+  columns: number;
+  size_kb: number;
+}
+
+export interface MetadataStats {
+  total_variables: number;
+  approved: number;
+  pending: number;
+  rejected: number;
+  domains: DomainCount[];
+}
+
+export interface DomainCount {
+  name: string;
+  count: number;
+  approved: number;
+}
+
+export interface CacheStats {
+  total_entries: number;
+  hit_rate: number;
+  size_mb: number;
+  max_size_mb: number;
+}
+
+export interface LLMStats {
+  provider: string;
+  model: string;
+  status: "available" | "unavailable";
+  last_response_ms: number | null;
+}
+
+export interface DashboardServiceHealth {
+  name: string;
+  status: "healthy" | "unhealthy" | "unknown";
+  latency_ms: number | null;
+  details: string | null;
+}
+
+export interface ResourceStats {
+  cpu_percent: number;
+  memory_percent: number;
+  memory_used_gb: number;
+  memory_total_gb: number;
+  disk_percent: number;
+  disk_used_gb: number;
+  disk_total_gb: number;
+}
+
+export interface RecentQuery {
+  id: number;
+  timestamp: string;
+  relative: string;
+  username: string;
+  question: string;
+  confidence: number | null;
+  execution_time_ms: number | null;
+  status: "success" | "failure" | "error";
+}
+
+export interface QueryTrend {
+  hour: string;
+  count: number;
+  avg_confidence: number;
+}

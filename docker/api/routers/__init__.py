@@ -13,11 +13,13 @@ from . import meddra
 from . import golden_suite
 from . import docs
 from . import audit
+from . import dashboard
 
 __all__ = [
     'auth',
     'audit',
     'chat',
+    'dashboard',
     'data',
     'metadata',
     'tracker',
