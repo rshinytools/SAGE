@@ -19,7 +19,7 @@ import {
   EyeOff,
   History,
 } from "lucide-react";
-import { settingsApi, type SettingCategory, type SettingValue } from "@/api/settings";
+import { settingsApi, type SettingValue } from "@/api/settings";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useToast } from "@/components/common/Toast";
 
@@ -44,7 +44,7 @@ export function SettingsPage() {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showHistoryPanel, setShowHistoryPanel] = useState(false);
   const queryClient = useQueryClient();
-  const { showToast } = useToast();
+  const toast = useToast();
 
   // Fetch all settings
   const { data: settingsData, isLoading, error } = useQuery({
@@ -69,10 +69,10 @@ export function SettingsPage() {
         return updated;
       });
       queryClient.invalidateQueries({ queryKey: ["settings"] });
-      showToast("Setting updated successfully", "success");
+      toast.success("Setting updated successfully");
     },
     onError: (error: Error) => {
-      showToast(`Failed to update setting: ${error.message}`, "error");
+      toast.error("Failed to update setting", error.message);
     },
   });
 
@@ -83,7 +83,7 @@ export function SettingsPage() {
       setPendingChanges({});
       queryClient.invalidateQueries({ queryKey: ["settings"] });
       setShowResetDialog(false);
-      showToast("All settings reset to defaults", "success");
+      toast.success("All settings reset to defaults");
     },
   });
 
@@ -98,7 +98,7 @@ export function SettingsPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["settings"] });
       setShowResetCategoryDialog(false);
-      showToast(`${activeCategory} settings reset to defaults`, "success");
+      toast.success(`${activeCategory} settings reset to defaults`);
     },
   });
 
@@ -145,9 +145,9 @@ export function SettingsPage() {
       a.click();
       URL.revokeObjectURL(url);
       setShowExportDialog(false);
-      showToast("Settings exported successfully", "success");
+      toast.success("Settings exported successfully");
     } catch {
-      showToast("Failed to export settings", "error");
+      toast.error("Failed to export settings");
     }
   };
 
@@ -300,30 +300,28 @@ export function SettingsPage() {
 
       {/* Dialogs */}
       <ConfirmDialog
-        isOpen={showResetDialog}
-        onClose={() => setShowResetDialog(false)}
+        open={showResetDialog}
+        onOpenChange={setShowResetDialog}
         onConfirm={() => resetAllMutation.mutate()}
         title="Reset All Settings"
         description="This will reset ALL settings across all categories to their default values. This action cannot be undone."
         confirmLabel="Reset All"
         variant="danger"
-        isLoading={resetAllMutation.isPending}
       />
 
       <ConfirmDialog
-        isOpen={showResetCategoryDialog}
-        onClose={() => setShowResetCategoryDialog(false)}
+        open={showResetCategoryDialog}
+        onOpenChange={setShowResetCategoryDialog}
         onConfirm={() => resetCategoryMutation.mutate(activeCategory)}
         title={`Reset ${currentCategory?.name}`}
         description={`This will reset all settings in "${currentCategory?.name}" to their default values.`}
         confirmLabel="Reset Category"
         variant="danger"
-        isLoading={resetCategoryMutation.isPending}
       />
 
       <ConfirmDialog
-        isOpen={showExportDialog}
-        onClose={() => setShowExportDialog(false)}
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
         onConfirm={handleExport}
         title="Export Settings"
         description="Export all settings as a JSON file. Sensitive values like API keys will not be included."
@@ -565,7 +563,7 @@ function ImportDialog({ onClose }: { onClose: () => void }) {
   const [overwrite, setOverwrite] = useState(false);
   const [importing, setImporting] = useState(false);
   const queryClient = useQueryClient();
-  const { showToast } = useToast();
+  const toast = useToast();
 
   const handleImport = async () => {
     if (!file) return;
@@ -577,13 +575,14 @@ function ImportDialog({ onClose }: { onClose: () => void }) {
       const result = await settingsApi.importSettings(data.settings || data, overwrite);
 
       queryClient.invalidateQueries({ queryKey: ["settings"] });
-      showToast(
-        `Imported ${result.imported} settings. Skipped: ${result.skipped}, Errors: ${result.errors}`,
-        result.errors > 0 ? "warning" : "success"
-      );
+      if (result.errors > 0) {
+        toast.warning(`Imported ${result.imported} settings`, `Skipped: ${result.skipped}, Errors: ${result.errors}`);
+      } else {
+        toast.success(`Imported ${result.imported} settings`, `Skipped: ${result.skipped}`);
+      }
       onClose();
-    } catch (error) {
-      showToast("Failed to import settings. Invalid file format.", "error");
+    } catch {
+      toast.error("Failed to import settings", "Invalid file format");
     } finally {
       setImporting(false);
     }
