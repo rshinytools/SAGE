@@ -1,718 +1,632 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Save, TestTube, Settings, Bot, Shield, Palette, Database, Trash2, RefreshCw } from "lucide-react";
-import { WPBox } from "@/components/layout/WPBox";
-import { useTheme } from "@/hooks/useTheme";
-import { systemApi } from "@/api/system";
-import type { SystemSettings } from "@/types/api";
+import {
+  Settings,
+  Shield,
+  Brain,
+  Database,
+  FileSpreadsheet,
+  BookOpen,
+  ScrollText,
+  Gauge,
+  Save,
+  RotateCcw,
+  Download,
+  Upload,
+  Check,
+  AlertCircle,
+  Eye,
+  EyeOff,
+  History,
+} from "lucide-react";
+import { settingsApi, type SettingCategory, type SettingValue } from "@/api/settings";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { useToast } from "@/components/common/Toast";
 
-type Tab = "general" | "llm" | "security" | "appearance" | "cache";
+// Icon mapping for categories
+const categoryIcons: Record<string, React.ElementType> = {
+  Settings: Settings,
+  Shield: Shield,
+  Brain: Brain,
+  Database: Database,
+  FileSpreadsheet: FileSpreadsheet,
+  BookOpen: BookOpen,
+  ScrollText: ScrollText,
+  Gauge: Gauge,
+};
 
 export function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("general");
+  const [activeCategory, setActiveCategory] = useState<string>("");
+  const [pendingChanges, setPendingChanges] = useState<Record<string, Record<string, unknown>>>({});
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showResetCategoryDialog, setShowResetCategoryDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showHistoryPanel, setShowHistoryPanel] = useState(false);
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
-  const { data: settings, isLoading: settingsLoading } = useQuery({
-    queryKey: ["systemSettings"],
-    queryFn: systemApi.getSettings,
+  // Fetch all settings
+  const { data: settingsData, isLoading, error } = useQuery({
+    queryKey: ["settings"],
+    queryFn: settingsApi.getAll,
   });
 
-  const updateSettingsMutation = useMutation({
-    mutationFn: systemApi.updateSettings,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["systemSettings"] });
+  // Update setting mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ category, key, value }: { category: string; key: string; value: unknown }) =>
+      settingsApi.updateSetting(category, key, value),
+    onSuccess: (_, variables) => {
+      // Remove from pending changes
+      setPendingChanges((prev) => {
+        const updated = { ...prev };
+        if (updated[variables.category]) {
+          delete updated[variables.category][variables.key];
+          if (Object.keys(updated[variables.category]).length === 0) {
+            delete updated[variables.category];
+          }
+        }
+        return updated;
+      });
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      showToast("Setting updated successfully", "success");
+    },
+    onError: (error: Error) => {
+      showToast(`Failed to update setting: ${error.message}`, "error");
     },
   });
 
-  const tabs = [
-    { id: "general", label: "General", icon: Settings },
-    { id: "llm", label: "LLM Settings", icon: Bot },
-    { id: "cache", label: "Cache", icon: Database },
-    { id: "security", label: "Security", icon: Shield },
-    { id: "appearance", label: "Appearance", icon: Palette },
-  ] as const;
+  // Reset all mutation
+  const resetAllMutation = useMutation({
+    mutationFn: settingsApi.resetAll,
+    onSuccess: () => {
+      setPendingChanges({});
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      setShowResetDialog(false);
+      showToast("All settings reset to defaults", "success");
+    },
+  });
+
+  // Reset category mutation
+  const resetCategoryMutation = useMutation({
+    mutationFn: (category: string) => settingsApi.resetCategory(category),
+    onSuccess: () => {
+      setPendingChanges((prev) => {
+        const updated = { ...prev };
+        delete updated[activeCategory];
+        return updated;
+      });
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      setShowResetCategoryDialog(false);
+      showToast(`${activeCategory} settings reset to defaults`, "success");
+    },
+  });
+
+  // Set initial active category
+  useEffect(() => {
+    if (settingsData?.categories && settingsData.categories.length > 0 && !activeCategory) {
+      setActiveCategory(settingsData.categories[0].id);
+    }
+  }, [settingsData, activeCategory]);
+
+  const handleValueChange = (category: string, key: string, value: unknown) => {
+    setPendingChanges((prev) => ({
+      ...prev,
+      [category]: {
+        ...(prev[category] || {}),
+        [key]: value,
+      },
+    }));
+  };
+
+  const handleSave = (category: string, key: string) => {
+    const value = pendingChanges[category]?.[key];
+    if (value !== undefined) {
+      updateMutation.mutate({ category, key, value });
+    }
+  };
+
+  const handleSaveAll = () => {
+    Object.entries(pendingChanges).forEach(([category, settings]) => {
+      Object.entries(settings).forEach(([key, value]) => {
+        updateMutation.mutate({ category, key, value });
+      });
+    });
+  };
+
+  const handleExport = async () => {
+    try {
+      const exportData = await settingsApi.exportSettings();
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sage-settings-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setShowExportDialog(false);
+      showToast("Settings exported successfully", "success");
+    } catch {
+      showToast("Failed to export settings", "error");
+    }
+  };
+
+  const hasPendingChanges = Object.keys(pendingChanges).length > 0;
+  const currentCategory = settingsData?.categories.find((c) => c.id === activeCategory);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+        <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+          <AlertCircle className="w-5 h-5" />
+          <span>Failed to load settings. Please try again.</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">Settings</h1>
-        <p className="text-[var(--foreground-muted)]">
-          Configure system preferences and integrations
-        </p>
-      </div>
-
-      {/* Tabs */}
-      <div className="tabs-list">
-        {tabs.map((tab) => (
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Configure platform settings and preferences
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {hasPendingChanges && (
+            <button
+              onClick={handleSaveAll}
+              disabled={updateMutation.isPending}
+              className="btn btn-primary btn-md"
+            >
+              <Save className="w-4 h-4" />
+              Save All Changes
+            </button>
+          )}
           <button
-            key={tab.id}
-            className={`tab-trigger ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => setShowHistoryPanel(!showHistoryPanel)}
+            className="btn btn-secondary btn-md"
           >
-            <tab.icon className="w-4 h-4 mr-2 inline" />
-            {tab.label}
+            <History className="w-4 h-4" />
+            History
           </button>
-        ))}
+          <button onClick={() => setShowExportDialog(true)} className="btn btn-secondary btn-md">
+            <Download className="w-4 h-4" />
+            Export
+          </button>
+          <button onClick={() => setShowImportDialog(true)} className="btn btn-secondary btn-md">
+            <Upload className="w-4 h-4" />
+            Import
+          </button>
+          <button onClick={() => setShowResetDialog(true)} className="btn btn-destructive btn-md">
+            <RotateCcw className="w-4 h-4" />
+            Reset All
+          </button>
+        </div>
       </div>
 
-      {/* Tab Content */}
-      {activeTab === "general" && (
-        <GeneralSettings
-          settings={settings}
-          isLoading={settingsLoading}
-          onSave={(data) => updateSettingsMutation.mutate(data)}
-          isSaving={updateSettingsMutation.isPending}
-        />
+      {/* Main Content */}
+      <div className="flex gap-6">
+        {/* Category Navigation */}
+        <div className="w-64 flex-shrink-0">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+              <h3 className="font-medium text-gray-900 dark:text-white">Categories</h3>
+            </div>
+            <nav className="p-2">
+              {settingsData?.categories.map((category) => {
+                const Icon = categoryIcons[category.icon] || Settings;
+                const hasChanges = !!pendingChanges[category.id];
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setActiveCategory(category.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
+                      activeCategory === category.id
+                        ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="flex-1 text-sm font-medium">{category.name}</span>
+                    {hasChanges && (
+                      <span className="w-2 h-2 rounded-full bg-amber-500" title="Unsaved changes" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* Settings Form */}
+        <div className="flex-1">
+          {currentCategory && (
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {currentCategory.name}
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {currentCategory.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowResetCategoryDialog(true)}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset Category
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {currentCategory.settings.map((setting) => (
+                  <SettingField
+                    key={setting.key}
+                    setting={setting}
+                    pendingValue={pendingChanges[currentCategory.id]?.[setting.key]}
+                    onChange={(value) => handleValueChange(currentCategory.id, setting.key, value)}
+                    onSave={() => handleSave(currentCategory.id, setting.key)}
+                    isSaving={updateMutation.isPending}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* History Panel */}
+        {showHistoryPanel && (
+          <div className="w-80 flex-shrink-0">
+            <HistoryPanel onClose={() => setShowHistoryPanel(false)} />
+          </div>
+        )}
+      </div>
+
+      {/* Dialogs */}
+      <ConfirmDialog
+        isOpen={showResetDialog}
+        onClose={() => setShowResetDialog(false)}
+        onConfirm={() => resetAllMutation.mutate()}
+        title="Reset All Settings"
+        description="This will reset ALL settings across all categories to their default values. This action cannot be undone."
+        confirmLabel="Reset All"
+        variant="danger"
+        isLoading={resetAllMutation.isPending}
+      />
+
+      <ConfirmDialog
+        isOpen={showResetCategoryDialog}
+        onClose={() => setShowResetCategoryDialog(false)}
+        onConfirm={() => resetCategoryMutation.mutate(activeCategory)}
+        title={`Reset ${currentCategory?.name}`}
+        description={`This will reset all settings in "${currentCategory?.name}" to their default values.`}
+        confirmLabel="Reset Category"
+        variant="danger"
+        isLoading={resetCategoryMutation.isPending}
+      />
+
+      <ConfirmDialog
+        isOpen={showExportDialog}
+        onClose={() => setShowExportDialog(false)}
+        onConfirm={handleExport}
+        title="Export Settings"
+        description="Export all settings as a JSON file. Sensitive values like API keys will not be included."
+        confirmLabel="Export"
+        variant="default"
+      />
+
+      {showImportDialog && (
+        <ImportDialog onClose={() => setShowImportDialog(false)} />
       )}
-
-      {activeTab === "llm" && <LLMSettingsPanel />}
-
-      {activeTab === "cache" && <CacheSettings />}
-
-      {activeTab === "security" && <SecuritySettings />}
-
-      {activeTab === "appearance" && <AppearanceSettings />}
     </div>
   );
 }
 
-interface GeneralSettingsProps {
-  settings?: SystemSettings;
-  isLoading: boolean;
-  onSave: (data: Partial<SystemSettings>) => void;
+// Individual Setting Field Component
+interface SettingFieldProps {
+  setting: SettingValue;
+  pendingValue?: unknown;
+  onChange: (value: unknown) => void;
+  onSave: () => void;
   isSaving: boolean;
 }
 
-function GeneralSettings({
-  settings,
-  isLoading,
-  onSave,
-  isSaving,
-}: GeneralSettingsProps) {
-  const [formData, setFormData] = useState<Partial<SystemSettings>>({
-    site_name: settings?.site_name || "SAGE",
-    site_description: settings?.site_description || "",
-    maintenance_mode: settings?.maintenance_mode || false,
-    allow_registration: settings?.allow_registration || false,
-    session_timeout_minutes: settings?.session_timeout_minutes || 60,
-    max_upload_size_mb: settings?.max_upload_size_mb || 100,
-  });
+function SettingField({ setting, pendingValue, onChange, onSave, isSaving }: SettingFieldProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const currentValue = pendingValue ?? setting.value;
+  const hasChanged = pendingValue !== undefined;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
-      </div>
-    );
-  }
-
-  return (
-    <WPBox title="General Settings">
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
-        <div>
-          <label className="block text-sm font-medium mb-1">Site Name</label>
+  const renderInput = () => {
+    switch (setting.value_type) {
+      case "string":
+        return (
           <input
             type="text"
-            value={formData.site_name}
-            onChange={(e) => setFormData({ ...formData, site_name: e.target.value })}
+            value={currentValue as string}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full max-w-md"
           />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Site Description</label>
-          <textarea
-            value={formData.site_description}
-            onChange={(e) =>
-              setFormData({ ...formData, site_description: e.target.value })
-            }
-            rows={2}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Session Timeout (minutes)
-          </label>
+        );
+
+      case "password":
+        return (
+          <div className="flex gap-2 max-w-md">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={currentValue as string}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={setting.is_sensitive ? "Leave empty to keep current" : ""}
+              className="flex-1"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="btn btn-secondary btn-sm"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        );
+
+      case "number":
+        return (
           <input
             type="number"
-            value={formData.session_timeout_minutes}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                session_timeout_minutes: Number(e.target.value),
-              })
-            }
-            min={5}
-            max={1440}
+            value={currentValue as number}
+            onChange={(e) => onChange(Number(e.target.value))}
+            min={setting.min_value}
+            max={setting.max_value}
+            step={setting.max_value && setting.max_value <= 1 ? 0.1 : 1}
+            className="w-32"
           />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Max Upload Size (MB)
+        );
+
+      case "boolean":
+        return (
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={currentValue as boolean}
+              onChange={(e) => onChange(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">
+              {currentValue ? "Enabled" : "Disabled"}
+            </span>
           </label>
-          <input
-            type="number"
-            value={formData.max_upload_size_mb}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                max_upload_size_mb: Number(e.target.value),
-              })
-            }
-            min={1}
-            max={1000}
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="maintenance"
-            checked={formData.maintenance_mode}
-            onChange={(e) =>
-              setFormData({ ...formData, maintenance_mode: e.target.checked })
-            }
-          />
-          <label htmlFor="maintenance" className="text-sm">
-            Enable Maintenance Mode
-          </label>
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="registration"
-            checked={formData.allow_registration}
-            onChange={(e) =>
-              setFormData({ ...formData, allow_registration: e.target.checked })
-            }
-          />
-          <label htmlFor="registration" className="text-sm">
-            Allow User Registration
-          </label>
-        </div>
-        <button type="submit" className="btn btn-primary btn-md" disabled={isSaving}>
-          <Save className="w-4 h-4" />
-          {isSaving ? "Saving..." : "Save Changes"}
-        </button>
-      </form>
-    </WPBox>
-  );
-}
+        );
 
-// New LLM Settings Panel using provider system
-function LLMSettingsPanel() {
-  const queryClient = useQueryClient();
-  const [selectedProvider, setSelectedProvider] = useState<string>("");
-  const [selectedModel, setSelectedModel] = useState<string>("");
-  const [apiKey, setApiKey] = useState<string>("");
-  const [showApiKey, setShowApiKey] = useState(false);
+      case "enum":
+        return (
+          <div className="flex flex-wrap gap-2">
+            {setting.options?.map((option) => (
+              <button
+                key={option}
+                onClick={() => onChange(option)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  currentValue === option
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        );
 
-  // Fetch current config
-  const { data: llmConfig, isLoading: configLoading } = useQuery({
-    queryKey: ["llmConfig"],
-    queryFn: systemApi.getLLMConfig,
-  });
+      case "array":
+        const arrayValue = Array.isArray(currentValue) ? currentValue : [];
+        return (
+          <div className="space-y-2 max-w-md">
+            <div className="flex flex-wrap gap-2">
+              {arrayValue.map((item: string, index: number) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-sm"
+                >
+                  {item}
+                  <button
+                    onClick={() => onChange(arrayValue.filter((_, i) => i !== index))}
+                    className="hover:text-blue-600"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+            <input
+              type="text"
+              placeholder="Type and press Enter to add"
+              className="w-full"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.target as HTMLInputElement).value) {
+                  e.preventDefault();
+                  onChange([...arrayValue, (e.target as HTMLInputElement).value]);
+                  (e.target as HTMLInputElement).value = "";
+                }
+              }}
+            />
+          </div>
+        );
 
-  // Fetch available providers
-  const { data: providersData, isLoading: providersLoading } = useQuery({
-    queryKey: ["llmProviders"],
-    queryFn: systemApi.getLLMProviders,
-  });
-
-  // Set provider mutation
-  const setProviderMutation = useMutation({
-    mutationFn: ({ provider, model, apiKey }: { provider: string; model?: string; apiKey?: string }) =>
-      systemApi.setLLMProvider(provider, model, apiKey),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["llmConfig"] });
-      queryClient.invalidateQueries({ queryKey: ["llmProviders"] });
-    },
-  });
-
-  // Test connection mutation
-  const testMutation = useMutation({
-    mutationFn: systemApi.testLLMConnection,
-  });
-
-  // Initialize selected values when data loads
-  React.useEffect(() => {
-    if (providersData && !selectedProvider) {
-      setSelectedProvider(providersData.current_provider);
+      default:
+        return <span className="text-gray-500">Unsupported type: {setting.value_type}</span>;
     }
-    if (llmConfig && !selectedModel) {
-      setSelectedModel(llmConfig.model);
-    }
-  }, [providersData, llmConfig, selectedProvider, selectedModel]);
-
-  const isLoading = configLoading || providersLoading;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
-      </div>
-    );
-  }
-
-  const providers = providersData?.providers || [];
-  const currentProvider = providers.find(p => p.id === selectedProvider);
-
-  const handleApplyChanges = () => {
-    setProviderMutation.mutate({
-      provider: selectedProvider,
-      model: selectedModel || undefined,
-      apiKey: apiKey || undefined,
-    });
   };
 
   return (
-    <div className="space-y-4">
-      <WPBox title="LLM Provider">
-        <div className="space-y-6">
-          {/* Provider Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {providers.map((provider) => (
-              <div
-                key={provider.id}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  selectedProvider === provider.id
-                    ? "border-[var(--primary)] bg-[rgba(0,112,243,0.1)]"
-                    : "border-[var(--border)] hover:border-[var(--primary-muted)]"
-                } ${!provider.available && provider.id !== "mock" ? "opacity-60" : ""}`}
-                onClick={() => {
-                  setSelectedProvider(provider.id);
-                  if (provider.models.length > 0) {
-                    setSelectedModel(provider.models[0]);
-                  }
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">{provider.name}</span>
-                  {provider.available ? (
-                    <span className="px-2 py-0.5 text-xs rounded bg-[var(--success)] text-white">Available</span>
-                  ) : provider.requires_api_key && !provider.api_key_configured ? (
-                    <span className="px-2 py-0.5 text-xs rounded bg-[var(--warning)] text-black">Needs API Key</span>
-                  ) : (
-                    <span className="px-2 py-0.5 text-xs rounded bg-[var(--muted)] text-white">Unavailable</span>
-                  )}
-                </div>
-                <p className="text-sm text-[var(--foreground-muted)]">{provider.description}</p>
-                {provider.is_local && (
-                  <div className="mt-2 flex items-center text-xs text-[var(--success)]">
-                    <Shield className="w-3 h-3 mr-1" />
-                    Data stays local
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Model Selection */}
-          {currentProvider && (
-            <div>
-              <label className="block text-sm font-medium mb-2">Model</label>
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full max-w-md"
-              >
-                {currentProvider.models.map((model) => (
-                  <option key={model} value={model}>{model}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* API Key Input (for Claude) */}
-          {selectedProvider === "claude" && (
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Anthropic API Key
-                {llmConfig?.claude.api_key_configured && (
-                  <span className="ml-2 text-xs text-[var(--success)]">(configured)</span>
-                )}
-              </label>
-              <div className="flex gap-2 max-w-md">
-                <input
-                  type={showApiKey ? "text" : "password"}
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder={llmConfig?.claude.api_key_configured ? "Leave empty to keep current" : "sk-ant-..."}
-                  className="flex-1"
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                >
-                  {showApiKey ? "Hide" : "Show"}
-                </button>
-              </div>
-              <p className="text-xs text-[var(--muted)] mt-1">
-                Get your API key from <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="text-[var(--primary)]">console.anthropic.com</a>
-              </p>
-            </div>
-          )}
-
-          {/* Test Result */}
-          {testMutation.data && (
-            <div
-              className={`p-3 rounded ${
-                testMutation.data.status === "connected"
-                  ? "bg-[rgba(0,163,42,0.1)] border border-[var(--success)]"
-                  : "bg-[rgba(214,54,56,0.1)] border border-[var(--destructive)]"
-              }`}
-            >
-              <div className="font-medium">{testMutation.data.message}</div>
-              {testMutation.data.response_time_ms && (
-                <div className="text-sm text-[var(--foreground-muted)]">
-                  Response time: {testMutation.data.response_time_ms}ms
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              className="btn btn-primary btn-md"
-              onClick={handleApplyChanges}
-              disabled={setProviderMutation.isPending}
-            >
-              <Save className="w-4 h-4" />
-              {setProviderMutation.isPending ? "Applying..." : "Apply Changes"}
-            </button>
-            <button
-              className="btn btn-secondary btn-md"
-              onClick={() => testMutation.mutate()}
-              disabled={testMutation.isPending}
-            >
-              <TestTube className="w-4 h-4" />
-              {testMutation.isPending ? "Testing..." : "Test Connection"}
-            </button>
-          </div>
-        </div>
-      </WPBox>
-
-      {/* Safety Settings */}
-      <WPBox title="Data Safety">
-        <div className="space-y-4">
-          <div className="p-4 rounded-lg bg-[rgba(0,163,42,0.1)] border border-[var(--success)]">
-            <h4 className="font-medium text-[var(--success)] mb-2 flex items-center">
-              <Shield className="w-4 h-4 mr-2" />
-              Safety Layer Active
-            </h4>
-            <ul className="text-sm text-[var(--foreground-muted)] space-y-1">
-              <li>• Only schema metadata is sent to the LLM (table/column names)</li>
-              <li>• Actual patient data never leaves your infrastructure</li>
-              <li>• PII patterns are detected and blocked automatically</li>
-              <li>• All external API calls are logged for compliance</li>
-            </ul>
-          </div>
-
-          {llmConfig?.settings && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded bg-[var(--surface)] border border-[var(--border)]">
-                <div className="text-sm font-medium">Safety Audit</div>
-                <div className={llmConfig.settings.safety_audit_enabled ? "text-[var(--success)]" : "text-[var(--muted)]"}>
-                  {llmConfig.settings.safety_audit_enabled ? "Enabled" : "Disabled"}
-                </div>
-              </div>
-              <div className="p-3 rounded bg-[var(--surface)] border border-[var(--border)]">
-                <div className="text-sm font-medium">PII Blocking</div>
-                <div className={llmConfig.settings.block_pii ? "text-[var(--success)]" : "text-[var(--muted)]"}>
-                  {llmConfig.settings.block_pii ? "Enabled" : "Disabled"}
-                </div>
-              </div>
-            </div>
+    <div className="pb-6 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0">
+      <div className="flex items-start justify-between mb-2">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 dark:text-white">
+            {setting.label}
+          </label>
+          {setting.description && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">{setting.description}</p>
           )}
         </div>
-      </WPBox>
-
-      {/* Current Settings */}
-      {llmConfig && (
-        <WPBox title="Current Configuration">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <div className="text-[var(--muted)]">Active Provider</div>
-              <div className="font-medium">{llmConfig.provider}</div>
-            </div>
-            <div>
-              <div className="text-[var(--muted)]">Model</div>
-              <div className="font-medium">{llmConfig.model}</div>
-            </div>
-            <div>
-              <div className="text-[var(--muted)]">Temperature</div>
-              <div className="font-medium">{llmConfig.settings.temperature}</div>
-            </div>
-            <div>
-              <div className="text-[var(--muted)]">Timeout</div>
-              <div className="font-medium">{llmConfig.settings.timeout}s</div>
-            </div>
-          </div>
-        </WPBox>
+        {hasChanged && (
+          <button
+            onClick={onSave}
+            disabled={isSaving}
+            className="btn btn-primary btn-sm"
+          >
+            {isSaving ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            ) : (
+              <Check className="w-4 h-4" />
+            )}
+            Save
+          </button>
+        )}
+      </div>
+      <div className="mt-2">{renderInput()}</div>
+      {setting.min_value !== undefined && setting.max_value !== undefined && (
+        <p className="text-xs text-gray-400 mt-1">
+          Range: {setting.min_value} - {setting.max_value}
+        </p>
+      )}
+      {setting.updated_at && (
+        <p className="text-xs text-gray-400 mt-1">
+          Last updated: {new Date(setting.updated_at).toLocaleString()}
+          {setting.updated_by && ` by ${setting.updated_by}`}
+        </p>
       )}
     </div>
   );
 }
 
-function CacheSettings() {
-  const queryClient = useQueryClient();
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  const { data: cacheStats, isLoading, refetch } = useQuery({
-    queryKey: ["cacheStats"],
-    queryFn: systemApi.getCacheStats,
-    refetchInterval: 30000, // Refresh every 30 seconds
+// History Panel Component
+function HistoryPanel({ onClose }: { onClose: () => void }) {
+  const { data: history, isLoading } = useQuery({
+    queryKey: ["settingsHistory"],
+    queryFn: () => settingsApi.getAuditHistory(undefined, undefined, 50),
   });
-
-  const clearCacheMutation = useMutation({
-    mutationFn: systemApi.clearCache,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cacheStats"] });
-      setShowConfirm(false);
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
-      </div>
-    );
-  }
-
-  const stats = cacheStats || {
-    size: 0,
-    max_size: 1000,
-    hits: 0,
-    misses: 0,
-    hit_rate: 0,
-    hit_rate_str: "0.0%",
-    data_version: null,
-    evictions: 0,
-    expirations: 0,
-    data_invalidations: 0,
-  };
-
-  const totalRequests = stats.hits + stats.misses;
 
   return (
-    <div className="space-y-4">
-      <WPBox title="Query Cache">
-        <div className="space-y-6">
-          {/* Cache Statistics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
-              <div className="text-2xl font-bold text-[var(--primary)]">{stats.size}</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Cached Queries</div>
-              <div className="text-xs text-[var(--muted)] mt-1">Max: {stats.max_size}</div>
-            </div>
-            <div className="p-4 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
-              <div className="text-2xl font-bold text-[var(--success)]">{stats.hit_rate_str}</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Hit Rate</div>
-              <div className="text-xs text-[var(--muted)] mt-1">{stats.hits} hits / {totalRequests} total</div>
-            </div>
-            <div className="p-4 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
-              <div className="text-2xl font-bold text-[var(--foreground)]">{stats.hits}</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Cache Hits</div>
-              <div className="text-xs text-[var(--muted)] mt-1">Served from cache</div>
-            </div>
-            <div className="p-4 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
-              <div className="text-2xl font-bold text-[var(--warning)]">{stats.misses}</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Cache Misses</div>
-              <div className="text-xs text-[var(--muted)] mt-1">Required LLM call</div>
-            </div>
-          </div>
-
-          {/* Additional Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="p-3 rounded bg-[var(--surface)] border border-[var(--border)]">
-              <div className="text-sm font-medium">Evictions</div>
-              <div className="text-lg">{stats.evictions}</div>
-            </div>
-            <div className="p-3 rounded bg-[var(--surface)] border border-[var(--border)]">
-              <div className="text-sm font-medium">Expirations</div>
-              <div className="text-lg">{stats.expirations}</div>
-            </div>
-            <div className="p-3 rounded bg-[var(--surface)] border border-[var(--border)]">
-              <div className="text-sm font-medium">Data Invalidations</div>
-              <div className="text-lg">{stats.data_invalidations}</div>
-            </div>
-          </div>
-
-          {/* Data Version */}
-          {stats.data_version && (
-            <div className="p-4 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
-              <div className="flex items-center gap-2 mb-2">
-                <Database className="w-4 h-4 text-[var(--primary)]" />
-                <span className="font-medium">Data Version Tracking</span>
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <h3 className="font-medium text-gray-900 dark:text-white">Change History</h3>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">&times;</button>
+      </div>
+      <div className="max-h-[600px] overflow-y-auto">
+        {isLoading ? (
+          <div className="p-4 text-center text-gray-500">Loading...</div>
+        ) : history && history.length > 0 ? (
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            {history.map((entry, index) => (
+              <div key={index} className="p-3">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  {entry.setting_category}/{entry.setting_key}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {entry.changed_by && <span>{entry.changed_by} - </span>}
+                  {new Date(entry.changed_at).toLocaleString()}
+                </div>
+                <div className="text-xs mt-1">
+                  <span className="text-red-500 line-through">
+                    {JSON.stringify(entry.old_value)}
+                  </span>
+                  {" → "}
+                  <span className="text-green-500">{JSON.stringify(entry.new_value)}</span>
+                </div>
               </div>
-              <div className="text-sm text-[var(--foreground-muted)]">
-                Current Version: <code className="px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--primary)]">{stats.data_version}</code>
-              </div>
-              <p className="text-xs text-[var(--muted)] mt-2">
-                Cache automatically invalidates when data changes (new files loaded, tables updated)
-              </p>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              className="btn btn-secondary btn-md"
-              onClick={() => refetch()}
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh Stats
-            </button>
-
-            {!showConfirm ? (
-              <button
-                className="btn btn-destructive btn-md"
-                onClick={() => setShowConfirm(true)}
-                disabled={stats.size === 0}
-              >
-                <Trash2 className="w-4 h-4" />
-                Clear Cache
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-[var(--foreground-muted)]">Clear all {stats.size} entries?</span>
-                <button
-                  className="btn btn-destructive btn-sm"
-                  onClick={() => clearCacheMutation.mutate()}
-                  disabled={clearCacheMutation.isPending}
-                >
-                  {clearCacheMutation.isPending ? "Clearing..." : "Yes, Clear"}
-                </button>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => setShowConfirm(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
+            ))}
           </div>
-
-          {/* Info */}
-          <div className="p-4 rounded-lg bg-[rgba(0,112,243,0.1)] border border-[var(--primary)]">
-            <h4 className="font-medium text-[var(--primary)] mb-2">About Query Cache</h4>
-            <ul className="text-sm text-[var(--foreground-muted)] space-y-1">
-              <li>• Caches query results to avoid repeated LLM calls</li>
-              <li>• Entries expire after 1 hour (TTL)</li>
-              <li>• Cache automatically clears when clinical data changes</li>
-              <li>• Similar queries (case/punctuation differences) share cache entries</li>
-            </ul>
-          </div>
-        </div>
-      </WPBox>
+        ) : (
+          <div className="p-4 text-center text-gray-500">No changes recorded</div>
+        )}
+      </div>
     </div>
   );
 }
 
-function SecuritySettings() {
+// Import Dialog Component
+function ImportDialog({ onClose }: { onClose: () => void }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [overwrite, setOverwrite] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  const handleImport = async () => {
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const result = await settingsApi.importSettings(data.settings || data, overwrite);
+
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      showToast(
+        `Imported ${result.imported} settings. Skipped: ${result.skipped}, Errors: ${result.errors}`,
+        result.errors > 0 ? "warning" : "success"
+      );
+      onClose();
+    } catch (error) {
+      showToast("Failed to import settings. Invalid file format.", "error");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
-    <WPBox title="Security Settings">
-      <div className="space-y-4 max-w-xl">
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Password Policy
-          </label>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" defaultChecked />
-              <span className="text-sm">Require minimum 8 characters</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" defaultChecked />
-              <span className="text-sm">Require uppercase and lowercase</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" defaultChecked />
-              <span className="text-sm">Require numbers</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" />
-              <span className="text-sm">Require special characters</span>
-            </label>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg max-w-md w-full mx-4">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Import Settings</h3>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Select JSON File</label>
+            <input
+              type="file"
+              accept=".json"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="w-full"
+            />
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Login Attempts
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={overwrite}
+              onChange={(e) => setOverwrite(e.target.checked)}
+            />
+            <span className="text-sm">Overwrite existing values</span>
           </label>
-          <input
-            type="number"
-            defaultValue={5}
-            min={3}
-            max={10}
-            className="w-32"
-          />
-          <p className="text-xs text-[var(--muted)] mt-1">
-            Maximum failed login attempts before lockout
-          </p>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Lockout Duration (minutes)
-          </label>
-          <input
-            type="number"
-            defaultValue={15}
-            min={5}
-            max={60}
-            className="w-32"
-          />
-        </div>
-        <button className="btn-primary">
-          <Save className="w-4 h-4 mr-2 inline" />
-          Save Changes
-        </button>
-      </div>
-    </WPBox>
-  );
-}
-
-function AppearanceSettings() {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <WPBox title="Appearance">
-      <div className="space-y-4 max-w-xl">
-        <div>
-          <label className="block text-sm font-medium mb-1">Theme</label>
-          <select
-            value={theme}
-            onChange={(e) => setTheme(e.target.value as "light" | "dark" | "system")}
+        <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3">
+          <button onClick={onClose} className="btn btn-secondary btn-md">
+            Cancel
+          </button>
+          <button
+            onClick={handleImport}
+            disabled={!file || importing}
+            className="btn btn-primary btn-md"
           >
-            <option value="system">System Default</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-3">Preview</label>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-white border border-gray-200 rounded">
-              <div className="h-4 w-24 bg-gray-800 rounded mb-2"></div>
-              <div className="h-2 w-full bg-gray-200 rounded mb-1"></div>
-              <div className="h-2 w-3/4 bg-gray-200 rounded"></div>
-              <p className="text-xs text-gray-500 mt-2">Light Theme</p>
-            </div>
-            <div className="p-4 bg-gray-800 border border-gray-700 rounded">
-              <div className="h-4 w-24 bg-white rounded mb-2"></div>
-              <div className="h-2 w-full bg-gray-600 rounded mb-1"></div>
-              <div className="h-2 w-3/4 bg-gray-600 rounded"></div>
-              <p className="text-xs text-gray-400 mt-2">Dark Theme</p>
-            </div>
-          </div>
+            {importing ? "Importing..." : "Import"}
+          </button>
         </div>
       </div>
-    </WPBox>
+    </div>
   );
 }

@@ -29,7 +29,7 @@ api_dir = Path(__file__).parent
 sys.path.insert(0, str(api_dir))
 
 # Import routers
-from routers import auth, data, metadata, system, chat, dictionary, meddra, golden_suite, docs, audit, users, dashboard
+from routers import auth, data, metadata, system, chat, dictionary, meddra, golden_suite, docs, audit, users, dashboard, settings
 
 # Import middleware
 try:
@@ -99,6 +99,7 @@ SAGE provides a comprehensive API for:
 - **Authentication**: JWT-based user authentication
 - **Data Factory**: SAS file processing, DuckDB queries
 - **Metadata Factory**: Golden metadata management
+- **Settings**: Platform configuration
 - **System**: Health checks, configuration
 
 ### Authentication
@@ -206,6 +207,12 @@ app.include_router(
     tags=["Dashboard"]
 )
 
+app.include_router(
+    settings.router,
+    prefix="/api/v1/settings",
+    tags=["Settings"]
+)
+
 
 # ============================================
 # Root Endpoints
@@ -248,7 +255,8 @@ async def api_root():
             "golden_suite": "/api/v1/golden-suite",
             "docs": "/api/v1/docs",
             "users": "/api/v1/users",
-            "dashboard": "/api/v1/dashboard"
+            "dashboard": "/api/v1/dashboard",
+            "settings": "/api/v1/settings"
         }
     }
 

@@ -13,6 +13,7 @@ from . import golden_suite
 from . import docs
 from . import audit
 from . import dashboard
+from . import settings
 
 __all__ = [
     'auth',
@@ -26,4 +27,5 @@ __all__ = [
     'meddra',
     'golden_suite',
     'docs',
+    'settings',
 ]

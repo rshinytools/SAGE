@@ -7,3 +7,4 @@ export { usersApi } from "./users";
 export { auditApi } from "./audit";
 export { dictionaryApi } from "./dictionary";
 export { chatApi } from "./chat";
+export { settingsApi } from "./settings";
