@@ -203,49 +203,6 @@ export interface AuditLogFilter {
   searchText?: string;
 }
 
-// Project Tracker Types
-export interface TrackerPhase {
-  id: number;
-  name: string;
-  description?: string;
-  order_num: number;
-  tasks: TrackerTask[];
-  progress: number;
-}
-
-export interface TrackerTask {
-  id: number;
-  phase_id: number;
-  name: string;
-  description?: string;
-  status: "pending" | "in_progress" | "completed" | "blocked";
-  priority: "low" | "medium" | "high" | "critical";
-  assigned_to?: string;
-  due_date?: string;
-  completed_at?: string;
-  notes?: string;
-  order_num: number;
-}
-
-export interface CreateTaskRequest {
-  phase_id: number;
-  name: string;
-  description?: string;
-  priority?: "low" | "medium" | "high" | "critical";
-  assigned_to?: string;
-  due_date?: string;
-}
-
-export interface UpdateTaskRequest {
-  name?: string;
-  description?: string;
-  status?: "pending" | "in_progress" | "completed" | "blocked";
-  priority?: "low" | "medium" | "high" | "critical";
-  assigned_to?: string;
-  due_date?: string;
-  notes?: string;
-}
-
 // Settings Types
 export interface SystemSettings {
   site_name: string;

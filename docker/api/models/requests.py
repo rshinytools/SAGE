@@ -92,36 +92,6 @@ class MetadataSearchRequest(BaseModel):
 
 
 # ============================================
-# Project Tracker Requests
-# ============================================
-
-class PhaseUpdateRequest(BaseModel):
-    """Phase update request."""
-    status: Optional[str] = Field(default=None, description="Phase status")
-    notes: Optional[str] = None
-
-
-class TaskUpdateRequest(BaseModel):
-    """Task update request."""
-    status: Optional[str] = None
-    priority: Optional[str] = None
-    assignee: Optional[str] = None
-    notes: Optional[str] = None
-
-
-class SubtaskUpdateRequest(BaseModel):
-    """Subtask update request."""
-    status: str = Field(..., description="Subtask status")
-
-
-class ActivityLogRequest(BaseModel):
-    """Activity log request."""
-    task_id: Optional[int] = None
-    action: str = Field(..., description="Action type")
-    details: Optional[str] = None
-
-
-# ============================================
 # System Requests
 # ============================================
 

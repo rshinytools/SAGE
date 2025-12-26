@@ -9,7 +9,6 @@ import {
   BookOpen,
   Users,
   FileText,
-  FolderKanban,
   Settings,
   Sun,
   Moon,
@@ -107,15 +106,6 @@ export function CommandPalette() {
             icon: <FileText className="w-4 h-4" />,
             action: () => navigate("/audit"),
             keywords: ["logs", "history", "queries"],
-            category: "navigation" as const,
-          },
-          {
-            id: "tracker",
-            label: "Project Tracker",
-            description: "Track implementation progress",
-            icon: <FolderKanban className="w-4 h-4" />,
-            action: () => navigate("/tracker"),
-            keywords: ["tasks", "progress", "phases"],
             category: "navigation" as const,
           },
           {

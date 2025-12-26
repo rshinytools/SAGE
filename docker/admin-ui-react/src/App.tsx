@@ -16,7 +16,6 @@ import { DictionaryManagerPage } from "@/features/dictionary-manager/DictionaryM
 import { MedDRALibraryPage } from "@/features/meddra-library/MedDRALibraryPage";
 import { UserManagementPage } from "@/features/user-management/UserManagementPage";
 import { AuditLogsPage } from "@/features/audit-logs/AuditLogsPage";
-import { ProjectTrackerPage } from "@/features/project-tracker/ProjectTrackerPage";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { ChatPage } from "@/features/chat/ChatPage";
 import { CDISCLibraryPage } from "@/features/cdisc-library/CDISCLibraryPage";
@@ -101,7 +100,6 @@ export default function App() {
             <Route path="/cdisc-library" element={<CDISCLibraryPage />} />
             <Route path="/dictionary" element={<DictionaryManagerPage />} />
             <Route path="/meddra" element={<MedDRALibraryPage />} />
-            <Route path="/tracker" element={<ProjectTrackerPage />} />
             <Route path="/golden-suite" element={<GoldenSuitePage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>

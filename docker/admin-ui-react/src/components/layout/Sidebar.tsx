@@ -9,7 +9,6 @@ import {
   Library,
   Users,
   ScrollText,
-  ClipboardList,
   Settings,
   LogOut,
   Sun,
@@ -48,7 +47,6 @@ const menuItems: NavItem[] = [
   { path: "/golden-suite", label: "Golden Test Suite", icon: FlaskConical, permission: "*" },
   { path: "/users", label: "Users", icon: Users, permission: "user_admin" },
   { path: "/audit", label: "Audit Logs", icon: ScrollText, permission: "user_admin" },
-  { path: "/tracker", label: "Project Tracker", icon: ClipboardList, permission: "*" },
   { path: "/settings", label: "Settings", icon: Settings, permission: "*" },
 ];
 

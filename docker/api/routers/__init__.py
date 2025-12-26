@@ -5,7 +5,6 @@
 from . import auth
 from . import data
 from . import metadata
-from . import tracker
 from . import system
 from . import chat
 from . import dictionary
@@ -22,7 +21,6 @@ __all__ = [
     'dashboard',
     'data',
     'metadata',
-    'tracker',
     'system',
     'dictionary',
     'meddra',

@@ -1,9 +1,8 @@
 # SAGE Admin Package
 """
-Admin functionality including authentication, user management, and project tracking.
+Admin functionality including authentication and user management.
 """
 
 from .auth import get_auth_provider, check_authentication
-from .tracker_db import TrackerDB
 
-__all__ = ["get_auth_provider", "check_authentication", "TrackerDB"]
+__all__ = ["get_auth_provider", "check_authentication"]

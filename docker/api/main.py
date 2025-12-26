@@ -7,7 +7,6 @@ Features:
 - Authentication with JWT tokens
 - Data Factory endpoints
 - Metadata Factory endpoints
-- Project Tracker endpoints
 - System management endpoints
 """
 
@@ -30,7 +29,7 @@ api_dir = Path(__file__).parent
 sys.path.insert(0, str(api_dir))
 
 # Import routers
-from routers import auth, data, metadata, tracker, system, chat, dictionary, meddra, golden_suite, docs, audit, users, dashboard
+from routers import auth, data, metadata, system, chat, dictionary, meddra, golden_suite, docs, audit, users, dashboard
 
 # Import middleware
 try:
@@ -100,7 +99,6 @@ SAGE provides a comprehensive API for:
 - **Authentication**: JWT-based user authentication
 - **Data Factory**: SAS file processing, DuckDB queries
 - **Metadata Factory**: Golden metadata management
-- **Project Tracker**: Task and progress tracking
 - **System**: Health checks, configuration
 
 ### Authentication
@@ -152,12 +150,6 @@ app.include_router(
     metadata.router,
     prefix="/api/v1/metadata",
     tags=["Metadata Factory"]
-)
-
-app.include_router(
-    tracker.router,
-    prefix="/api/v1/tracker",
-    tags=["Project Tracker"]
 )
 
 app.include_router(
@@ -252,7 +244,6 @@ async def api_root():
             "metadata": "/api/v1/metadata",
             "dictionary": "/api/v1/dictionary",
             "meddra": "/api/v1/meddra",
-            "tracker": "/api/v1/tracker",
             "system": "/api/v1/system",
             "golden_suite": "/api/v1/golden-suite",
             "docs": "/api/v1/docs",
