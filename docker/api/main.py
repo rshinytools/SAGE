@@ -29,7 +29,7 @@ api_dir = Path(__file__).parent
 sys.path.insert(0, str(api_dir))
 
 # Import routers
-from routers import auth, data, metadata, system, chat, dictionary, meddra, golden_suite, docs, audit, users, dashboard, settings
+from routers import auth, data, metadata, system, chat, dictionary, meddra, golden_suite, docs, audit, users, dashboard, settings, feedback
 
 # Import middleware
 try:
@@ -37,6 +37,15 @@ try:
     AUDIT_MIDDLEWARE_AVAILABLE = True
 except ImportError:
     AUDIT_MIDDLEWARE_AVAILABLE = False
+
+# Import rate limiting
+try:
+    from slowapi import _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+    from routers.auth import limiter, RATE_LIMITING_AVAILABLE
+except ImportError:
+    RATE_LIMITING_AVAILABLE = False
+    limiter = None
 
 # Import audit service for lifecycle logging
 try:
@@ -112,6 +121,12 @@ Include the token in the Authorization header: `Bearer <token>`
     openapi_url="/openapi.json",
     lifespan=lifespan
 )
+
+# Add rate limiting (for auth endpoints)
+if RATE_LIMITING_AVAILABLE and limiter:
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    print("Rate limiting enabled for auth endpoints")
 
 # Add CORS middleware
 # Security: Default to localhost origins only; configure CORS_ORIGINS in .env for production
@@ -213,6 +228,12 @@ app.include_router(
     tags=["Settings"]
 )
 
+app.include_router(
+    feedback.router,
+    prefix="/api/v1/feedback",
+    tags=["Feedback & Learning"]
+)
+
 
 # ============================================
 # Root Endpoints
@@ -256,7 +277,8 @@ async def api_root():
             "docs": "/api/v1/docs",
             "users": "/api/v1/users",
             "dashboard": "/api/v1/dashboard",
-            "settings": "/api/v1/settings"
+            "settings": "/api/v1/settings",
+            "feedback": "/api/v1/feedback"
         }
     }
 

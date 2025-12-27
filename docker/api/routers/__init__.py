@@ -14,6 +14,7 @@ from . import docs
 from . import audit
 from . import dashboard
 from . import settings
+from . import feedback
 
 __all__ = [
     'auth',
@@ -21,6 +22,7 @@ __all__ = [
     'chat',
     'dashboard',
     'data',
+    'feedback',
     'metadata',
     'system',
     'dictionary',
