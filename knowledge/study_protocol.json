@@ -1,0 +1,79 @@
+{
+  "study_id": "SAGE-DEMO-001",
+  "study_name": "SAGE Demo Clinical Trial",
+  "protocol_version": "1.0",
+
+  "BASELINE_DEFINITION": {
+    "description": "Day 1 pre-dose assessment",
+    "column": "VISITNUM",
+    "operator": "=",
+    "value": 1,
+    "sql": "VISITNUM = 1"
+  },
+
+  "ENDPOINT_DEFINITION": {
+    "description": "Week 24 or Early Termination visit",
+    "sql": "VISIT IN ('WEEK 24', 'END OF STUDY', 'EARLY TERMINATION')"
+  },
+
+  "ELDERLY_DEFINITION": {
+    "description": "Age 65 years or older",
+    "column": "AGE",
+    "operator": ">=",
+    "value": 65,
+    "sql": "AGE >= 65"
+  },
+
+  "PEDIATRIC_DEFINITION": {
+    "description": "Age less than 18 years",
+    "column": "AGE",
+    "operator": "<",
+    "value": 18,
+    "sql": "AGE < 18"
+  },
+
+  "RECENT_DEFINITION": {
+    "description": "Within last 30 days",
+    "days": 30,
+    "sql": "AESTDTC >= CURRENT_DATE - INTERVAL '30 days'"
+  },
+
+  "EARLY_DEFINITION": {
+    "description": "First 4 weeks of treatment",
+    "sql": "AESTDY <= 28"
+  },
+
+  "HIGH_THRESHOLD": {
+    "blood_pressure_systolic": 140,
+    "blood_pressure_diastolic": 90,
+    "heart_rate": 100,
+    "temperature_celsius": 38.0,
+    "glucose_fasting": 126,
+    "cholesterol_total": 240
+  },
+
+  "LOW_THRESHOLD": {
+    "blood_pressure_systolic": 90,
+    "blood_pressure_diastolic": 60,
+    "heart_rate": 60,
+    "hemoglobin": 12.0,
+    "platelets": 150000
+  },
+
+  "RESPONDER_DEFINITION": {
+    "description": "50% or greater reduction from baseline in primary endpoint",
+    "sql": "CHG / NULLIF(BASE, 0) <= -0.50"
+  },
+
+  "COMMON_AE_THRESHOLD": {
+    "description": "Adverse event occurring in 5% or more of subjects",
+    "percentage": 5,
+    "sql": "COUNT(*) * 100.0 / (SELECT COUNT(DISTINCT USUBJID) FROM adsl WHERE SAFFL = 'Y') >= 5"
+  },
+
+  "SIGNIFICANCE_DEFINITION": {
+    "description": "Statistical significance at alpha = 0.05",
+    "alpha": 0.05,
+    "note": "Two-sided test"
+  }
+}

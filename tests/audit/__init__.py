@@ -1,1 +1,1 @@
-# Audit module tests
+"""Tests for the Audit module."""
