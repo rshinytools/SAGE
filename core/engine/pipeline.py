@@ -77,6 +77,30 @@ from .explanation_enricher import ExplanationEnricher, create_explanation_enrich
 from .query_disambiguator import QueryDisambiguator, create_query_disambiguator
 from .error_humanizer import ErrorHumanizer, create_error_humanizer
 
+# Enterprise Foundation Components (Phase 0)
+from .enterprise import (
+    EnterpriseProcessor,
+    EnterpriseConfig,
+    create_enterprise_processor
+)
+from .clinical import (
+    ProtocolGuard,
+    CertifiedAnswerSystem,
+    GoldenViewRouter,
+    HelpfulRefusalSystem,
+    RefusalReason,
+    CertificationLevel
+)
+from .learning import (
+    ExampleStore,
+    ComplexityScorer,
+    ConfidenceManager as EnterpriseConfidenceManager,
+    ResponseAction,
+    FeedbackHandler,
+    FeedbackType
+)
+from .audit import AuditTraceLogger, AuditEvent, AuditLevel
+
 logger = logging.getLogger(__name__)
 
 
@@ -495,6 +519,32 @@ class PipelineConfig:
     # Enable natural language error messages
     enable_error_humanization: bool = True
 
+    # === Enterprise Foundation Components ===
+
+    # Enable certified answer bypass (98%+ match skips LLM)
+    enable_certified_answers: bool = True
+
+    # Enable protocol guard (resolve ambiguous clinical terms)
+    enable_protocol_guard: bool = True
+
+    # Enable view routing (route complex queries to golden views)
+    enable_view_routing: bool = True
+
+    # Enable helpful refusals (actionable guidance on low confidence)
+    enable_helpful_refusals: bool = True
+
+    # Enable enterprise audit logging (21 CFR Part 11 compliant)
+    enable_enterprise_audit: bool = True
+
+    # Enable example-based learning
+    enable_example_learning: bool = True
+
+    # Path for learning database
+    learning_db_path: str = "data/learning.db"
+
+    # Path for audit database
+    enterprise_audit_db_path: str = "data/audit.db"
+
 
 class InferencePipeline:
     """
@@ -669,6 +719,52 @@ class InferencePipeline:
 
         # Factory 4.5: LLM-Enhanced Features
         self._init_llm_enhanced_components()
+
+        # Enterprise Foundation Components
+        self._init_enterprise_components()
+
+    def _init_enterprise_components(self):
+        """Initialize Enterprise Foundation Components (Phase 0)."""
+
+        # Enterprise Processor (unified wrapper)
+        try:
+            enterprise_config = EnterpriseConfig(
+                db_path=self.config.db_path,
+                learning_db_path=self.config.learning_db_path,
+                audit_db_path=self.config.enterprise_audit_db_path,
+                enable_certified_answers=self.config.enable_certified_answers,
+                enable_protocol_guard=self.config.enable_protocol_guard,
+                enable_schema_validation=False,  # Use existing validator
+                enable_view_routing=self.config.enable_view_routing,
+                enable_helpful_refusals=self.config.enable_helpful_refusals,
+                enable_learning=self.config.enable_example_learning,
+                enable_audit=self.config.enable_enterprise_audit
+            )
+            self.enterprise = EnterpriseProcessor(enterprise_config)
+            logger.info("Enterprise processor initialized")
+        except Exception as e:
+            logger.warning(f"Could not initialize enterprise processor: {e}")
+            self.enterprise = None
+
+        # Individual component references for direct access
+        if self.enterprise:
+            self.certified_system = self.enterprise.certified_system
+            self.protocol_guard = self.enterprise.protocol_guard
+            self.view_router = self.enterprise.view_router
+            self.refusal_system = self.enterprise.refusal_system
+            self.example_store = self.enterprise.example_store
+            self.enterprise_confidence = self.enterprise.confidence_manager
+            self.audit_logger = self.enterprise.audit_logger
+            self.feedback_handler = self.enterprise.feedback_handler
+        else:
+            self.certified_system = None
+            self.protocol_guard = None
+            self.view_router = None
+            self.refusal_system = None
+            self.example_store = None
+            self.enterprise_confidence = None
+            self.audit_logger = None
+            self.feedback_handler = None
 
     def _init_llm_enhanced_components(self):
         """Initialize Factory 4.5 LLM-enhanced components."""
@@ -1312,6 +1408,83 @@ class InferencePipeline:
                     result.metadata['cache_key'] = self.cache._hash(query, session_id=self.session_id)
                     return result
 
+            # === ENTERPRISE FOUNDATION STEPS ===
+
+            # Start enterprise audit trace
+            trace_id = None
+            if self.enterprise and self.audit_logger:
+                trace_id = self.enterprise.start_trace(
+                    question=query,
+                    user_id=self.session_id or "anonymous",
+                    session_id=self.session_id
+                )
+                pipeline_stages['audit_trace'] = {'trace_id': trace_id}
+                logger.info(f"Started audit trace: {trace_id}")
+
+            # STEP 0.6: Check Certified Answers (bypass LLM for 98%+ matches)
+            if self.certified_system and not direct_sql:
+                logger.info("Step 0.6: Checking certified answers")
+                step_start = time.time()
+                try:
+                    bypass_llm, cert_result = self.enterprise.check_certified(query, trace_id)
+                    pipeline_stages['certified_check'] = {
+                        'success': True,
+                        'time_ms': (time.time() - step_start) * 1000,
+                        'bypass_llm': bypass_llm,
+                        'level': cert_result.certification_level.value if cert_result else None,
+                        'confidence': cert_result.confidence if cert_result else None
+                    }
+
+                    if bypass_llm and cert_result.sql_to_execute:
+                        logger.info(f"Certified answer found - bypassing LLM (confidence: {cert_result.confidence}%)")
+                        # Execute the certified SQL directly
+                        direct_sql = cert_result.sql_to_execute
+                        working_query = query
+                        pipeline_stages['certified_check']['certified_sql'] = True
+
+                except Exception as e:
+                    logger.warning(f"Certified answer check failed: {e}")
+                    pipeline_stages['certified_check'] = {
+                        'success': False,
+                        'error': str(e),
+                        'time_ms': (time.time() - step_start) * 1000
+                    }
+
+            # STEP 0.7: Protocol Guard (resolve ambiguous clinical terms)
+            protocol_result = None
+            if self.protocol_guard and not direct_sql:
+                logger.info("Step 0.7: Checking protocol guard")
+                step_start = time.time()
+                try:
+                    protocol_result = self.enterprise.check_protocol(query, trace_id)
+                    has_ambiguity = len(protocol_result.terms_found) > 0 and not protocol_result.all_resolved
+
+                    pipeline_stages['protocol_guard'] = {
+                        'success': True,
+                        'time_ms': (time.time() - step_start) * 1000,
+                        'terms_found': len(protocol_result.terms_found),
+                        'all_resolved': protocol_result.all_resolved,
+                        'has_ambiguity': has_ambiguity
+                    }
+
+                    # If there are unresolved ambiguous terms, use enhanced query
+                    if protocol_result.enhanced_query != query:
+                        working_query = protocol_result.enhanced_query
+                        logger.info(f"Protocol guard enhanced query: {working_query[:100]}...")
+
+                    # If clarifications are needed and we have a refusal system
+                    if protocol_result.clarifications_needed and self.refusal_system:
+                        logger.info(f"Protocol guard needs clarifications: {protocol_result.clarifications_needed}")
+                        # Don't refuse yet - let clarification manager handle it
+
+                except Exception as e:
+                    logger.warning(f"Protocol guard check failed: {e}")
+                    pipeline_stages['protocol_guard'] = {
+                        'success': False,
+                        'error': str(e),
+                        'time_ms': (time.time() - step_start) * 1000
+                    }
+
             # STEP 1: Input Sanitization
             logger.info("Step 1: Sanitizing input")
             sanitization = self.sanitizer.sanitize(working_query)
@@ -1512,6 +1685,42 @@ class InferencePipeline:
                         start_time=start_time
                     )
 
+                # STEP 3.5: View Routing (route complex queries to golden views)
+                view_routing_result = None
+                view_prompt_addition = None
+                if self.view_router and len(table_resolution.selected_table or "") > 0:
+                    step_start = time.time()
+                    try:
+                        # Get required tables from the query
+                        required_tables = [table_resolution.selected_table]
+                        if hasattr(table_resolution, 'additional_tables'):
+                            required_tables.extend(table_resolution.additional_tables or [])
+
+                        view_routing_result = self.enterprise.route_to_view(
+                            query=clean_query,
+                            required_tables=required_tables,
+                            trace_id=trace_id
+                        )
+
+                        pipeline_stages['view_routing'] = {
+                            'success': True,
+                            'time_ms': (time.time() - step_start) * 1000,
+                            'should_use_view': view_routing_result.should_use_view,
+                            'view_name': view_routing_result.view_name
+                        }
+
+                        if view_routing_result.should_use_view:
+                            view_prompt_addition = view_routing_result.prompt_addition
+                            logger.info(f"View routing: using {view_routing_result.view_name}")
+
+                    except Exception as e:
+                        logger.warning(f"View routing failed: {e}")
+                        pipeline_stages['view_routing'] = {
+                            'success': False,
+                            'error': str(e),
+                            'time_ms': (time.time() - step_start) * 1000
+                        }
+
                 # STEP 4: Context Building
                 logger.info("Step 4: Building LLM context")
                 step_start = time.time()
@@ -1529,12 +1738,19 @@ class InferencePipeline:
                     preserve_filters=preserve_filters,
                     conversation_context=conversation_context
                 )
+
+                # Add view routing prompt if applicable
+                if view_prompt_addition and hasattr(context, 'system_prompt'):
+                    context.system_prompt = context.system_prompt + "\n\n" + view_prompt_addition
+                    logger.info("Added view routing prompt to context")
+
                 pipeline_stages['context_building'] = {
                     'success': True,
                     'time_ms': (time.time() - step_start) * 1000,
                     'token_estimate': context.token_count_estimate,
                     'preserve_filters': preserve_filters,
-                    'accumulated_filters': accumulated_filters if preserve_filters else None
+                    'accumulated_filters': accumulated_filters if preserve_filters else None,
+                    'view_prompt_added': view_prompt_addition is not None
                 }
 
                 # STEPS 5-7: SQL Generation with Self-Correction Loop
@@ -1728,6 +1944,34 @@ class InferencePipeline:
                     'has_enriched_explanation': enriched_explanation is not None
                 }
             )
+
+            # Complete enterprise audit trace
+            if self.enterprise and trace_id:
+                try:
+                    self.enterprise.complete_trace(
+                        trace_id=trace_id,
+                        sql=final_sql,
+                        confidence=confidence.overall_score,
+                        action="RETURN_NORMAL",
+                        success=True
+                    )
+                    logger.info(f"Completed audit trace: {trace_id}")
+                except Exception as e:
+                    logger.warning(f"Failed to complete audit trace: {e}")
+
+            # Store successful example for learning
+            if self.example_store and confidence.overall_score >= 85:
+                try:
+                    self.example_store.add_example(
+                        question=query,
+                        sql=final_sql,
+                        category=query_analysis.intent.value if query_analysis else "unknown",
+                        confidence=confidence.overall_score,
+                        verified=False  # Will be verified by feedback
+                    )
+                    logger.info("Stored example for learning")
+                except Exception as e:
+                    logger.warning(f"Failed to store learning example: {e}")
 
             # Cache successful results (session-scoped for proper isolation)
             if self.cache is not None:
@@ -1947,7 +2191,14 @@ class InferencePipeline:
             # Factory 4.5 components
             'synonym_resolver': False,
             'explanation_enricher': False,
-            'error_humanizer': False
+            'error_humanizer': False,
+            # Enterprise Foundation components
+            'enterprise_processor': False,
+            'certified_answers': False,
+            'protocol_guard': False,
+            'view_router': False,
+            'example_store': False,
+            'audit_logger': False
         }
 
         # Check database
@@ -1981,6 +2232,26 @@ class InferencePipeline:
         status['error_humanizer'] = (
             hasattr(self, 'error_humanizer') and self.error_humanizer is not None
         ) or not self.config.enable_error_humanization
+
+        # Check Enterprise Foundation components
+        status['enterprise_processor'] = (
+            hasattr(self, 'enterprise') and self.enterprise is not None
+        )
+        status['certified_answers'] = (
+            hasattr(self, 'certified_system') and self.certified_system is not None
+        ) or not self.config.enable_certified_answers
+        status['protocol_guard'] = (
+            hasattr(self, 'protocol_guard') and self.protocol_guard is not None
+        ) or not self.config.enable_protocol_guard
+        status['view_router'] = (
+            hasattr(self, 'view_router') and self.view_router is not None
+        ) or not self.config.enable_view_routing
+        status['example_store'] = (
+            hasattr(self, 'example_store') and self.example_store is not None
+        ) or not self.config.enable_example_learning
+        status['audit_logger'] = (
+            hasattr(self, 'audit_logger') and self.audit_logger is not None
+        ) or not self.config.enable_enterprise_audit
 
         return status
 
@@ -2102,7 +2373,16 @@ def create_pipeline(
     # Factory 4.5: LLM-Enhanced Features
     enable_synonym_resolution: bool = True,
     enable_explanation_enrichment: bool = True,
-    enable_error_humanization: bool = True
+    enable_error_humanization: bool = True,
+    # Enterprise Foundation Components
+    enable_certified_answers: bool = True,
+    enable_protocol_guard: bool = True,
+    enable_view_routing: bool = True,
+    enable_helpful_refusals: bool = True,
+    enable_enterprise_audit: bool = True,
+    enable_example_learning: bool = True,
+    learning_db_path: str = "data/learning.db",
+    enterprise_audit_db_path: str = "data/audit.db"
 ) -> InferencePipeline:
     """
     Factory function to create a configured pipeline.
@@ -2126,6 +2406,14 @@ def create_pipeline(
         enable_synonym_resolution: Enable LLM-suggested synonyms validated against data
         enable_explanation_enrichment: Enable metadata-based column explanations
         enable_error_humanization: Enable natural language error messages
+        enable_certified_answers: Enable certified answer bypass (98%+ match skips LLM)
+        enable_protocol_guard: Enable protocol guard (resolve ambiguous clinical terms)
+        enable_view_routing: Enable view routing (route complex queries to golden views)
+        enable_helpful_refusals: Enable helpful refusals (actionable guidance)
+        enable_enterprise_audit: Enable enterprise audit logging (21 CFR Part 11)
+        enable_example_learning: Enable example-based learning
+        learning_db_path: Path for learning database
+        enterprise_audit_db_path: Path for audit database
 
     Returns:
         Configured InferencePipeline (uses Claude for SQL generation)
@@ -2151,7 +2439,16 @@ def create_pipeline(
         # Factory 4.5: LLM-Enhanced Features
         enable_synonym_resolution=enable_synonym_resolution,
         enable_explanation_enrichment=enable_explanation_enrichment,
-        enable_error_humanization=enable_error_humanization
+        enable_error_humanization=enable_error_humanization,
+        # Enterprise Foundation Components
+        enable_certified_answers=enable_certified_answers,
+        enable_protocol_guard=enable_protocol_guard,
+        enable_view_routing=enable_view_routing,
+        enable_helpful_refusals=enable_helpful_refusals,
+        enable_enterprise_audit=enable_enterprise_audit,
+        enable_example_learning=enable_example_learning,
+        learning_db_path=learning_db_path,
+        enterprise_audit_db_path=enterprise_audit_db_path
     )
 
     return InferencePipeline(
