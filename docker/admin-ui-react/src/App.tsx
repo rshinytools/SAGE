@@ -21,6 +21,7 @@ import { ChatPage } from "@/features/chat/ChatPage";
 import { CDISCLibraryPage } from "@/features/cdisc-library/CDISCLibraryPage";
 import { GoldenSuitePage } from "@/features/golden-suite/GoldenSuitePage";
 import { DocumentationPage } from "@/features/documentation/DocumentationPage";
+import { LearningPage } from "@/features/learning/LearningPage";
 import { useAuthStore } from "@/stores/authStore";
 
 const queryClient = new QueryClient({
@@ -101,6 +102,7 @@ export default function App() {
             <Route path="/dictionary" element={<DictionaryManagerPage />} />
             <Route path="/meddra" element={<MedDRALibraryPage />} />
             <Route path="/golden-suite" element={<GoldenSuitePage />} />
+            <Route path="/learning" element={<LearningPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
 

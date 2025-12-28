@@ -18,6 +18,7 @@ import {
   Pill,
   FlaskConical,
   HelpCircle,
+  Brain,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -46,6 +47,7 @@ const menuItems: NavItem[] = [
   { path: "/dictionary", label: "Dictionary", icon: BookOpen, permission: "*" },
   { path: "/meddra", label: "MedDRA Library", icon: Pill, permission: "*" },
   { path: "/golden-suite", label: "Golden Test Suite", icon: FlaskConical, permission: "*" },
+  { path: "/learning", label: "AI Learning", icon: Brain, permission: "*" },
   { path: "/users", label: "Users", icon: Users, permission: "user_admin" },
   { path: "/audit", label: "Audit Logs", icon: ScrollText, permission: "user_admin" },
   { path: "/settings", label: "Settings", icon: Settings, permission: "*" },

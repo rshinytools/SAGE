@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { CodeBlock } from "./CodeBlock";
 import { TypingIndicator } from "./TypingIndicator";
+import { FeedbackButtons } from "./FeedbackButtons";
 import type { ChatMessage } from "@/types/chat";
 
 interface MessageBubbleProps {
@@ -318,6 +319,17 @@ export function MessageBubble({ message, onOptionClick }: MessageBubbleProps) {
                 {showMetadata ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 Details
               </button>
+
+              {/* Feedback Buttons - only show for pipeline responses with SQL */}
+              {isPipelineResponse && (message.metadata.sql || message.metadata.sql_query) && (
+                <div className="border-l border-gray-200 dark:border-gray-700 pl-2 ml-1">
+                  <FeedbackButtons
+                    messageId={message.id}
+                    question={message.metadata.original_question || ""}
+                    sql={message.metadata.sql || message.metadata.sql_query}
+                  />
+                </div>
+              )}
             </div>
 
             {/* SQL Display */}
