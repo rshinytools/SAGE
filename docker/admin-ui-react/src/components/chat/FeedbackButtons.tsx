@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ThumbsUp, ThumbsDown, Edit3, Flag, Check, X, Loader2 } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Edit3, Flag, Check, Loader2 } from "lucide-react";
 import { feedbackApi } from "@/api/feedback";
 
 interface FeedbackButtonsProps {

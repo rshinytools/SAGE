@@ -6,7 +6,6 @@ import {
   Trash2,
   RefreshCw,
   Search,
-  Filter,
   ChevronDown,
   ChevronUp,
   AlertCircle,
@@ -35,7 +34,7 @@ export function LearningPage() {
   // Examples state
   const [examples, setExamples] = useState<LearningExample[]>([]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [categoryFilter] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedExample, setExpandedExample] = useState<string | null>(null);
 

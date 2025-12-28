@@ -325,7 +325,7 @@ export function MessageBubble({ message, onOptionClick }: MessageBubbleProps) {
                 <div className="border-l border-gray-200 dark:border-gray-700 pl-2 ml-1">
                   <FeedbackButtons
                     messageId={message.id}
-                    question={message.metadata.original_question || ""}
+                    question={(message.metadata as Record<string, unknown>).original_question as string || ""}
                     sql={message.metadata.sql || message.metadata.sql_query}
                   />
                 </div>
